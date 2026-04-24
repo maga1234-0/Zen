@@ -131,7 +131,7 @@ export const Reports = () => {
     const finalY = (doc as any).lastAutoTable.finalY || 45;
     doc.setFontSize(12);
     doc.setTextColor(0, 0, 0);
-    doc.setFont(undefined, 'bold');
+    doc.setFont('helvetica', 'bold');
     doc.text(data.summary, 14, finalY + 10);
     
     // Add footer
