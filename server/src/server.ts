@@ -32,10 +32,16 @@ app.use((err: any, req: express.Request, res: express.Response, next: express.Ne
   res.status(500).json({ message: 'Something went wrong!' });
 });
 
-app.listen(PORT, () => {
-  console.log(`🚀 Server running on port ${PORT}`);
-  console.log(`📝 User routes enabled`);
-  
-  // Start scheduled jobs
-  startScheduledJobs();
-});
+// Only start server if not in Vercel serverless environment
+if (process.env.VERCEL !== '1') {
+  app.listen(PORT, () => {
+    console.log(`🚀 Server running on port ${PORT}`);
+    console.log(`📝 User routes enabled`);
+    
+    // Start scheduled jobs
+    startScheduledJobs();
+  });
+}
+
+// Export for Vercel serverless
+export default app;
