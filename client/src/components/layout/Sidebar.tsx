@@ -11,7 +11,6 @@ import {
   ChevronLeft,
   Hotel,
   Bell,
-  ClipboardList,
   DoorOpen,
   FileText,
   Sparkles,

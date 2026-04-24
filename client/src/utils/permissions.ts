@@ -71,12 +71,6 @@ const rolePermissions: Record<Role, Permission[]> = {
     'reports.view', 'reports.financial', 'reports.export',
     'notifications.view',
   ],
-  maintenance: [
-    'dashboard.view',
-    'rooms.view',
-    'maintenance.view', 'maintenance.update',
-    'notifications.view',
-  ],
 };
 
 export const hasPermission = (userRole: string, permission: Permission): boolean => {

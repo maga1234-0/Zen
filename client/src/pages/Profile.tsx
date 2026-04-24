@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
-import { User, Mail, Shield, Calendar, Lock, Eye, EyeOff, Camera, Upload } from 'lucide-react';
+import { User, Mail, Shield, Calendar, Lock, Eye, EyeOff, Camera } from 'lucide-react';
 import { useAuthStore } from '@/store/authStore';
 import { useToastContext } from '@/App';
 import api from '@/services/api';
@@ -86,7 +86,7 @@ export const Profile = () => {
         
         try {
           // Upload to server
-          const response = await api.put('/users/profile-picture', {
+          await api.put('/users/profile-picture', {
             profilePicture: base64String,
           });
 

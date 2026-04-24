@@ -27,7 +27,7 @@ export const Staff = () => {
   });
   const queryClient = useQueryClient();
 
-  const { data: staff, isLoading, refetch } = useQuery({
+  const { data: staff, isLoading } = useQuery({
     queryKey: ['staff'],
     queryFn: async () => {
       const res = await api.get('/users');
@@ -425,14 +425,13 @@ export const Staff = () => {
                   </div>
 
                   <div className="flex gap-3 pt-4">
-                    <Button
+                    <button
                       type="button"
-                      variant="outline"
                       onClick={() => setShowAddModal(false)}
-                      className="flex-1 dark:border-slate-600 dark:text-slate-200"
+                      className="flex-1 px-4 py-2 border dark:border-slate-600 dark:text-slate-200 rounded-lg hover:bg-gray-100 dark:hover:bg-slate-700"
                     >
                       Cancel
-                    </Button>
+                    </button>
                     <Button
                       type="submit"
                       disabled={isSubmitting}
@@ -543,14 +542,13 @@ export const Staff = () => {
                   </div>
 
                   <div className="flex gap-3 pt-4">
-                    <Button
+                    <button
                       type="button"
-                      variant="outline"
                       onClick={() => setShowEditModal(false)}
-                      className="flex-1 dark:border-slate-600 dark:text-slate-200"
+                      className="flex-1 px-4 py-2 border dark:border-slate-600 dark:text-slate-200 rounded-lg hover:bg-gray-100 dark:hover:bg-slate-700"
                     >
                       Cancel
-                    </Button>
+                    </button>
                     <Button
                       type="submit"
                       disabled={updateStaffMutation.isPending}

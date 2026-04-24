@@ -140,11 +140,13 @@ export const Reports = () => {
     doc.setTextColor(150, 150, 150);
     for (let i = 1; i <= pageCount; i++) {
       doc.setPage(i);
+      const pageWidth = doc.internal.pageSize.getWidth();
+      const pageHeight = doc.internal.pageSize.getHeight();
       doc.text(
         `Page ${i} of ${pageCount}`,
-        doc.internal.pageSize.getWidth() / 2,
-        doc.internal.pageSize.getHeight() - 10,
-        { align: 'center' }
+        pageWidth / 2,
+        pageHeight - 10,
+        { align: 'center' } as any
       );
     }
     
