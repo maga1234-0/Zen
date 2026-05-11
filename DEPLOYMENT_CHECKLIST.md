@@ -18,9 +18,9 @@
 ## 📋 Next Steps for Deployment
 
 ### 1. Setup PostgreSQL Database (Supabase)
-- [ ] Create Supabase account at https://supabase.com
-- [ ] Create new project
-- [ ] Wait for database to be ready
+- [x] ✅ Supabase project created: `hxvhkhwhhfwtthujkahx.supabase.co`
+- [x] ✅ Anon key obtained
+- [ ] Get Database Password from Supabase dashboard (Settings → Database)
 - [ ] Get Connection String from Settings → Database
 - [ ] Run SQL scripts in SQL Editor (in order):
   1. `database/schema.sql`
@@ -47,12 +47,13 @@
 ### 3. Configure Environment Variables in Vercel
 - [ ] Add these environment variables:
   ```
-  DATABASE_URL=postgresql://user:password@host:5432/database
+  DATABASE_URL=postgresql://postgres:[YOUR_PASSWORD]@db.hxvhkhwhhfwtthujkahx.supabase.co:5432/postgres
   JWT_SECRET=your-super-secret-jwt-key-change-this-in-production
   NODE_ENV=production
   PORT=5000
   CORS_ORIGIN=https://your-app-name.vercel.app
   ```
+  **Replace `[YOUR_PASSWORD]` with your Supabase database password**
 
 ### 4. Deploy & Test
 - [ ] Click "Deploy" in Vercel

@@ -4,5 +4,8 @@
   "scripts": {
     "install-all": "cd client && npm install && cd ../server && npm install",
     "build": "cd client && npm run build"
+  },
+  "devDependencies": {
+    "@vercel/node": "^3.0.0"
   }
 }

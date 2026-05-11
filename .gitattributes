@@ -1,0 +1,2 @@
+# Set execute permissions for shell scripts
+build-vercel.sh text eol=lf

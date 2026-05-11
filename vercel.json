@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "buildCommand": "./build-vercel.sh",
+  "buildCommand": "bash build-vercel.sh",
   "outputDirectory": "client/dist",
   "installCommand": "cd client && npm install && cd ../server && npm install",
   "framework": null,
