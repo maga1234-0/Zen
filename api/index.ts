@@ -1,4 +1,4 @@
-import app from '../server/src/server';
+import app from '../server/dist/server';
 
 // For Vercel serverless functions
 export default async (req: any, res: any) => {
