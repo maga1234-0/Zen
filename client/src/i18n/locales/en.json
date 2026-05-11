@@ -135,5 +135,18 @@
     "confirm": "Confirm",
     "yes": "Yes",
     "no": "No"
+  },
+  "login": {
+    "title": "Hotel PMS",
+    "subtitle": "Premium Property Management System",
+    "email": "Email Address",
+    "password": "Password",
+    "signIn": "Sign In",
+    "signingIn": "Signing in...",
+    "loginFailed": "Login failed",
+    "demoAccounts": "Quick Access Demo Accounts",
+    "clickToFill": "Click to fill",
+    "passwordLabel": "Password",
+    "footer": "Built with ❤️ using React, TypeScript & Supabase"
   }
 }

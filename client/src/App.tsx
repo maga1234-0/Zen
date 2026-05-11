@@ -20,6 +20,7 @@ import { useAuthStore } from '@/store/authStore';
 import { useSettingsStore } from '@/store/settingsStore';
 import { useToast } from '@/hooks/useToast';
 import { createContext, useContext, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -59,6 +60,8 @@ const ProtectedLayout = ({ children }: { children: React.ReactNode }) => {
 function App() {
   const toast = useToast();
   const applyTheme = useSettingsStore((state) => state.applyTheme);
+  const language = useSettingsStore((state) => state.language);
+  const { i18n } = useTranslation();
 
   // Apply theme on mount and when system preference changes
   useEffect(() => {
@@ -71,6 +74,15 @@ function App() {
 
     return () => mediaQuery.removeEventListener('change', handleChange);
   }, [applyTheme]);
+
+  // Update i18n language when settings store language changes
+  useEffect(() => {
+    console.log('App: language changed to:', language, 'i18n current language:', i18n.language);
+    if (language && i18n.language !== language) {
+      console.log('App: Changing i18n language to:', language);
+      i18n.changeLanguage(language);
+    }
+  }, [language, i18n]);
 
   return (
     <QueryClientProvider client={queryClient}>

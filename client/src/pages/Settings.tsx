@@ -178,6 +178,7 @@ export const Settings = () => {
       });
       
       // Change i18n language
+      console.log('Settings: Changing i18n language to:', newSettings.language);
       i18n.changeLanguage(newSettings.language);
     }
   }, [userSettings, i18n]);
@@ -222,6 +223,7 @@ export const Settings = () => {
       });
       
       // Change i18n language immediately
+      console.log('Settings (save): Changing i18n language to:', settings.language);
       i18n.changeLanguage(settings.language);
       
       toast.success(t('settings.settingsSaved'));
@@ -237,6 +239,12 @@ export const Settings = () => {
   const handleChange = (field: keyof SettingsData, value: any) => {
     setSettings((prev) => ({ ...prev, [field]: value }));
     setHasChanges(true);
+    
+    // Update i18n language immediately when language is changed
+    if (field === 'language') {
+      console.log('Settings (dropdown): Changing i18n language to:', value);
+      i18n.changeLanguage(value);
+    }
   };
 
   const handleSave = () => {

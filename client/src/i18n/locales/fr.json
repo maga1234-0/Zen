@@ -135,5 +135,18 @@
     "confirm": "Confirmer",
     "yes": "Oui",
     "no": "Non"
+  },
+  "login": {
+    "title": "Système de Gestion Hôtelière",
+    "subtitle": "Système Premium de Gestion de Propriété",
+    "email": "Adresse e-mail",
+    "password": "Mot de passe",
+    "signIn": "Se connecter",
+    "signingIn": "Connexion en cours...",
+    "loginFailed": "Échec de la connexion",
+    "demoAccounts": "Comptes de démonstration rapide",
+    "clickToFill": "Cliquer pour remplir",
+    "passwordLabel": "Mot de passe",
+    "footer": "Construit avec ❤️ en utilisant React, TypeScript & Supabase"
   }
 }

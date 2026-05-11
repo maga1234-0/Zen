@@ -5,6 +5,7 @@ import { Hotel, Mail, Lock, Eye, EyeOff, Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { useAuthStore } from '@/store/authStore';
 import api from '@/services/api';
+import { useTranslation } from 'react-i18next';
 
 export const Login = () => {
   const [email, setEmail] = useState('');
@@ -14,6 +15,7 @@ export const Login = () => {
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
   const { setAuth } = useAuthStore();
+  const { t } = useTranslation();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -25,7 +27,7 @@ export const Login = () => {
       setAuth(response.data.user, response.data.token);
       navigate('/dashboard');
     } catch (err: any) {
-      setError(err.response?.data?.message || 'Login failed');
+      setError(err.response?.data?.message || t('login.loginFailed'));
     } finally {
       setLoading(false);
     }
@@ -109,10 +111,10 @@ export const Login = () => {
             className="text-center mb-8"
           >
             <h1 className="text-4xl font-bold bg-gradient-to-r from-seafoam-600 to-greybrown-600 dark:from-seafoam-400 dark:to-gold-400 bg-clip-text text-transparent mb-2">
-              Hotel PMS
+              {t('login.title')}
             </h1>
             <p className="text-gray-600 dark:text-slate-300 text-sm">
-              Premium Property Management System
+              {t('login.subtitle')}
             </p>
           </motion.div>
 
@@ -137,7 +139,7 @@ export const Login = () => {
               transition={{ delay: 0.4 }}
             >
               <label className="block text-sm font-semibold text-gray-700 dark:text-slate-200 mb-2">
-                Email Address
+                {t('login.email')}
               </label>
               <div className="relative group">
                 <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 dark:text-slate-400 group-focus-within:text-seafoam-500 transition-colors" />
@@ -159,7 +161,7 @@ export const Login = () => {
               transition={{ delay: 0.5 }}
             >
               <label className="block text-sm font-semibold text-gray-700 dark:text-slate-200 mb-2">
-                Password
+                {t('login.passwordLabel')}
               </label>
               <div className="relative group">
                 <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 dark:text-slate-400 group-focus-within:text-seafoam-500 transition-colors" />
@@ -196,10 +198,10 @@ export const Login = () => {
                 {loading ? (
                   <div className="flex items-center justify-center gap-2">
                     <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                    Signing in...
+                    {t('login.signingIn')}
                   </div>
                 ) : (
-                  'Sign In'
+                  t('login.signIn')
                 )}
               </Button>
             </motion.div>
@@ -214,7 +216,7 @@ export const Login = () => {
           >
             <p className="text-xs font-semibold text-gray-600 dark:text-slate-300 mb-3 flex items-center gap-2">
               <Sparkles className="w-4 h-4 text-gold-400" />
-              Quick Access Demo Accounts
+              {t('login.demoAccounts')}
             </p>
             <div className="space-y-2">
               {demoAccounts.map((account, index) => (
@@ -234,7 +236,7 @@ export const Login = () => {
                     </div>
                   </div>
                   <div className="text-xs text-gray-400 dark:text-slate-400 group-hover:text-seafoam-500 transition-colors">
-                    Click to fill
+                    {t('login.clickToFill')}
                   </div>
                 </motion.button>
               ))}
@@ -252,7 +254,7 @@ export const Login = () => {
           transition={{ delay: 0.9 }}
           className="text-center text-sm text-gray-600 dark:text-slate-300 mt-6"
         >
-          Built with ❤️ using React, TypeScript & Supabase
+          {t('login.footer')}
         </motion.p>
       </motion.div>
     </div>

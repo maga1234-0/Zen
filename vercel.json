@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "buildCommand": "cd client && npm install && npm run build",
+  "buildCommand": "./build-vercel.sh",
   "outputDirectory": "client/dist",
-  "installCommand": "npm install --prefix client && npm install --prefix server",
+  "installCommand": "cd client && npm install && cd ../server && npm install",
   "framework": null,
   "functions": {
     "api/**/*.ts": {
