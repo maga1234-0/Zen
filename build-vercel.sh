@@ -21,3 +21,7 @@ npx tsc
 cd ..
 
 echo "Build complete!"
+
+
+# Add timestamp to verify new deployment
+echo "Build timestamp: $(date)"
