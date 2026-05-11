@@ -1,0 +1,3 @@
+This file forces Vercel to rebuild with latest configuration.
+Commit: a3a3456 has correct build command: "cd client && npm run build && cd ../server && npm run build"
+Old commit a33c5f7 has wrong build command: "./build-vercel.sh"
