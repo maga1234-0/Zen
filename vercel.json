@@ -1,28 +1,23 @@
 {
   "version": 2,
-  "buildCommand": "cd client && npm run build && cd ../server && npm run build",
-  "outputDirectory": "client/dist",
   "installCommand": "cd client && npm install && cd ../server && npm install",
-  "framework": null,
-  "functions": {
-    "api/**/*.ts": {
-      "runtime": "@vercel/node@3.0.0"
-    }
-  },
-  "rewrites": [
+  "builds": [
     {
-      "source": "/api/:path*",
-      "destination": "/api"
+      "src": "client/package.json",
+      "use": "@vercel/static-build",
+      "config": {
+        "distDir": "dist"
+      }
+    },
+    {
+      "src": "api/**/*.ts",
+      "use": "@vercel/node"
     }
   ],
   "routes": [
     {
       "src": "/api/(.*)",
-      "dest": "/api/index.ts"
-    },
-    {
-      "src": "/health",
-      "dest": "/api/index.ts"
+      "dest": "/api"
     },
     {
       "handle": "filesystem"
