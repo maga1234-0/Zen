@@ -6,8 +6,15 @@ import { Pool } from 'pg';
 // Create PostgreSQL connection pool
 let connectionConfig: any;
 
+console.log('🔧 Database configuration check:');
+console.log('   DATABASE_URL exists:', !!process.env.DATABASE_URL);
+console.log('   DB_HOST exists:', !!process.env.DB_HOST);
+console.log('   DB_USER exists:', !!process.env.DB_USER);
+console.log('   NODE_ENV:', process.env.NODE_ENV);
+
 if (process.env.DATABASE_URL) {
   // Use DATABASE_URL if provided (common for Vercel, Heroku, etc.)
+  console.log('🔧 Using DATABASE_URL connection');
   connectionConfig = {
     connectionString: process.env.DATABASE_URL,
     ssl: {
@@ -17,12 +24,13 @@ if (process.env.DATABASE_URL) {
     idleTimeoutMillis: 30000,
     connectionTimeoutMillis: 10000,
   };
-} else {
+} else if (process.env.DB_HOST) {
   // Use individual connection parameters
+  console.log('🔧 Using individual DB connection parameters');
   connectionConfig = {
     host: process.env.DB_HOST,
-    port: parseInt(process.env.DB_PORT || '6543'),
-    database: process.env.DB_NAME,
+    port: parseInt(process.env.DB_PORT || '5432'), // Changed from 6543 to 5432 for Supabase
+    database: process.env.DB_NAME || 'postgres',
     user: process.env.DB_USER,
     password: process.env.DB_PASSWORD,
     ssl: process.env.DB_HOST?.includes('supabase.com') ? {
@@ -32,6 +40,9 @@ if (process.env.DATABASE_URL) {
     idleTimeoutMillis: 30000,
     connectionTimeoutMillis: 10000,
   };
+} else {
+  console.error('❌ No database configuration found!');
+  console.error('   Set either DATABASE_URL or DB_HOST environment variables');
 }
 
 const pool = new Pool(connectionConfig);
@@ -164,7 +175,9 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   } else if (path === '/api/test-db') {
     // Test database connection
     try {
+      console.log('🔧 Testing database connection...');
       const result = await pool.query('SELECT 1 as test, NOW() as time');
+      console.log('✅ Database connection successful');
       res.json({ 
         status: 'OK', 
         database: 'Connected',
@@ -173,20 +186,36 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           hasDatabaseUrl: !!process.env.DATABASE_URL,
           hasDbHost: !!process.env.DB_HOST,
           hasDbUser: !!process.env.DB_USER,
-          nodeEnv: process.env.NODE_ENV
-        }
+          nodeEnv: process.env.NODE_ENV,
+          databaseUrlFirst10: process.env.DATABASE_URL ? process.env.DATABASE_URL.substring(0, 50) + '...' : 'not set',
+          dbHost: process.env.DB_HOST || 'not set'
+        },
+        connectionConfig: connectionConfig ? {
+          using: process.env.DATABASE_URL ? 'DATABASE_URL' : 'individual',
+          host: connectionConfig.host || connectionConfig.connectionString?.substring(0, 50) + '...',
+          port: connectionConfig.port || 'from connection string'
+        } : 'No connection config'
       });
     } catch (error) {
+      console.error('❌ Database connection failed:', error);
       res.status(500).json({ 
         status: 'ERROR', 
         database: 'Connection failed',
         error: error.message,
+        errorStack: error.stack,
         envVars: {
           hasDatabaseUrl: !!process.env.DATABASE_URL,
           hasDbHost: !!process.env.DB_HOST,
           hasDbUser: !!process.env.DB_USER,
-          nodeEnv: process.env.NODE_ENV
-        }
+          nodeEnv: process.env.NODE_ENV,
+          databaseUrlFirst10: process.env.DATABASE_URL ? process.env.DATABASE_URL.substring(0, 50) + '...' : 'not set',
+          dbHost: process.env.DB_HOST || 'not set'
+        },
+        connectionConfig: connectionConfig ? {
+          using: process.env.DATABASE_URL ? 'DATABASE_URL' : 'individual',
+          host: connectionConfig.host || connectionConfig.connectionString?.substring(0, 50) + '...',
+          port: connectionConfig.port || 'from connection string'
+        } : 'No connection config'
       });
     }
   } else {
