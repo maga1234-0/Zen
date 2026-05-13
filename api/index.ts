@@ -173,11 +173,19 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     // Health check
     res.json({ status: 'OK', timestamp: new Date().toISOString() });
   } else if (path === '/api/test-db') {
-    // Test database connection
+    // Test database connection with multiple options
     try {
       console.log('🔧 Testing database connection...');
+      console.log('🔧 Environment variables:');
+      console.log('   DATABASE_URL exists:', !!process.env.DATABASE_URL);
+      console.log('   DB_HOST exists:', !!process.env.DB_HOST);
+      console.log('   DB_USER exists:', !!process.env.DB_USER);
+      console.log('   NODE_ENV:', process.env.NODE_ENV);
+      
+      // Try to connect
       const result = await pool.query('SELECT 1 as test, NOW() as time');
       console.log('✅ Database connection successful');
+      
       res.json({ 
         status: 'OK', 
         database: 'Connected',
@@ -188,34 +196,76 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           hasDbUser: !!process.env.DB_USER,
           nodeEnv: process.env.NODE_ENV,
           databaseUrlFirst10: process.env.DATABASE_URL ? process.env.DATABASE_URL.substring(0, 50) + '...' : 'not set',
-          dbHost: process.env.DB_HOST || 'not set'
+          dbHost: process.env.DB_HOST || 'not set',
+          dbUser: process.env.DB_USER || 'not set'
         },
         connectionConfig: connectionConfig ? {
           using: process.env.DATABASE_URL ? 'DATABASE_URL' : 'individual',
-          host: connectionConfig.host || connectionConfig.connectionString?.substring(0, 50) + '...',
+          host: connectionConfig.host || (connectionConfig.connectionString ? 'from connection string' : 'not set'),
           port: connectionConfig.port || 'from connection string'
         } : 'No connection config'
       });
     } catch (error) {
       console.error('❌ Database connection failed:', error);
+      
+      // Test alternative connections
+      const testResults = [];
+      
+      // Test 1: Try direct Supabase connection (from documentation)
+      try {
+        const testPool1 = new Pool({
+          connectionString: 'postgresql://postgres:QRHxAWQ3YOBeYmCW@db.sikmnuxzpozgljbndapt.supabase.co:5432/postgres',
+          ssl: { rejectUnauthorized: false }
+        });
+        const result1 = await testPool1.query('SELECT 1 as test');
+        testResults.push({ name: 'Documentation Supabase', status: 'OK', project: 'sikmnuxzpozgljbndapt' });
+        await testPool1.end();
+      } catch (err1) {
+        testResults.push({ name: 'Documentation Supabase', status: 'FAILED', error: err1.message, project: 'sikmnuxzpozgljbndapt' });
+      }
+      
+      // Test 2: Try .env Supabase connection
+      try {
+        const testPool2 = new Pool({
+          host: 'aws-0-eu-west-1.pooler.supabase.com',
+          port: 6543,
+          database: 'postgres',
+          user: 'postgres.bdahordvjnspfszwexnb',
+          password: 'LqDPYFn5FIUhEcN0',
+          ssl: { rejectUnauthorized: false }
+        });
+        const result2 = await testPool2.query('SELECT 1 as test');
+        testResults.push({ name: '.env Supabase', status: 'OK', project: 'bdahordvjnspfszwexnb' });
+        await testPool2.end();
+      } catch (err2) {
+        testResults.push({ name: '.env Supabase', status: 'FAILED', error: err2.message, project: 'bdahordvjnspfszwexnb' });
+      }
+      
       res.status(500).json({ 
         status: 'ERROR', 
         database: 'Connection failed',
         error: error.message,
-        errorStack: error.stack,
         envVars: {
           hasDatabaseUrl: !!process.env.DATABASE_URL,
           hasDbHost: !!process.env.DB_HOST,
           hasDbUser: !!process.env.DB_USER,
           nodeEnv: process.env.NODE_ENV,
           databaseUrlFirst10: process.env.DATABASE_URL ? process.env.DATABASE_URL.substring(0, 50) + '...' : 'not set',
-          dbHost: process.env.DB_HOST || 'not set'
+          dbHost: process.env.DB_HOST || 'not set',
+          dbUser: process.env.DB_USER || 'not set'
         },
         connectionConfig: connectionConfig ? {
           using: process.env.DATABASE_URL ? 'DATABASE_URL' : 'individual',
-          host: connectionConfig.host || connectionConfig.connectionString?.substring(0, 50) + '...',
+          host: connectionConfig.host || (connectionConfig.connectionString ? 'from connection string' : 'not set'),
           port: connectionConfig.port || 'from connection string'
-        } : 'No connection config'
+        } : 'No connection config',
+        alternativeTests: testResults,
+        recommendations: [
+          '1. Check if environment variables are set in Vercel',
+          '2. Verify Supabase database is running',
+          '3. Check if password is correct',
+          '4. Ensure SSL is enabled (required for Supabase)'
+        ]
       });
     }
   } else {
