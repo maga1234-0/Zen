@@ -19,7 +19,7 @@ import { ToastContainer } from '@/components/ui/Toast';
 import { useAuthStore } from '@/store/authStore';
 import { useSettingsStore } from '@/store/settingsStore';
 import { useToast } from '@/hooks/useToast';
-import { createContext, useContext, useEffect } from 'react';
+import { createContext, useContext, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
 const queryClient = new QueryClient({
@@ -41,8 +41,48 @@ export const useToastContext = () => {
 
 const ProtectedLayout = ({ children }: { children: React.ReactNode }) => {
   const { token } = useAuthStore();
+  console.log('ProtectedLayout - token from store:', token ? 'present' : 'missing');
 
-  if (!token) {
+  // Also check localStorage directly as a fallback
+  const [checkingLocalStorage, setCheckingLocalStorage] = useState(true);
+  const [localStorageToken, setLocalStorageToken] = useState<string | null>(null);
+
+  useEffect(() => {
+    const checkLocalStorage = () => {
+      const authStorage = localStorage.getItem('auth-storage');
+      if (authStorage) {
+        try {
+          const { state } = JSON.parse(authStorage);
+          setLocalStorageToken(state?.token || null);
+          console.log('ProtectedLayout - token from localStorage:', state?.token ? 'present' : 'missing');
+        } catch (error) {
+          console.error('Failed to parse auth storage:', error);
+        }
+      }
+      setCheckingLocalStorage(false);
+    };
+
+    checkLocalStorage();
+  }, []);
+
+  // Show loading while checking
+  if (checkingLocalStorage) {
+    return (
+      <div className="flex h-screen items-center justify-center bg-mint-50 dark:bg-slate-900">
+        <div className="text-center">
+          <div className="w-16 h-16 border-4 border-seafoam-400 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-gray-600 dark:text-slate-300">Loading...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Check both store and localStorage
+  const hasToken = token || localStorageToken;
+  console.log('ProtectedLayout - hasToken:', hasToken ? 'yes' : 'no');
+
+  if (!hasToken) {
+    console.log('ProtectedLayout - redirecting to login');
     return <Navigate to="/login" replace />;
   }
 

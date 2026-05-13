@@ -45,3 +45,7 @@ if (process.env.VERCEL !== '1') {
 
 // Export for Vercel serverless
 export default app;
+// Trigger nodemon restart
+// Trigger restart
+// Restart for CORS change
+// Restart for CORS change

@@ -2,9 +2,7 @@ import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { Bell, Lock, Globe, Palette, Edit3, Trash2 } from 'lucide-react';
 import { useState, useEffect, useRef } from 'react';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import api from '@/services/api';
-import { useToastContext } from '@/App';
+import { useMutation } from '@tanstack/react-query';
 import { useAuthStore } from '@/store/authStore';
 import { useSettingsStore } from '@/store/settingsStore';
 import { useTranslation } from 'react-i18next';
@@ -26,8 +24,6 @@ interface SettingsData {
 
 export const Settings = () => {
   const { t, i18n } = useTranslation();
-  const toast = useToastContext();
-  const queryClient = useQueryClient();
   const { user } = useAuthStore();
   const settingsStore = useSettingsStore();
   
@@ -126,113 +122,77 @@ export const Settings = () => {
     const signatureData = canvas.toDataURL('image/png');
     handleChange('signature', signatureData);
     setShowSignaturePad(false);
-    toast.success('Signature saved! Remember to click "Save Changes" to persist it.');
+    console.log('Signature saved! Remember to click "Save Changes" to persist it.');
+    alert('Signature saved! Remember to click "Save Changes" to persist it.');
   };
 
   const removeSignature = () => {
     handleChange('signature', '');
-    toast.info('Signature removed! Remember to click "Save Changes".');
+    console.log('Signature removed! Remember to click "Save Changes".');
+    alert('Signature removed! Remember to click "Save Changes".');
   };
 
-  const { data: userSettings } = useQuery({
-    queryKey: ['user-settings', user?.id],
-    queryFn: async () => {
-      const res = await api.get('/users/settings');
-      return res.data;
-    },
-    enabled: !!user?.id,
-  });
-
+  // Use settings from store directly instead of API call
   useEffect(() => {
-    if (userSettings) {
-      const newSettings = {
-        hotelName: userSettings.hotel_name || 'Grand Seafoam Hotel',
-        hotelAddress: userSettings.hotel_address || '123 Luxury Avenue',
-        hotelCity: userSettings.hotel_city || 'Paradise City, PC 12345',
-        hotelPhone: userSettings.hotel_phone || '+1 (555) 123-4567',
-        hotelEmail: userSettings.hotel_email || 'info@grandhotel.com',
-        timeZone: userSettings.time_zone || 'UTC-5 (Eastern Time)',
-        emailNotifications: userSettings.email_notifications ?? true,
-        bookingAlerts: userSettings.booking_alerts ?? true,
-        paymentNotifications: userSettings.payment_notifications ?? true,
-        theme: userSettings.theme || 'Dark',
-        language: userSettings.language || 'English',
-        signature: userSettings.signature || '',
-      };
-      setSettings(newSettings);
-      
-      // Update settings store and i18n language
-      settingsStore.setSettings({
-        hotelName: newSettings.hotelName,
-        hotelAddress: newSettings.hotelAddress,
-        hotelCity: newSettings.hotelCity,
-        hotelPhone: newSettings.hotelPhone,
-        hotelEmail: newSettings.hotelEmail,
-        timeZone: newSettings.timeZone,
-        emailNotifications: newSettings.emailNotifications,
-        bookingAlerts: newSettings.bookingAlerts,
-        paymentNotifications: newSettings.paymentNotifications,
-        theme: newSettings.theme as any,
-        language: newSettings.language,
-        signature: newSettings.signature,
-      });
-      
-      // Change i18n language
-      console.log('Settings: Changing i18n language to:', newSettings.language);
-      i18n.changeLanguage(newSettings.language);
-    }
-  }, [userSettings, i18n]);
+    console.log('Settings: Loading settings from store');
+    const storeSettings = {
+      hotelName: settingsStore.hotelName,
+      hotelAddress: settingsStore.hotelAddress,
+      hotelCity: settingsStore.hotelCity,
+      hotelPhone: settingsStore.hotelPhone,
+      hotelEmail: settingsStore.hotelEmail,
+      timeZone: settingsStore.timeZone,
+      emailNotifications: settingsStore.emailNotifications,
+      bookingAlerts: settingsStore.bookingAlerts,
+      paymentNotifications: settingsStore.paymentNotifications,
+      theme: settingsStore.theme,
+      language: settingsStore.language,
+      signature: settingsStore.signature || '',
+    };
+    
+    console.log('Settings: Store settings:', storeSettings);
+    setSettings(storeSettings);
+    
+    // Change i18n language
+    console.log('Settings: Changing i18n language to:', storeSettings.language);
+    i18n.changeLanguage(storeSettings.language);
+  }, [settingsStore, i18n]);
 
   const saveSettingsMutation = useMutation({
     mutationFn: async (data: SettingsData) => {
-      console.log('Saving settings...', { ...data, signature: data.signature ? 'BASE64_IMAGE' : '' });
-      const response = await api.put('/users/settings', {
-        hotel_name: data.hotelName,
-        hotel_address: data.hotelAddress,
-        hotel_city: data.hotelCity,
-        hotel_phone: data.hotelPhone,
-        hotel_email: data.hotelEmail,
-        time_zone: data.timeZone,
-        email_notifications: data.emailNotifications,
-        booking_alerts: data.bookingAlerts,
-        payment_notifications: data.paymentNotifications,
-        theme: data.theme,
+      console.log('Saving settings to store...', { ...data, signature: data.signature ? 'BASE64_IMAGE' : '' });
+      // Save to settings store instead of API
+      settingsStore.setSettings({
+        hotelName: data.hotelName,
+        hotelAddress: data.hotelAddress,
+        hotelCity: data.hotelCity,
+        hotelPhone: data.hotelPhone,
+        hotelEmail: data.hotelEmail,
+        timeZone: data.timeZone,
+        emailNotifications: data.emailNotifications,
+        bookingAlerts: data.bookingAlerts,
+        paymentNotifications: data.paymentNotifications,
+        theme: data.theme as any,
         language: data.language,
         signature: data.signature,
       });
-      return response.data;
+      return { success: true };
     },
-    onSuccess: (data) => {
-      console.log('Settings saved successfully:', data);
-      queryClient.invalidateQueries({ queryKey: ['user-settings'] });
-      
-      // Update settings store to apply changes immediately
-      settingsStore.setSettings({
-        hotelName: settings.hotelName,
-        hotelAddress: settings.hotelAddress,
-        hotelCity: settings.hotelCity,
-        hotelPhone: settings.hotelPhone,
-        hotelEmail: settings.hotelEmail,
-        timeZone: settings.timeZone,
-        emailNotifications: settings.emailNotifications,
-        bookingAlerts: settings.bookingAlerts,
-        paymentNotifications: settings.paymentNotifications,
-        theme: settings.theme as any,
-        language: settings.language,
-        signature: settings.signature,
-      });
+    onSuccess: () => {
+      console.log('Settings saved successfully to store');
       
       // Change i18n language immediately
       console.log('Settings (save): Changing i18n language to:', settings.language);
       i18n.changeLanguage(settings.language);
       
-      toast.success(t('settings.settingsSaved'));
+      console.log('Settings saved successfully');
+      alert('Settings saved successfully');
       setHasChanges(false);
     },
     onError: (error: any) => {
       console.error('Settings save error:', error);
-      console.error('Error response:', error.response?.data);
-      toast.error(error.response?.data?.message || t('settings.settingsFailed'));
+      console.error('Settings save failed');
+      alert('Settings save failed');
     },
   });
 
@@ -252,24 +212,24 @@ export const Settings = () => {
   };
 
   const handleCancel = () => {
-    if (userSettings) {
-      setSettings({
-        hotelName: userSettings.hotel_name || 'Grand Seafoam Hotel',
-        hotelAddress: userSettings.hotel_address || '123 Luxury Avenue',
-        hotelCity: userSettings.hotel_city || 'Paradise City, PC 12345',
-        hotelPhone: userSettings.hotel_phone || '+1 (555) 123-4567',
-        hotelEmail: userSettings.hotel_email || 'info@grandhotel.com',
-        timeZone: userSettings.time_zone || 'UTC-5 (Eastern Time)',
-        emailNotifications: userSettings.email_notifications ?? true,
-        bookingAlerts: userSettings.booking_alerts ?? true,
-        paymentNotifications: userSettings.payment_notifications ?? true,
-        theme: userSettings.theme || 'Dark',
-        language: userSettings.language || 'English',
-        signature: userSettings.signature || '',
-      });
-    }
+    // Reset to current store values
+    setSettings({
+      hotelName: settingsStore.hotelName,
+      hotelAddress: settingsStore.hotelAddress,
+      hotelCity: settingsStore.hotelCity,
+      hotelPhone: settingsStore.hotelPhone,
+      hotelEmail: settingsStore.hotelEmail,
+      timeZone: settingsStore.timeZone,
+      emailNotifications: settingsStore.emailNotifications,
+      bookingAlerts: settingsStore.bookingAlerts,
+      paymentNotifications: settingsStore.paymentNotifications,
+      theme: settingsStore.theme,
+      language: settingsStore.language,
+      signature: settingsStore.signature || '',
+    });
     setHasChanges(false);
-    toast.info(t('settings.changesDiscarded'));
+    console.log('Changes discarded');
+    alert('Changes discarded');
   };
 
   return (

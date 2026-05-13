@@ -23,10 +23,36 @@ export const Login = () => {
     setLoading(true);
 
     try {
+      console.log('Attempting login with:', email);
       const response = await api.post('/auth/login', { email, password });
+      console.log('Login response:', response.data);
       setAuth(response.data.user, response.data.token);
+      
+      // Wait for Zustand to persist to localStorage
+      console.log('Waiting for state persistence...');
+      let attempts = 0;
+      while (attempts < 10) {
+        const authStorage = localStorage.getItem('auth-storage');
+        if (authStorage) {
+          try {
+            const { state } = JSON.parse(authStorage);
+            if (state?.token) {
+              console.log('Token found in localStorage, navigating to dashboard');
+              navigate('/dashboard');
+              return;
+            }
+          } catch (error) {
+            console.error('Failed to parse auth storage:', error);
+          }
+        }
+        await new Promise(resolve => setTimeout(resolve, 50));
+        attempts++;
+      }
+      
+      console.log('Timeout waiting for localStorage, navigating anyway');
       navigate('/dashboard');
     } catch (err: any) {
+      console.error('Login error:', err);
       setError(err.response?.data?.message || t('login.loginFailed'));
     } finally {
       setLoading(false);

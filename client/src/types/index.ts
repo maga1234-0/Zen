@@ -3,7 +3,6 @@ export interface User {
   email: string;
   firstName: string;
   lastName: string;
-  username: string;
   role: 'admin' | 'manager' | 'receptionist' | 'housekeeping' | 'maintenance' | 'accountant';
   profile_picture?: string;
 }

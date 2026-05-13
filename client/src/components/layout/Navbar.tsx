@@ -40,6 +40,13 @@ export const Navbar = () => {
     setDarkMode(!darkMode);
   };
 
+  const handleLogout = () => {
+    console.log('Logging out...');
+    logout();
+    setShowProfile(false);
+    navigate('/login');
+  };
+
   return (
     <nav className="bg-white dark:bg-slate-800 shadow-md px-6 py-4 sticky top-0 z-40">
       <div className="flex items-center justify-between">
@@ -118,7 +125,7 @@ export const Navbar = () => {
                     Profile
                   </button>
                   <button
-                    onClick={logout}
+                    onClick={handleLogout}
                     className="w-full px-4 py-2 text-left hover:bg-gray-100 dark:hover:bg-slate-700 flex items-center gap-2 text-red-500 dark:text-red-400"
                   >
                     <LogOut className="w-4 h-4" />
