@@ -1,7 +1,8 @@
 # Complete Supabase Database Setup
 
 ## Your Supabase Project
-**URL**: https://sikmnuxzpozgljbndapt.supabase.co
+**URL**: https://hxvhkhwhhfwtthujkahx.supabase.co
+**Project ID**: hxvhkhwhhfwtthujkahx
 
 ## Step 1: Access SQL Editor
 
@@ -71,9 +72,16 @@
 ## Step 4: Test Connection
 
 ### Get Connection String
-Your connection string is:
+Your connection strings are:
+
+**Connection Pooling (Recommended for production):**
 ```
-postgresql://postgres:QRHxAWQ3YOBeYmCW@db.sikmnuxzpozgljbndapt.supabase.co:5432/postgres
+postgresql://postgres.hxvhkhwhhfwtthujkahx:[YOUR-PASSWORD]@aws-1-eu-central-2.pooler.supabase.com:6543/postgres?pgbouncer=true
+```
+
+**Direct Connection (for migrations):**
+```
+postgresql://postgres.hxvhkhwhhfwtthujkahx:[YOUR-PASSWORD]@aws-1-eu-central-2.pooler.supabase.com:5432/postgres
 ```
 
 ### Test in Supabase
@@ -116,8 +124,14 @@ Now that your database is ready, proceed to Vercel deployment:
 ## Quick Reference
 
 ### Database URL
+**Connection Pooling (Recommended):**
 ```
-postgresql://postgres:QRHxAWQ3YOBeYmCW@db.sikmnuxzpozgljbndapt.supabase.co:5432/postgres
+postgresql://postgres.hxvhkhwhhfwtthujkahx:[YOUR-PASSWORD]@aws-1-eu-central-2.pooler.supabase.com:6543/postgres?pgbouncer=true
+```
+
+**Direct Connection:**
+```
+postgresql://postgres.hxvhkhwhhfwtthujkahx:[YOUR-PASSWORD]@aws-1-eu-central-2.pooler.supabase.com:5432/postgres
 ```
 
 ### Supabase Dashboard

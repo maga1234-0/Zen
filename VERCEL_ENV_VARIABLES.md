@@ -4,11 +4,16 @@
 
 When deploying to Vercel, add these environment variables:
 
-### DATABASE_URL
+### DATABASE_URL (Connection Pooling - Recommended)
 ```
-postgresql://postgres:[YOUR_DATABASE_PASSWORD]@db.hxvhkhwhhfwtthujkahx.supabase.co:5432/postgres
+postgresql://postgres.hxvhkhwhhfwtthujkahx:[YOUR_DATABASE_PASSWORD]@aws-1-eu-central-2.pooler.supabase.com:6543/postgres?pgbouncer=true
 ```
 **Replace `[YOUR_DATABASE_PASSWORD]` with your actual Supabase database password**
+
+### Alternative: Direct Connection
+```
+postgresql://postgres.hxvhkhwhhfwtthujkahx:[YOUR_DATABASE_PASSWORD]@aws-1-eu-central-2.pooler.supabase.com:5432/postgres
+```
 
 ### JWT_SECRET
 ```

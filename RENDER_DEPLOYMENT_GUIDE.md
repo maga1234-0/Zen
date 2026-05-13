@@ -39,7 +39,7 @@
 
    **DATABASE_URL:**
    ```
-   postgresql://postgres:QRHxAWQ3YOBeYmCW@db.sikmnuxzpozgljbndapt.supabase.co:5432/postgres
+   postgresql://postgres.hxvhkhwhhfwtthujkahx:[YOUR-PASSWORD]@aws-1-eu-central-2.pooler.supabase.com:6543/postgres?pgbouncer=true
    ```
 
    **JWT_SECRET:**

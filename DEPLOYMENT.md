@@ -7,13 +7,18 @@
 
 ## 1. Deploy Database (Supabase)
 
-Already done! Your Supabase project: `bdahordvjnspfszwexnb`
+**Your Supabase project:** `hxvhkhwhhfwtthujkahx`
+**Dashboard:** https://hxvhkhwhhfwtthujkahx.supabase.co
 
 **Setup:**
 1. Go to SQL Editor in Supabase
 2. Run `database/schema.sql`
 3. Run `database/seed.sql`
-4. Note your database credentials
+4. Get your database password from Settings → Database
+5. Use connection string:
+   ```
+   postgresql://postgres.hxvhkhwhhfwtthujkahx:[YOUR-PASSWORD]@aws-1-eu-central-2.pooler.supabase.com:6543/postgres?pgbouncer=true
+   ```
 
 ## 2. Deploy Backend (Railway or Render)
 

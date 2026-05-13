@@ -46,9 +46,9 @@
    
    Click "Environment Variables" and add:
 
-   **DATABASE_URL**:
+   **DATABASE_URL** (Connection Pooling - Recommended):
    ```
-   postgresql://postgres:QRHxAWQ3YOBeYmCW@db.sikmnuxzpozgljbndapt.supabase.co:5432/postgres
+   postgresql://postgres.hxvhkhwhhfwtthujkahx:[YOUR-PASSWORD]@aws-1-eu-central-2.pooler.supabase.com:6543/postgres?pgbouncer=true
    ```
 
    **JWT_SECRET**:
@@ -96,13 +96,15 @@ After first deployment:
 Copy these to Vercel:
 
 ```env
-DATABASE_URL=postgresql://postgres:QRHxAWQ3YOBeYmCW@db.sikmnuxzpozgljbndapt.supabase.co:5432/postgres
+DATABASE_URL=postgresql://postgres.hxvhkhwhhfwtthujkahx:[YOUR-PASSWORD]@aws-1-eu-central-2.pooler.supabase.com:6543/postgres?pgbouncer=true
 
 JWT_SECRET=your-super-secret-jwt-key-minimum-32-characters-long-please-change-this
 
 NODE_ENV=production
 
-VITE_API_URL=/api
+CORS_ORIGIN=https://zen-lyart.vercel.app
+
+VITE_API_URL=https://zen-lyart.vercel.app/api
 ```
 
 **Important**: Generate a secure JWT_SECRET:
