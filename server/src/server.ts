@@ -38,9 +38,12 @@ if (process.env.VERCEL !== '1') {
     console.log(`🚀 Server running on port ${PORT}`);
     console.log(`📝 User routes enabled`);
     
-    // Start scheduled jobs
+    // Start scheduled jobs (only in non-serverless environment)
     startScheduledJobs();
   });
+} else {
+  console.log('🚀 Server running in Vercel serverless mode');
+  console.log('⏰ Scheduled jobs disabled in serverless environment');
 }
 
 // Export for Vercel serverless

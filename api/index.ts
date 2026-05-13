@@ -69,6 +69,18 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
       console.log('🔐 Login attempt for:', email);
 
+      // Test database connection first
+      try {
+        await pool.query('SELECT 1 as test');
+        console.log('✅ Database connection test successful');
+      } catch (dbError) {
+        console.error('❌ Database connection failed:', dbError);
+        return res.status(500).json({ 
+          message: 'Database connection failed',
+          error: dbError.message 
+        });
+      }
+
       // Query user from database
       const result = await pool.query(
         'SELECT id, email, password_hash, first_name, last_name, role, is_active FROM users WHERE email = $1',
@@ -88,7 +100,6 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         return res.status(403).json({ message: 'Account is deactivated' });
       }
 
-      // Compare password
       const isValidPassword = await bcrypt.compare(password, user.password_hash);
       console.log('🔑 Password valid:', isValidPassword);
 
@@ -97,7 +108,6 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         return res.status(401).json({ message: 'Invalid credentials' });
       }
 
-      // Create JWT token
       const jwtSecret = process.env.JWT_SECRET || 'default-secret-key-change-in-production';
       
       const token = jwt.sign(
@@ -121,7 +131,17 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       res.status(200).json(responseData);
     } catch (error) {
       console.error('❌ Login error:', error);
-      res.status(500).json({ message: 'Server error' });
+      res.status(500).json({ 
+        message: 'Server error',
+        error: error.message,
+        envVars: {
+          hasDatabaseUrl: !!process.env.DATABASE_URL,
+          hasDbHost: !!process.env.DB_HOST,
+          hasDbUser: !!process.env.DB_USER,
+          hasJwtSecret: !!process.env.JWT_SECRET,
+          nodeEnv: process.env.NODE_ENV
+        }
+      });
     }
   } else if (path === '/api' || path === '/api/') {
     // API root
@@ -129,17 +149,53 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       status: 'OK', 
       message: 'Hotel PMS API is running on Vercel', 
       timestamp: new Date().toISOString(),
-      environment: process.env.NODE_ENV || 'development'
+      environment: process.env.NODE_ENV || 'development',
+      envVars: {
+        hasDatabaseUrl: !!process.env.DATABASE_URL,
+        hasDbHost: !!process.env.DB_HOST,
+        hasDbUser: !!process.env.DB_USER,
+        hasJwtSecret: !!process.env.JWT_SECRET,
+        nodeEnv: process.env.NODE_ENV
+      }
     });
   } else if (path === '/health') {
     // Health check
     res.json({ status: 'OK', timestamp: new Date().toISOString() });
+  } else if (path === '/api/test-db') {
+    // Test database connection
+    try {
+      const result = await pool.query('SELECT 1 as test, NOW() as time');
+      res.json({ 
+        status: 'OK', 
+        database: 'Connected',
+        time: result.rows[0].time,
+        envVars: {
+          hasDatabaseUrl: !!process.env.DATABASE_URL,
+          hasDbHost: !!process.env.DB_HOST,
+          hasDbUser: !!process.env.DB_USER,
+          nodeEnv: process.env.NODE_ENV
+        }
+      });
+    } catch (error) {
+      res.status(500).json({ 
+        status: 'ERROR', 
+        database: 'Connection failed',
+        error: error.message,
+        envVars: {
+          hasDatabaseUrl: !!process.env.DATABASE_URL,
+          hasDbHost: !!process.env.DB_HOST,
+          hasDbUser: !!process.env.DB_USER,
+          nodeEnv: process.env.NODE_ENV
+        }
+      });
+    }
   } else {
     // Not found
     res.status(404).json({ 
       message: 'Route not found', 
       path,
-      method: req.method 
+      method: req.method,
+      availableRoutes: ['/api/auth/login (POST)', '/api', '/health', '/api/test-db']
     });
   }
 }
