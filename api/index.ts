@@ -3,49 +3,22 @@ import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { Pool } from 'pg';
 
-// Create PostgreSQL connection pool
-let connectionConfig: any;
-
+// Create PostgreSQL connection pool (Vercel compatible)
 console.log('🔧 Database configuration check:');
 console.log('   DATABASE_URL exists:', !!process.env.DATABASE_URL);
-console.log('   DB_HOST exists:', !!process.env.DB_HOST);
-console.log('   DB_USER exists:', !!process.env.DB_USER);
 console.log('   NODE_ENV:', process.env.NODE_ENV);
 
-if (process.env.DATABASE_URL) {
-  // Use DATABASE_URL if provided (common for Vercel, Heroku, etc.)
-  console.log('🔧 Using DATABASE_URL connection');
-  connectionConfig = {
-    connectionString: process.env.DATABASE_URL,
-    ssl: {
-      rejectUnauthorized: false
-    },
-    max: 20,
-    idleTimeoutMillis: 30000,
-    connectionTimeoutMillis: 10000,
-  };
-} else if (process.env.DB_HOST) {
-  // Use individual connection parameters
-  console.log('🔧 Using individual DB connection parameters');
-  connectionConfig = {
-    host: process.env.DB_HOST,
-    port: parseInt(process.env.DB_PORT || '5432'), // Changed from 6543 to 5432 for Supabase
-    database: process.env.DB_NAME || 'postgres',
-    user: process.env.DB_USER,
-    password: process.env.DB_PASSWORD,
-    ssl: process.env.DB_HOST?.includes('supabase.com') ? {
-      rejectUnauthorized: false
-    } : false,
-    max: 20,
-    idleTimeoutMillis: 30000,
-    connectionTimeoutMillis: 10000,
-  };
-} else {
-  console.error('❌ No database configuration found!');
-  console.error('   Set either DATABASE_URL or DB_HOST environment variables');
+if (!process.env.DATABASE_URL) {
+  console.error('❌ DATABASE_URL environment variable is required!');
 }
 
-const pool = new Pool(connectionConfig);
+const pool = new Pool({
+  connectionString: process.env.DATABASE_URL,
+  ssl: {
+    rejectUnauthorized: false,
+  },
+  max: 5,
+});
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   // Set CORS headers
