@@ -84,7 +84,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       try {
         await pool.query('SELECT 1 as test');
         console.log('✅ Database connection test successful');
-      } catch (dbError) {
+      } catch (dbError: any) {
         console.error('❌ Database connection failed:', dbError);
         return res.status(500).json({ 
           message: 'Database connection failed',
@@ -140,7 +140,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
       console.log('✅ Login successful for:', email, '- Sending response');
       res.status(200).json(responseData);
-    } catch (error) {
+    } catch (error: any) {
       console.error('❌ Login error:', error);
       res.status(500).json({ 
         message: 'Server error',
@@ -205,7 +205,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           port: connectionConfig.port || 'from connection string'
         } : 'No connection config'
       });
-    } catch (error) {
+    } catch (error: any) {
       console.error('❌ Database connection failed:', error);
       
       // Test alternative connections
@@ -220,7 +220,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         const result1 = await testPool1.query('SELECT 1 as test');
         testResults.push({ name: 'Documentation Supabase', status: 'OK', project: 'sikmnuxzpozgljbndapt' });
         await testPool1.end();
-      } catch (err1) {
+      } catch (err1: any) {
         testResults.push({ name: 'Documentation Supabase', status: 'FAILED', error: err1.message, project: 'sikmnuxzpozgljbndapt' });
       }
       
@@ -237,7 +237,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         const result2 = await testPool2.query('SELECT 1 as test');
         testResults.push({ name: '.env Supabase', status: 'OK', project: 'bdahordvjnspfszwexnb' });
         await testPool2.end();
-      } catch (err2) {
+      } catch (err2: any) {
         testResults.push({ name: '.env Supabase', status: 'FAILED', error: err2.message, project: 'bdahordvjnspfszwexnb' });
       }
       
