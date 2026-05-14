@@ -60,9 +60,9 @@ export const Sidebar = () => {
   return (
     <motion.aside
       animate={{ width: collapsed ? 80 : 256 }}
-      className="bg-gradient-to-b from-slate-700 to-slate-800 text-white h-screen sticky top-0 shadow-xl"
+      className="bg-gradient-to-b from-slate-700 to-slate-800 text-white h-screen sticky top-0 shadow-xl border-r border-slate-600 flex flex-col z-30"
     >
-      <div className="p-6 flex items-center justify-between">
+      <div className="p-6 flex items-center justify-between flex-shrink-0">
         {!collapsed && (
           <motion.div
             initial={{ opacity: 0 }}
@@ -75,27 +75,24 @@ export const Sidebar = () => {
         )}
         <button
           onClick={() => setCollapsed(!collapsed)}
-          className="p-2 hover:bg-slate-600 rounded-lg transition-colors"
+          className="p-2 hover:bg-slate-600 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-seafoam-400"
         >
           <ChevronLeft className={`w-5 h-5 transition-transform ${collapsed ? 'rotate-180' : ''}`} />
         </button>
       </div>
 
-      <nav className="mt-8 px-3 space-y-1">
+      <nav className="mt-8 px-3 space-y-1 flex-1 overflow-y-auto sidebar-scroll">
         {filteredSections.map((section, sectionIndex) => (
           <div key={sectionIndex}>
-            {section.divider && !collapsed && (
-              <div className="my-4 border-t border-slate-600"></div>
-            )}
-            {section.divider && collapsed && (
-              <div className="my-4 border-t border-slate-600 mx-2"></div>
+            {section.divider && (
+              <div className="my-4 border-t border-slate-700"></div>
             )}
             {section.items.map((item) => {
               const Icon = item.icon;
               const isActive = location.pathname === item.path;
 
               return (
-                <Link key={item.path} to={item.path}>
+                <Link key={item.path} to={item.path} className="focus:outline-none">
                   <motion.div
                     whileHover={{ x: 4 }}
                     className={`flex items-center gap-3 px-4 py-3 mb-1 rounded-lg transition-all ${
