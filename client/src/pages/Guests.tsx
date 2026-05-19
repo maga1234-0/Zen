@@ -233,27 +233,29 @@ export const Guests = () => {
                       </div>
                     )}
 
-                    {/* Action Buttons */}
-                    <div className="absolute top-3 right-3 flex gap-2 opacity-0 group-hover:opacity-100 transition-all duration-300">
+                    {/* Action Buttons - Responsive for mobile */}
+                    <div className="absolute top-3 right-3 flex gap-2 sm:opacity-0 sm:group-hover:opacity-100 transition-all duration-300">
                       <button
                         onClick={(e) => {
                           e.stopPropagation();
                           handleEdit(guest);
                         }}
-                        className="p-2 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-lg hover:from-blue-600 hover:to-blue-700 shadow-lg hover:shadow-xl transform hover:scale-110 transition-all duration-200"
+                        className="p-3 sm:p-1.5 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-lg hover:from-blue-600 hover:to-blue-700 shadow-lg hover:shadow-xl active:scale-95 sm:hover:scale-110 transition-all duration-200 min-h-[44px] min-w-[44px] sm:min-h-0 sm:min-w-0 flex items-center justify-center touch-manipulation"
                         title="Edit Guest"
+                        aria-label="Edit Guest"
                       >
-                        <Pencil className="w-4 h-4" />
+                        <Pencil className="w-5 h-5 sm:w-3.5 sm:h-3.5" />
                       </button>
                       <button
                         onClick={(e) => {
                           e.stopPropagation();
                           handleDelete(guest);
                         }}
-                        className="p-2 bg-gradient-to-r from-red-500 to-red-600 text-white rounded-lg hover:from-red-600 hover:to-red-700 shadow-lg hover:shadow-xl transform hover:scale-110 transition-all duration-200"
+                        className="p-3 sm:p-1.5 bg-gradient-to-r from-red-500 to-red-600 text-white rounded-lg hover:from-red-600 hover:to-red-700 shadow-lg hover:shadow-xl active:scale-95 sm:hover:scale-110 transition-all duration-200 min-h-[44px] min-w-[44px] sm:min-h-0 sm:min-w-0 flex items-center justify-center touch-manipulation"
                         title="Delete Guest"
+                        aria-label="Delete Guest"
                       >
-                        <Trash2 className="w-4 h-4" />
+                        <Trash2 className="w-5 h-5 sm:w-3.5 sm:h-3.5" />
                       </button>
                     </div>
                   </div>

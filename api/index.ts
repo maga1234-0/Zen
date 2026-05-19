@@ -4,14 +4,6 @@ import jwt from 'jsonwebtoken';
 import { Pool } from 'pg';
 
 // Create PostgreSQL connection pool (Vercel compatible)
-console.log('🔧 Database configuration check:');
-console.log('   DATABASE_URL exists:', !!process.env.DATABASE_URL);
-console.log('   NODE_ENV:', process.env.NODE_ENV);
-
-if (!process.env.DATABASE_URL) {
-  console.error('❌ DATABASE_URL environment variable is required!');
-}
-
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
   ssl: {
@@ -20,6 +12,32 @@ const pool = new Pool({
   max: 5,
   connectionTimeoutMillis: 10000,
 });
+
+// Helper function to verify JWT token
+const verifyToken = (token: string): any => {
+  const jwtSecret = process.env.JWT_SECRET || 'default-secret-key-change-in-production';
+  try {
+    return jwt.verify(token, jwtSecret);
+  } catch (error) {
+    throw new Error('Invalid or expired token');
+  }
+};
+
+// Helper function to check authentication
+const checkAuth = (req: VercelRequest): { userId: string; email: string; role: string } => {
+  const authHeader = req.headers.authorization;
+  if (!authHeader || !authHeader.startsWith('Bearer ')) {
+    throw new Error('Authentication required');
+  }
+  
+  const token = authHeader.substring(7);
+  const decoded = verifyToken(token) as any;
+  return {
+    userId: decoded.id,
+    email: decoded.email,
+    role: decoded.role
+  };
+};
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   // Set CORS headers
@@ -39,13 +57,12 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
   // Parse URL path
   const path = req.url || '';
+  console.log('📝 Request:', req.method, path);
   
-  // Handle different API routes
-  console.log('📝 Request:', req.method, path, 'Body:', req.body);
-  
-  if (path === '/api/auth/login' && req.method === 'POST') {
-    // Handle login
-    try {
+  try {
+    // Handle different API routes
+    if (path === '/api/auth/login' && req.method === 'POST') {
+      // Handle login
       const { email, password } = req.body;
 
       if (!email || !password) {
@@ -53,18 +70,6 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       }
 
       console.log('🔐 Login attempt for:', email);
-
-      // Test database connection first
-      try {
-        await pool.query('SELECT 1 as test');
-        console.log('✅ Database connection test successful');
-      } catch (dbError: any) {
-        console.error('❌ Database connection failed:', dbError);
-        return res.status(500).json({ 
-          message: 'Database connection failed',
-          error: dbError.message 
-        });
-      }
 
       // Query user from database
       const result = await pool.query(
@@ -78,7 +83,6 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       }
 
       const user = result.rows[0];
-      console.log('✅ User found:', user.email, '- Role:', user.role, '- Active:', user.is_active);
 
       if (!user.is_active) {
         console.log('❌ Account deactivated:', email);
@@ -86,7 +90,6 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       }
 
       const isValidPassword = await bcrypt.compare(password, user.password_hash);
-      console.log('🔑 Password valid:', isValidPassword);
 
       if (!isValidPassword) {
         console.log('❌ Invalid password for:', email);
@@ -112,145 +115,178 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         },
       };
 
-      console.log('✅ Login successful for:', email, '- Sending response');
+      console.log('✅ Login successful for:', email);
       res.status(200).json(responseData);
-    } catch (error: any) {
-      console.error('❌ Login error:', error);
-      res.status(500).json({ 
-        message: 'Server error',
-        error: error.message,
-        envVars: {
-          hasDatabaseUrl: !!process.env.DATABASE_URL,
-          hasDbHost: !!process.env.DB_HOST,
-          hasDbUser: !!process.env.DB_USER,
-          hasJwtSecret: !!process.env.JWT_SECRET,
-          nodeEnv: process.env.NODE_ENV
-        }
-      });
-    }
-  } else if (path === '/api' || path === '/api/') {
-    // API root
-    res.json({ 
-      status: 'OK', 
-      message: 'Hotel PMS API is running on Vercel', 
-      timestamp: new Date().toISOString(),
-      environment: process.env.NODE_ENV || 'development',
-      envVars: {
-        hasDatabaseUrl: !!process.env.DATABASE_URL,
-        hasDbHost: !!process.env.DB_HOST,
-        hasDbUser: !!process.env.DB_USER,
-        hasJwtSecret: !!process.env.JWT_SECRET,
-        nodeEnv: process.env.NODE_ENV
+      
+    } else if (path === '/api/users' && req.method === 'POST') {
+      // Handle user creation (for adding staff members)
+      console.log('👤 Creating user...');
+      
+      // Check authentication
+      const auth = checkAuth(req);
+      console.log('✅ Authenticated user:', auth.email, '- Role:', auth.role);
+      
+      // Check if user has permission (admin or manager)
+      if (auth.role !== 'admin' && auth.role !== 'manager') {
+        return res.status(403).json({ message: 'Permission denied. Only admins and managers can create users.' });
       }
-    });
-  } else if (path === '/health') {
-    // Health check
-    res.json({ status: 'OK', timestamp: new Date().toISOString() });
-  } else if (path === '/api/test-db') {
-    // Test database connection with multiple options
-    try {
-      console.log('🔧 Testing database connection...');
-      console.log('🔧 Environment variables:');
-      console.log('   DATABASE_URL exists:', !!process.env.DATABASE_URL);
-      console.log('   DB_HOST exists:', !!process.env.DB_HOST);
-      console.log('   DB_USER exists:', !!process.env.DB_USER);
-      console.log('   NODE_ENV:', process.env.NODE_ENV);
       
-      // Try to connect
-      const result = await pool.query('SELECT 1 as test, NOW() as time');
-      console.log('✅ Database connection successful');
+      // Parse request body
+      const { email, password, firstName, lastName, phone, role } = req.body;
       
+      // Validate required fields
+      if (!email || !password || !firstName || !lastName || !role) {
+        return res.status(400).json({ 
+          message: 'Missing required fields',
+          required: ['email', 'password', 'firstName', 'lastName', 'role'],
+          optional: ['phone']
+        });
+      }
+      
+      // Check if user already exists
+      const existingUser = await pool.query(
+        'SELECT id FROM users WHERE email = $1',
+        [email]
+      );
+      
+      if (existingUser.rows.length > 0) {
+        return res.status(400).json({ message: 'User with this email already exists' });
+      }
+      
+      // Hash password
+      const passwordHash = await bcrypt.hash(password, 10);
+      
+      // Create user
+      const result = await pool.query(
+        `INSERT INTO users (email, password_hash, first_name, last_name, phone, role) 
+         VALUES ($1, $2, $3, $4, $5, $6) 
+         RETURNING id, email, first_name, last_name, phone, role, is_active, created_at`,
+        [email, passwordHash, firstName, lastName, phone || null, role]
+      );
+      
+      console.log('✅ User created:', result.rows[0].email);
+      res.status(201).json(result.rows[0]);
+      
+    } else if (path === '/api/users' && req.method === 'GET') {
+      // Handle getting all users (for staff list)
+      console.log('👤 Getting all users...');
+      
+      // Check authentication
+      const auth = checkAuth(req);
+      console.log('✅ Authenticated user:', auth.email, '- Role:', auth.role);
+      
+      // Get all users
+      const result = await pool.query(
+        'SELECT id, email, first_name, last_name, phone, role, is_active, created_at FROM users ORDER BY created_at DESC'
+      );
+      
+      console.log('✅ Found', result.rows.length, 'users');
+      res.status(200).json(result.rows);
+      
+    } else if (path === '/api/rooms' && req.method === 'GET') {
+      // Handle getting all rooms (for room list)
+      console.log('🏨 Getting all rooms...');
+      
+      // Check authentication
+      const auth = checkAuth(req);
+      console.log('✅ Authenticated user:', auth.email, '- Role:', auth.role);
+      
+      // Get all rooms with room type information
+      const result = await pool.query(`
+        SELECT 
+          r.id, r.room_number, r.floor, r.status,
+          rt.name as room_type, rt.base_price, rt.max_occupancy,
+          rt.amenities
+        FROM rooms r
+        JOIN room_types rt ON r.room_type_id = rt.id
+        ORDER BY r.floor, r.room_number
+      `);
+      
+      console.log('✅ Found', result.rows.length, 'rooms');
+      res.status(200).json(result.rows);
+      
+    } else if (path === '/api/room-types' && req.method === 'GET') {
+      // Handle getting all room types (for dropdown)
+      console.log('🏨 Getting all room types...');
+      
+      // Check authentication
+      const auth = checkAuth(req);
+      console.log('✅ Authenticated user:', auth.email, '- Role:', auth.role);
+      
+      // Get all room types
+      const result = await pool.query(`
+        SELECT id, name, description, base_price, max_occupancy, amenities
+        FROM room_types
+        ORDER BY base_price
+      `);
+      
+      console.log('✅ Found', result.rows.length, 'room types');
+      res.status(200).json(result.rows);
+      
+    } else if (path === '/api' || path === '/api/') {
+      // API root
       res.json({ 
         status: 'OK', 
-        database: 'Connected',
-        time: result.rows[0].time,
-        envVars: {
-          hasDatabaseUrl: !!process.env.DATABASE_URL,
-          hasDbHost: !!process.env.DB_HOST,
-          hasDbUser: !!process.env.DB_USER,
-          nodeEnv: process.env.NODE_ENV,
-          databaseUrlFirst10: process.env.DATABASE_URL ? process.env.DATABASE_URL.substring(0, 50) + '...' : 'not set',
-          dbHost: process.env.DB_HOST || 'not set',
-          dbUser: process.env.DB_USER || 'not set'
-        },
-        connectionConfig: connectionConfig ? {
-          using: process.env.DATABASE_URL ? 'DATABASE_URL' : 'individual',
-          host: connectionConfig.host || (connectionConfig.connectionString ? 'from connection string' : 'not set'),
-          port: connectionConfig.port || 'from connection string'
-        } : 'No connection config'
+        message: 'Hotel PMS API is running on Vercel', 
+        timestamp: new Date().toISOString(),
+        environment: process.env.NODE_ENV || 'development',
+        availableRoutes: [
+          '/api/auth/login (POST)',
+          '/api/users (GET, POST)',
+          '/api/rooms (GET)',
+          '/api/room-types (GET)',
+          '/api (GET)',
+          '/health (GET)'
+        ]
       });
-    } catch (error: any) {
-      console.error('❌ Database connection failed:', error);
-      
-      // Test alternative connections
-      const testResults = [];
-      
-      // Test 1: Try direct Supabase connection (from documentation)
+    } else if (path === '/health') {
+      // Health check with database test
       try {
-        const testPool1 = new Pool({
-          connectionString: 'postgresql://postgres:QRHxAWQ3YOBeYmCW@db.sikmnuxzpozgljbndapt.supabase.co:5432/postgres',
-          ssl: { rejectUnauthorized: false },
-          connectionTimeoutMillis: 10000,
+        await pool.query('SELECT 1 as test');
+        res.json({ 
+          status: 'OK', 
+          database: 'connected',
+          timestamp: new Date().toISOString() 
         });
-        const result1 = await testPool1.query('SELECT 1 as test');
-        testResults.push({ name: 'Documentation Supabase', status: 'OK', project: 'sikmnuxzpozgljbndapt' });
-        await testPool1.end();
-      } catch (err1: any) {
-        testResults.push({ name: 'Documentation Supabase', status: 'FAILED', error: err1.message, project: 'sikmnuxzpozgljbndapt' });
-      }
-      
-      // Test 2: Try .env Supabase connection
-      try {
-        const testPool2 = new Pool({
-          host: 'aws-0-eu-west-1.pooler.supabase.com',
-          port: 6543,
-          database: 'postgres',
-          user: 'postgres.bdahordvjnspfszwexnb',
-          password: 'LqDPYFn5FIUhEcN0',
-          ssl: { rejectUnauthorized: false },
-          connectionTimeoutMillis: 10000,
+      } catch (error: any) {
+        res.status(500).json({ 
+          status: 'ERROR', 
+          database: 'disconnected',
+          error: error.message,
+          timestamp: new Date().toISOString() 
         });
-        const result2 = await testPool2.query('SELECT 1 as test');
-        testResults.push({ name: '.env Supabase', status: 'OK', project: 'bdahordvjnspfszwexnb' });
-        await testPool2.end();
-      } catch (err2: any) {
-        testResults.push({ name: '.env Supabase', status: 'FAILED', error: err2.message, project: 'bdahordvjnspfszwexnb' });
       }
-      
-      res.status(500).json({ 
-        status: 'ERROR', 
-        database: 'Connection failed',
-        error: error.message,
-        envVars: {
-          hasDatabaseUrl: !!process.env.DATABASE_URL,
-          hasDbHost: !!process.env.DB_HOST,
-          hasDbUser: !!process.env.DB_USER,
-          nodeEnv: process.env.NODE_ENV,
-          databaseUrlFirst10: process.env.DATABASE_URL ? process.env.DATABASE_URL.substring(0, 50) + '...' : 'not set',
-          dbHost: process.env.DB_HOST || 'not set',
-          dbUser: process.env.DB_USER || 'not set'
-        },
-        connectionConfig: connectionConfig ? {
-          using: process.env.DATABASE_URL ? 'DATABASE_URL' : 'individual',
-          host: connectionConfig.host || (connectionConfig.connectionString ? 'from connection string' : 'not set'),
-          port: connectionConfig.port || 'from connection string'
-        } : 'No connection config',
-        alternativeTests: testResults,
-        recommendations: [
-          '1. Check if environment variables are set in Vercel',
-          '2. Verify Supabase database is running',
-          '3. Check if password is correct',
-          '4. Ensure SSL is enabled (required for Supabase)'
+    } else {
+      // Not found
+      res.status(404).json({ 
+        message: 'Route not found', 
+        path,
+        method: req.method,
+        availableRoutes: [
+          '/api/auth/login (POST)',
+          '/api/users (GET, POST)',
+          '/api/rooms (GET)',
+          '/api/room-types (GET)',
+          '/api (GET)',
+          '/health (GET)'
         ]
       });
     }
-  } else {
-    // Not found
-    res.status(404).json({ 
-      message: 'Route not found', 
-      path,
-      method: req.method,
-      availableRoutes: ['/api/auth/login (POST)', '/api', '/health', '/api/test-db']
+  } catch (error: any) {
+    console.error('❌ API error:', error);
+    
+    if (error.message === 'Authentication required') {
+      return res.status(401).json({ message: 'Authentication required' });
+    }
+    
+    if (error.message === 'Invalid or expired token') {
+      return res.status(401).json({ message: 'Invalid or expired token' });
+    }
+    
+    res.status(500).json({ 
+      message: 'Server error',
+      error: error.message
     });
   }
 }
+
