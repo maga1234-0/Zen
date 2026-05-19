@@ -46,8 +46,10 @@ export const Staff = () => {
       setEditingStaff(null);
       toast.success('Staff member updated successfully!');
     },
-    onError: () => {
-      toast.error('Failed to update staff member');
+    onError: (error: any) => {
+      console.error('Update staff error:', error);
+      const errorMessage = error.response?.data?.message || 'Failed to update staff member';
+      toast.error(errorMessage);
     },
   });
 
@@ -59,8 +61,10 @@ export const Staff = () => {
       queryClient.invalidateQueries({ queryKey: ['staff'] });
       toast.success('Staff member deleted successfully!');
     },
-    onError: () => {
-      toast.error('Failed to delete staff member');
+    onError: (error: any) => {
+      console.error('Delete staff error:', error);
+      const errorMessage = error.response?.data?.message || 'Failed to delete staff member';
+      toast.error(errorMessage);
     },
   });
 
@@ -82,8 +86,10 @@ export const Staff = () => {
       const action = variables.isActive ? 'disabled' : 'enabled';
       toast.success(`Staff member ${action} successfully!`);
     },
-    onError: () => {
-      toast.error('Failed to update staff status');
+    onError: (error: any) => {
+      console.error('Toggle status error:', error);
+      const errorMessage = error.response?.data?.message || 'Failed to update staff status';
+      toast.error(errorMessage);
     },
   });
 
@@ -154,7 +160,20 @@ export const Staff = () => {
       queryClient.invalidateQueries({ queryKey: ['staff'] });
       toast.success('Staff member added successfully!');
     } catch (error: any) {
-      const errorMessage = error.response?.data?.message || 'Failed to add staff member';
+      console.error('Add staff error:', error);
+      let errorMessage = 'Failed to add staff member';
+      if (error.response) {
+        // The request was made and the server responded with a status code
+        // that falls out of the range of 2xx
+        errorMessage = error.response.data?.message || 
+                      `Server error: ${error.response.status} ${error.response.statusText}`;
+      } else if (error.request) {
+        // The request was made but no response was received
+        errorMessage = 'No response from server. Check if server is running.';
+      } else {
+        // Something happened in setting up the request that triggered an Error
+        errorMessage = error.message || 'Unknown error';
+      }
       toast.error(errorMessage);
     } finally {
       setIsSubmitting(false);
@@ -181,15 +200,15 @@ export const Staff = () => {
   };
 
   return (
-    <div className="p-6 space-y-6">
-      <div className="flex items-center justify-between">
+    <div className="p-3 sm:p-4 md:p-6 space-y-4 sm:space-y-6">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold text-gray-800 dark:text-white">Staff</h1>
-          <p className="text-gray-500 dark:text-slate-300">Manage staff members and permissions</p>
+          <h1 className="text-2xl sm:text-3xl font-bold text-gray-800 dark:text-white">Staff</h1>
+          <p className="text-sm sm:text-base text-gray-500 dark:text-slate-300">Manage staff members and permissions</p>
         </div>
         <Button 
           onClick={() => setShowAddModal(true)}
-          className="bg-seafoam-500 hover:bg-seafoam-600"
+          className="bg-seafoam-500 hover:bg-seafoam-600 w-full sm:w-auto"
         >
           <Plus className="w-4 h-4 mr-2" />
           Add Staff
@@ -197,64 +216,155 @@ export const Staff = () => {
       </div>
 
       <Card>
-        <div className="mb-6">
+        <div className="mb-4 sm:mb-6">
           <div className="relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 sm:w-5 sm:h-5 text-gray-400" />
             <input
               type="text"
               placeholder="Search staff..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 border dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-seafoam-400 dark:bg-slate-700 dark:text-white"
+              className="w-full pl-9 sm:pl-10 pr-4 py-2 text-sm sm:text-base border dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-seafoam-400 dark:bg-slate-700 dark:text-white"
             />
           </div>
         </div>
 
         {isLoading ? (
-          <div className="text-center py-12">
+          <div className="text-center py-8 sm:py-12">
             <div className="inline-block w-8 h-8 border-4 border-seafoam-400 border-t-transparent rounded-full animate-spin"></div>
           </div>
         ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full">
-              <thead className="bg-gray-50 dark:bg-slate-700">
-                <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-slate-200 uppercase">Name</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-slate-200 uppercase">Email</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-slate-200 uppercase">Phone</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-slate-200 uppercase">Role</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-slate-200 uppercase">Status</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-slate-200 uppercase">Actions</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-gray-200 dark:divide-slate-700">
-                {staff?.map((member: any) => (
-                  <tr key={member.id} className="hover:bg-gray-50 dark:hover:bg-slate-700">
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 bg-seafoam-400 dark:bg-gold-500 rounded-full flex items-center justify-center text-white font-semibold">
-                          {member.first_name[0]}{member.last_name[0]}
+          <>
+            {/* Desktop Table View */}
+            <div className="hidden md:block overflow-x-auto">
+              <table className="w-full">
+                <thead className="bg-gray-50 dark:bg-slate-700">
+                  <tr>
+                    <th className="px-4 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-slate-200 uppercase">Name</th>
+                    <th className="px-4 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-slate-200 uppercase">Email</th>
+                    <th className="px-4 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-slate-200 uppercase">Phone</th>
+                    <th className="px-4 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-slate-200 uppercase">Role</th>
+                    <th className="px-4 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-slate-200 uppercase">Status</th>
+                    <th className="px-4 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-slate-200 uppercase">Actions</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-gray-200 dark:divide-slate-700">
+                  {staff?.map((member: any) => (
+                    <tr key={member.id} className="hover:bg-gray-50 dark:hover:bg-slate-700">
+                      <td className="px-4 sm:px-6 py-4 whitespace-nowrap">
+                        <div className="flex items-center gap-3">
+                          <div className="w-8 h-8 sm:w-10 sm:h-10 bg-seafoam-400 dark:bg-gold-500 rounded-full flex items-center justify-center text-white font-semibold">
+                            {member.first_name[0]}{member.last_name[0]}
+                          </div>
+                          <div>
+                            <p className="text-sm font-medium text-gray-900 dark:text-white">
+                              {member.first_name} {member.last_name}
+                            </p>
+                          </div>
                         </div>
-                        <div>
-                          <p className="text-sm font-medium text-gray-900 dark:text-white">
-                            {member.first_name} {member.last_name}
-                          </p>
+                      </td>
+                      <td className="px-4 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-slate-300">
+                        {member.email}
+                      </td>
+                      <td className="px-4 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-slate-300">
+                        {member.phone || 'N/A'}
+                      </td>
+                      <td className="px-4 sm:px-6 py-4 whitespace-nowrap">
+                        <span className={`text-xs px-2 py-1 rounded-full capitalize ${getRoleBadge(member.role)}`}>
+                          <Shield className="w-3 h-3 inline mr-1" />
+                          {member.role}
+                        </span>
+                      </td>
+                      <td className="px-4 sm:px-6 py-4 whitespace-nowrap">
+                        <span className={`text-xs px-2 py-1 rounded-full ${
+                          member.is_active 
+                            ? 'bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300' 
+                            : 'bg-red-100 text-red-700 dark:bg-red-900 dark:text-red-300'
+                        }`}>
+                          {member.is_active ? 'Active' : 'Inactive'}
+                        </span>
+                      </td>
+                      <td className="px-4 sm:px-6 py-4 whitespace-nowrap">
+                        <div className="flex items-center gap-1 sm:gap-2">
+                          <button
+                            onClick={() => handleEdit(member)}
+                            className="p-1 sm:p-2 text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-lg transition-colors"
+                            title="Edit"
+                          >
+                            <Pencil className="w-3 h-3 sm:w-4 sm:h-4" />
+                          </button>
+                          <button
+                            onClick={() => handleToggleStatus(member)}
+                            className={`p-1 sm:p-2 ${member.is_active ? 'text-orange-600 hover:bg-orange-50 dark:hover:bg-orange-900/20' : 'text-green-600 hover:bg-green-50 dark:hover:bg-green-900/20'} rounded-lg transition-colors`}
+                            title={member.is_active ? 'Disable' : 'Enable'}
+                          >
+                            {member.is_active ? <Ban className="w-3 h-3 sm:w-4 sm:h-4" /> : <CheckCircle className="w-3 h-3 sm:w-4 sm:h-4" />}
+                          </button>
+                          <button
+                            onClick={() => handleDelete(member)}
+                            className="p-1 sm:p-2 text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors"
+                            title="Delete"
+                          >
+                            <Trash2 className="w-3 h-3 sm:w-4 sm:h-4" />
+                          </button>
                         </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+
+            {/* Mobile Card View */}
+            <div className="md:hidden space-y-4">
+              {staff?.map((member: any) => (
+                <div key={member.id} className="bg-white dark:bg-slate-800 rounded-lg border dark:border-slate-700 p-4">
+                  <div className="flex items-start justify-between mb-3">
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 bg-seafoam-400 dark:bg-gold-500 rounded-full flex items-center justify-center text-white font-semibold">
+                        {member.first_name[0]}{member.last_name[0]}
                       </div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-slate-300">
-                      {member.email}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-slate-300">
-                      {member.phone || 'N/A'}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div>
+                        <p className="font-medium text-gray-900 dark:text-white">
+                          {member.first_name} {member.last_name}
+                        </p>
+                        <p className="text-xs text-gray-500 dark:text-slate-300 truncate max-w-[200px]">
+                          {member.email}
+                        </p>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-1">
+                      <button
+                        onClick={() => handleEdit(member)}
+                        className="p-1 text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded"
+                        title="Edit"
+                      >
+                        <Pencil className="w-4 h-4" />
+                      </button>
+                      <button
+                        onClick={() => handleDelete(member)}
+                        className="p-1 text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 rounded"
+                        title="Delete"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                    </div>
+                  </div>
+                  
+                  <div className="grid grid-cols-2 gap-3 text-sm">
+                    <div>
+                      <p className="text-gray-500 dark:text-slate-400">Phone</p>
+                      <p className="font-medium dark:text-white">{member.phone || 'N/A'}</p>
+                    </div>
+                    <div>
+                      <p className="text-gray-500 dark:text-slate-400">Role</p>
                       <span className={`text-xs px-2 py-1 rounded-full capitalize ${getRoleBadge(member.role)}`}>
                         <Shield className="w-3 h-3 inline mr-1" />
                         {member.role}
                       </span>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
+                    </div>
+                    <div>
+                      <p className="text-gray-500 dark:text-slate-400">Status</p>
                       <span className={`text-xs px-2 py-1 rounded-full ${
                         member.is_active 
                           ? 'bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300' 
@@ -262,37 +372,21 @@ export const Staff = () => {
                       }`}>
                         {member.is_active ? 'Active' : 'Inactive'}
                       </span>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="flex items-center gap-2">
-                        <button
-                          onClick={() => handleEdit(member)}
-                          className="p-2 text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-lg transition-colors"
-                          title="Edit"
-                        >
-                          <Pencil className="w-4 h-4" />
-                        </button>
-                        <button
-                          onClick={() => handleToggleStatus(member)}
-                          className={`p-2 ${member.is_active ? 'text-orange-600 hover:bg-orange-50 dark:hover:bg-orange-900/20' : 'text-green-600 hover:bg-green-50 dark:hover:bg-green-900/20'} rounded-lg transition-colors`}
-                          title={member.is_active ? 'Disable' : 'Enable'}
-                        >
-                          {member.is_active ? <Ban className="w-4 h-4" /> : <CheckCircle className="w-4 h-4" />}
-                        </button>
-                        <button
-                          onClick={() => handleDelete(member)}
-                          className="p-2 text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors"
-                          title="Delete"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+                    </div>
+                    <div>
+                      <p className="text-gray-500 dark:text-slate-400">Actions</p>
+                      <button
+                        onClick={() => handleToggleStatus(member)}
+                        className={`text-xs px-2 py-1 rounded ${member.is_active ? 'text-orange-600 hover:bg-orange-50 dark:hover:bg-orange-900/20' : 'text-green-600 hover:bg-green-50 dark:hover:bg-green-900/20'}`}
+                      >
+                        {member.is_active ? 'Disable' : 'Enable'}
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </>
         )}
       </Card>
 
@@ -314,23 +408,23 @@ export const Staff = () => {
               initial={{ opacity: 0, scale: 0.95, y: 20 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.95, y: 20 }}
-              className="fixed inset-0 z-50 flex items-center justify-center p-4"
+              className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4"
             >
-              <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-2xl w-full max-w-md p-6 border dark:border-slate-700">
-                <div className="flex items-center justify-between mb-6">
-                  <h2 className="text-2xl font-bold text-gray-800 dark:text-white">Add New Staff</h2>
+              <div className="bg-white dark:bg-slate-800 rounded-xl sm:rounded-2xl shadow-2xl w-full max-w-md mx-2 sm:mx-4 p-4 sm:p-6 border dark:border-slate-700 max-h-[90vh] overflow-y-auto">
+                <div className="flex items-center justify-between mb-4 sm:mb-6">
+                  <h2 className="text-xl sm:text-2xl font-bold text-gray-800 dark:text-white">Add New Staff</h2>
                   <button
                     onClick={() => setShowAddModal(false)}
-                    className="p-2 hover:bg-gray-100 dark:hover:bg-slate-700 rounded-lg transition-colors"
+                    className="p-1 sm:p-2 hover:bg-gray-100 dark:hover:bg-slate-700 rounded-lg transition-colors"
                   >
-                    <X className="w-5 h-5 text-gray-500 dark:text-slate-300" />
+                    <X className="w-4 h-4 sm:w-5 sm:h-5 text-gray-500 dark:text-slate-300" />
                   </button>
                 </div>
 
                 <form onSubmit={handleSubmit} className="space-y-4">
-                  <div className="grid grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 dark:text-slate-200 mb-2">
+                      <label className="block text-xs sm:text-sm font-medium text-gray-700 dark:text-slate-200 mb-1 sm:mb-2">
                         First Name
                       </label>
                       <input
@@ -338,12 +432,12 @@ export const Staff = () => {
                         required
                         value={formData.firstName}
                         onChange={(e) => setFormData({ ...formData, firstName: e.target.value })}
-                        className="w-full px-4 py-2 border dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-seafoam-400 dark:bg-slate-700 dark:text-white"
+                        className="w-full px-3 sm:px-4 py-2 text-sm sm:text-base border dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-seafoam-400 dark:bg-slate-700 dark:text-white"
                         placeholder="John"
                       />
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 dark:text-slate-200 mb-2">
+                      <label className="block text-xs sm:text-sm font-medium text-gray-700 dark:text-slate-200 mb-1 sm:mb-2">
                         Last Name
                       </label>
                       <input
@@ -351,14 +445,14 @@ export const Staff = () => {
                         required
                         value={formData.lastName}
                         onChange={(e) => setFormData({ ...formData, lastName: e.target.value })}
-                        className="w-full px-4 py-2 border dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-seafoam-400 dark:bg-slate-700 dark:text-white"
+                        className="w-full px-3 sm:px-4 py-2 text-sm sm:text-base border dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-seafoam-400 dark:bg-slate-700 dark:text-white"
                         placeholder="Doe"
                       />
                     </div>
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-slate-200 mb-2">
+                    <label className="block text-xs sm:text-sm font-medium text-gray-700 dark:text-slate-200 mb-1 sm:mb-2">
                       Email
                     </label>
                     <input
@@ -366,32 +460,32 @@ export const Staff = () => {
                       required
                       value={formData.email}
                       onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                      className="w-full px-4 py-2 border dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-seafoam-400 dark:bg-slate-700 dark:text-white"
+                      className="w-full px-3 sm:px-4 py-2 text-sm sm:text-base border dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-seafoam-400 dark:bg-slate-700 dark:text-white"
                       placeholder="john.doe@hotel.com"
                     />
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-slate-200 mb-2">
+                    <label className="block text-xs sm:text-sm font-medium text-gray-700 dark:text-slate-200 mb-1 sm:mb-2">
                       Phone
                     </label>
                     <input
                       type="tel"
                       value={formData.phone}
                       onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                      className="w-full px-4 py-2 border dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-seafoam-400 dark:bg-slate-700 dark:text-white"
+                      className="w-full px-3 sm:px-4 py-2 text-sm sm:text-base border dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-seafoam-400 dark:bg-slate-700 dark:text-white"
                       placeholder="+1-555-0123"
                     />
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-slate-200 mb-2">
+                    <label className="block text-xs sm:text-sm font-medium text-gray-700 dark:text-slate-200 mb-1 sm:mb-2">
                       Role
                     </label>
                     <select
                       value={formData.role}
                       onChange={(e) => setFormData({ ...formData, role: e.target.value })}
-                      className="w-full px-4 py-2 border dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-seafoam-400 dark:bg-slate-700 dark:text-white"
+                      className="w-full px-3 sm:px-4 py-2 text-sm sm:text-base border dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-seafoam-400 dark:bg-slate-700 dark:text-white"
                     >
                       <option value="receptionist">Receptionist</option>
                       <option value="housekeeping">Housekeeping</option>
@@ -411,7 +505,7 @@ export const Staff = () => {
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-slate-200 mb-2">
+                    <label className="block text-xs sm:text-sm font-medium text-gray-700 dark:text-slate-200 mb-1 sm:mb-2">
                       Password
                     </label>
                     <input
@@ -419,27 +513,27 @@ export const Staff = () => {
                       required
                       value={formData.password}
                       onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                      className="w-full px-4 py-2 border dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-seafoam-400 dark:bg-slate-700 dark:text-white"
+                      className="w-full px-3 sm:px-4 py-2 text-sm sm:text-base border dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-seafoam-400 dark:bg-slate-700 dark:text-white"
                       placeholder="••••••••"
                     />
                   </div>
 
-                  <div className="flex gap-3 pt-4">
+                  <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 pt-3 sm:pt-4">
                     <button
                       type="button"
                       onClick={() => setShowAddModal(false)}
-                      className="flex-1 px-4 py-2 border dark:border-slate-600 dark:text-slate-200 rounded-lg hover:bg-gray-100 dark:hover:bg-slate-700"
+                      className="flex-1 px-3 sm:px-4 py-2 text-sm sm:text-base border dark:border-slate-600 dark:text-slate-200 rounded-lg hover:bg-gray-100 dark:hover:bg-slate-700"
                     >
                       Cancel
                     </button>
                     <Button
                       type="submit"
                       disabled={isSubmitting}
-                      className="flex-1 bg-seafoam-500 hover:bg-seafoam-600 disabled:opacity-50 disabled:cursor-not-allowed"
+                      className="flex-1 bg-seafoam-500 hover:bg-seafoam-600 disabled:opacity-50 disabled:cursor-not-allowed text-sm sm:text-base"
                     >
                       {isSubmitting ? (
                         <div className="flex items-center gap-2">
-                          <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                          <div className="w-3 h-3 sm:w-4 sm:h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
                           Adding...
                         </div>
                       ) : (
@@ -470,23 +564,23 @@ export const Staff = () => {
               initial={{ opacity: 0, scale: 0.95, y: 20 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.95, y: 20 }}
-              className="fixed inset-0 z-50 flex items-center justify-center p-4"
+              className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4"
             >
-              <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-2xl w-full max-w-md p-6 border dark:border-slate-700">
-                <div className="flex items-center justify-between mb-6">
-                  <h2 className="text-2xl font-bold text-gray-800 dark:text-white">Edit Staff</h2>
+              <div className="bg-white dark:bg-slate-800 rounded-xl sm:rounded-2xl shadow-2xl w-full max-w-md mx-2 sm:mx-4 p-4 sm:p-6 border dark:border-slate-700 max-h-[90vh] overflow-y-auto">
+                <div className="flex items-center justify-between mb-4 sm:mb-6">
+                  <h2 className="text-xl sm:text-2xl font-bold text-gray-800 dark:text-white">Edit Staff</h2>
                   <button
                     onClick={() => setShowEditModal(false)}
-                    className="p-2 hover:bg-gray-100 dark:hover:bg-slate-700 rounded-lg transition-colors"
+                    className="p-1 sm:p-2 hover:bg-gray-100 dark:hover:bg-slate-700 rounded-lg transition-colors"
                   >
-                    <X className="w-5 h-5 text-gray-500 dark:text-slate-300" />
+                    <X className="w-4 h-4 sm:w-5 sm:h-5 text-gray-500 dark:text-slate-300" />
                   </button>
                 </div>
 
-                <form onSubmit={handleSubmitEdit} className="space-y-4">
-                  <div className="grid grid-cols-2 gap-4">
+                <form onSubmit={handleSubmitEdit} className="space-y-3 sm:space-y-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 dark:text-slate-200 mb-2">
+                      <label className="block text-xs sm:text-sm font-medium text-gray-700 dark:text-slate-200 mb-1 sm:mb-2">
                         First Name
                       </label>
                       <input
@@ -494,11 +588,11 @@ export const Staff = () => {
                         required
                         value={editingStaff.firstName}
                         onChange={(e) => setEditingStaff({ ...editingStaff, firstName: e.target.value })}
-                        className="w-full px-4 py-2 border dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-seafoam-400 dark:bg-slate-700 dark:text-white"
+                        className="w-full px-3 sm:px-4 py-2 text-sm sm:text-base border dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-seafoam-400 dark:bg-slate-700 dark:text-white"
                       />
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 dark:text-slate-200 mb-2">
+                      <label className="block text-xs sm:text-sm font-medium text-gray-700 dark:text-slate-200 mb-1 sm:mb-2">
                         Last Name
                       </label>
                       <input
@@ -506,31 +600,31 @@ export const Staff = () => {
                         required
                         value={editingStaff.lastName}
                         onChange={(e) => setEditingStaff({ ...editingStaff, lastName: e.target.value })}
-                        className="w-full px-4 py-2 border dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-seafoam-400 dark:bg-slate-700 dark:text-white"
+                        className="w-full px-3 sm:px-4 py-2 text-sm sm:text-base border dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-seafoam-400 dark:bg-slate-700 dark:text-white"
                       />
                     </div>
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-slate-200 mb-2">
+                    <label className="block text-xs sm:text-sm font-medium text-gray-700 dark:text-slate-200 mb-1 sm:mb-2">
                       Phone
                     </label>
                     <input
                       type="tel"
                       value={editingStaff.phone}
                       onChange={(e) => setEditingStaff({ ...editingStaff, phone: e.target.value })}
-                      className="w-full px-4 py-2 border dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-seafoam-400 dark:bg-slate-700 dark:text-white"
+                      className="w-full px-3 sm:px-4 py-2 text-sm sm:text-base border dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-seafoam-400 dark:bg-slate-700 dark:text-white"
                     />
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-slate-200 mb-2">
+                    <label className="block text-xs sm:text-sm font-medium text-gray-700 dark:text-slate-200 mb-1 sm:mb-2">
                       Role
                     </label>
                     <select
                       value={editingStaff.role}
                       onChange={(e) => setEditingStaff({ ...editingStaff, role: e.target.value })}
-                      className="w-full px-4 py-2 border dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-seafoam-400 dark:bg-slate-700 dark:text-white"
+                      className="w-full px-3 sm:px-4 py-2 text-sm sm:text-base border dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-seafoam-400 dark:bg-slate-700 dark:text-white"
                     >
                       <option value="receptionist">Receptionist</option>
                       <option value="housekeeping">Housekeeping</option>
@@ -541,18 +635,18 @@ export const Staff = () => {
                     </select>
                   </div>
 
-                  <div className="flex gap-3 pt-4">
+                  <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 pt-3 sm:pt-4">
                     <button
                       type="button"
                       onClick={() => setShowEditModal(false)}
-                      className="flex-1 px-4 py-2 border dark:border-slate-600 dark:text-slate-200 rounded-lg hover:bg-gray-100 dark:hover:bg-slate-700"
+                      className="flex-1 px-3 sm:px-4 py-2 text-sm sm:text-base border dark:border-slate-600 dark:text-slate-200 rounded-lg hover:bg-gray-100 dark:hover:bg-slate-700"
                     >
                       Cancel
                     </button>
                     <Button
                       type="submit"
                       disabled={updateStaffMutation.isPending}
-                      className="flex-1 bg-seafoam-500 hover:bg-seafoam-600"
+                      className="flex-1 bg-seafoam-500 hover:bg-seafoam-600 text-sm sm:text-base"
                     >
                       {updateStaffMutation.isPending ? 'Saving...' : 'Save Changes'}
                     </Button>

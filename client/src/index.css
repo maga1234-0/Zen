@@ -68,3 +68,101 @@ body {
 .sidebar-scroll::-webkit-scrollbar-thumb:hover {
   background: #64748b;
 }
+
+
+/* Mobile-specific improvements */
+@media (max-width: 640px) {
+  .mobile-hidden {
+    display: none !important;
+  }
+  
+  .mobile-block {
+    display: block !important;
+  }
+  
+  .mobile-flex {
+    display: flex !important;
+  }
+  
+  .mobile-flex-col {
+    flex-direction: column !important;
+  }
+  
+  .mobile-text-sm {
+    font-size: 0.875rem !important;
+    line-height: 1.25rem !important;
+  }
+  
+  .mobile-text-xs {
+    font-size: 0.75rem !important;
+    line-height: 1rem !important;
+  }
+  
+  .mobile-p-2 {
+    padding: 0.5rem !important;
+  }
+  
+  .mobile-p-3 {
+    padding: 0.75rem !important;
+  }
+  
+  .mobile-gap-2 {
+    gap: 0.5rem !important;
+  }
+  
+  .mobile-gap-3 {
+    gap: 0.75rem !important;
+  }
+}
+
+/* Touch-friendly buttons and inputs */
+button, 
+input, 
+select, 
+textarea {
+  min-height: 44px;
+  min-width: 44px;
+}
+
+/* Better touch targets for mobile */
+@media (max-width: 768px) {
+  button:not(.mobile-exclude),
+  a:not(.mobile-exclude) {
+    min-height: 48px;
+    min-width: 48px;
+  }
+  
+  .touch-target {
+    padding: 12px 16px;
+  }
+}
+
+/* Prevent text overflow on mobile */
+.truncate-mobile {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+@media (max-width: 640px) {
+  .truncate-mobile {
+    max-width: 200px;
+  }
+}
+
+/* Better modal scrolling on mobile */
+.modal-content {
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Hide scrollbar on mobile for cleaner look */
+@media (max-width: 768px) {
+  .hide-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+  
+  .hide-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+}

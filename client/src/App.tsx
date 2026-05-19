@@ -91,7 +91,7 @@ const ProtectedLayout = ({ children }: { children: React.ReactNode }) => {
       <Sidebar />
       <div className="flex-1 overflow-auto">
         <Navbar />
-        <main>{children}</main>
+        <main className="p-3 sm:p-4 md:p-6">{children}</main>
       </div>
     </div>
   );

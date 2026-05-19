@@ -18,6 +18,7 @@ const pool = new Pool({
     rejectUnauthorized: false,
   },
   max: 5,
+  connectionTimeoutMillis: 10000,
 });
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
@@ -188,7 +189,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       try {
         const testPool1 = new Pool({
           connectionString: 'postgresql://postgres:QRHxAWQ3YOBeYmCW@db.sikmnuxzpozgljbndapt.supabase.co:5432/postgres',
-          ssl: { rejectUnauthorized: false }
+          ssl: { rejectUnauthorized: false },
+          connectionTimeoutMillis: 10000,
         });
         const result1 = await testPool1.query('SELECT 1 as test');
         testResults.push({ name: 'Documentation Supabase', status: 'OK', project: 'sikmnuxzpozgljbndapt' });
@@ -205,7 +207,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           database: 'postgres',
           user: 'postgres.bdahordvjnspfszwexnb',
           password: 'LqDPYFn5FIUhEcN0',
-          ssl: { rejectUnauthorized: false }
+          ssl: { rejectUnauthorized: false },
+          connectionTimeoutMillis: 10000,
         });
         const result2 = await testPool2.query('SELECT 1 as test');
         testResults.push({ name: '.env Supabase', status: 'OK', project: 'bdahordvjnspfszwexnb' });

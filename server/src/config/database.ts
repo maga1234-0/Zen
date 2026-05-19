@@ -9,6 +9,7 @@ export const pool = new Pool({
     rejectUnauthorized: false,
   },
   max: 5,
+  connectionTimeoutMillis: 10000,
 });
 
 pool.on('connect', () => {
