@@ -8,13 +8,21 @@ import { useNavigate } from 'react-router-dom';
 import api from '@/services/api';
 import { useTranslation } from 'react-i18next';
 
-export const Navbar = () => {
+interface NavbarProps {
+  onToggleMobileSidebar?: () => void;
+  mobileSidebarOpen?: boolean;
+}
+
+export const Navbar = ({ 
+  onToggleMobileSidebar = () => {},
+  mobileSidebarOpen = false 
+}: NavbarProps) => {
   const { t } = useTranslation();
   const { theme, hotelName } = useSettingsStore();
   const [darkMode, setDarkMode] = useState(theme === 'Dark');
   const [showProfile, setShowProfile] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
   const { user, logout } = useAuthStore();
   const navigate = useNavigate();
 
@@ -22,9 +30,6 @@ export const Navbar = () => {
   useEffect(() => {
     const checkMobile = () => {
       setIsMobile(window.innerWidth < 768);
-      if (window.innerWidth >= 768) {
-        setMobileMenuOpen(false);
-      }
     };
     
     checkMobile();
@@ -60,12 +65,7 @@ export const Navbar = () => {
     console.log('Logging out...');
     logout();
     setShowProfile(false);
-    setMobileMenuOpen(false);
     navigate('/login');
-  };
-
-  const toggleMobileMenu = () => {
-    setMobileMenuOpen(!mobileMenuOpen);
   };
 
   return (
@@ -75,10 +75,11 @@ export const Navbar = () => {
           <div className="flex items-center gap-3">
             {isMobile && (
               <button
-                onClick={toggleMobileMenu}
+                onClick={onToggleMobileSidebar}
                 className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-slate-700 transition-colors text-gray-700 dark:text-slate-100"
+                aria-label={mobileSidebarOpen ? "Close sidebar" : "Open sidebar"}
               >
-                {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+                {mobileSidebarOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
               </button>
             )}
             <div>
@@ -176,41 +177,7 @@ export const Navbar = () => {
         </div>
       </div>
 
-      {/* Mobile Profile Menu */}
-      <AnimatePresence>
-        {isMobile && mobileMenuOpen && (
-          <motion.div
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: 'auto' }}
-            exit={{ opacity: 0, height: 0 }}
-            className="mt-3 pt-3 border-t dark:border-slate-700 overflow-hidden"
-          >
-            <div className="space-y-2">
-              <div className="px-2 py-1">
-                <p className="text-sm font-medium dark:text-white">{user?.email}</p>
-                <p className="text-xs text-gray-500 dark:text-slate-200 capitalize">{user?.role}</p>
-              </div>
-              <button 
-                onClick={() => {
-                  navigate('/profile');
-                  setMobileMenuOpen(false);
-                }}
-                className="w-full px-3 py-2 text-left hover:bg-gray-100 dark:hover:bg-slate-700 flex items-center gap-2 text-gray-700 dark:text-slate-100 rounded-lg"
-              >
-                <User className="w-4 h-4" />
-                Profile
-              </button>
-              <button
-                onClick={handleLogout}
-                className="w-full px-3 py-2 text-left hover:bg-gray-100 dark:hover:bg-slate-700 flex items-center gap-2 text-red-500 dark:text-red-400 rounded-lg"
-              >
-                <LogOut className="w-4 h-4" />
-                Logout
-              </button>
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+
     </nav>
   );
 };

@@ -46,6 +46,8 @@ const ProtectedLayout = ({ children }: { children: React.ReactNode }) => {
   // Also check localStorage directly as a fallback
   const [checkingLocalStorage, setCheckingLocalStorage] = useState(true);
   const [localStorageToken, setLocalStorageToken] = useState<string | null>(null);
+  // State for mobile sidebar visibility
+  const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
 
   useEffect(() => {
     const checkLocalStorage = () => {
@@ -86,11 +88,26 @@ const ProtectedLayout = ({ children }: { children: React.ReactNode }) => {
     return <Navigate to="/login" replace />;
   }
 
+  const toggleMobileSidebar = () => {
+    setMobileSidebarOpen(!mobileSidebarOpen);
+  };
+
+  const closeMobileSidebar = () => {
+    setMobileSidebarOpen(false);
+  };
+
   return (
     <div className="flex h-screen bg-mint-50 dark:bg-slate-900">
-      <Sidebar />
+      <Sidebar 
+        mobileSidebarOpen={mobileSidebarOpen}
+        onCloseMobileSidebar={closeMobileSidebar}
+        onToggleMobileSidebar={toggleMobileSidebar}
+      />
       <div className="flex-1 overflow-auto">
-        <Navbar />
+        <Navbar 
+          onToggleMobileSidebar={toggleMobileSidebar}
+          mobileSidebarOpen={mobileSidebarOpen}
+        />
         <main className="p-3 sm:p-4 md:p-6">{children}</main>
       </div>
     </div>

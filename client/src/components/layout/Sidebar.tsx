@@ -22,11 +22,20 @@ import { useAuthStore } from '@/store/authStore';
 import { canAccessRoute } from '@/utils/permissions';
 import { useTranslation } from 'react-i18next';
 
-export const Sidebar = () => {
+interface SidebarProps {
+  mobileSidebarOpen?: boolean;
+  onCloseMobileSidebar?: () => void;
+  onToggleMobileSidebar?: () => void;
+}
+
+export const Sidebar = ({ 
+  mobileSidebarOpen = false, 
+  onCloseMobileSidebar = () => {},
+  onToggleMobileSidebar = () => {} 
+}: SidebarProps) => {
   const { t } = useTranslation();
   const [collapsed, setCollapsed] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const location = useLocation();
   const { user } = useAuthStore();
 
@@ -35,14 +44,14 @@ export const Sidebar = () => {
     const checkMobile = () => {
       setIsMobile(window.innerWidth < 768);
       if (window.innerWidth >= 768) {
-        setMobileMenuOpen(false);
+        onCloseMobileSidebar();
       }
     };
     
     checkMobile();
     window.addEventListener('resize', checkMobile);
     return () => window.removeEventListener('resize', checkMobile);
-  }, []);
+  }, [onCloseMobileSidebar]);
 
   const menuSections = [
     {
@@ -75,48 +84,34 @@ export const Sidebar = () => {
     ),
   })).filter(section => section.items.length > 0);
 
-  // Mobile sidebar toggle
-  const toggleMobileMenu = () => {
-    setMobileMenuOpen(!mobileMenuOpen);
-  };
-
   // Close mobile menu when clicking a link
   const handleLinkClick = () => {
     if (isMobile) {
-      setMobileMenuOpen(false);
+      onCloseMobileSidebar();
     }
   };
 
   // Desktop sidebar width
   const desktopWidth = collapsed ? 80 : 256;
   
-  // Mobile sidebar styles
-  const mobileStyles = isMobile ? {
-    position: 'fixed' as const,
+  // Mobile sidebar styles - compact version with just icons
+  const mobileStyles: React.CSSProperties = isMobile ? {
+    position: 'fixed',
     top: 0,
-    left: mobileMenuOpen ? 0 : '-100%',
-    width: '280px',
+    left: mobileSidebarOpen ? 0 : '-100%',
+    width: '70px', // Compact width for icons only
     height: '100vh',
     zIndex: 50,
     transition: 'left 0.3s ease-in-out',
+    overflowX: 'hidden' as any,
   } : {};
 
   return (
     <>
-      {/* Mobile Menu Toggle Button */}
-      {isMobile && (
-        <button
-          onClick={toggleMobileMenu}
-          className="fixed top-4 left-4 z-40 p-2 bg-slate-700 text-white rounded-lg shadow-lg hover:bg-slate-600 transition-colors"
-        >
-          {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
-        </button>
-      )}
-
       {/* Mobile Backdrop */}
-      {isMobile && mobileMenuOpen && (
+      {isMobile && mobileSidebarOpen && (
         <div
-          onClick={toggleMobileMenu}
+          onClick={onCloseMobileSidebar}
           className="fixed inset-0 bg-black/50 backdrop-blur-sm z-40"
         />
       )}
@@ -127,40 +122,45 @@ export const Sidebar = () => {
         style={mobileStyles}
         className="bg-gradient-to-b from-slate-700 to-slate-800 text-white h-screen sticky top-0 shadow-xl border-r border-slate-600 flex flex-col z-30"
       >
-        <div className="p-6 flex items-center justify-between flex-shrink-0">
+        <div className="p-4 sm:p-6 flex items-center justify-between flex-shrink-0">
           {(!collapsed || isMobile) && (
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               className="flex items-center gap-2"
             >
-              <Hotel className="w-8 h-8" />
-              <span className="font-bold text-xl">Hotel PMS</span>
+              <Hotel className="w-6 h-6 sm:w-8 sm:h-8" />
+              {/* Hide text label on mobile compact sidebar */}
+              {!isMobile && (
+                <span className="font-bold text-lg sm:text-xl">Hotel PMS</span>
+              )}
             </motion.div>
           )}
           {!isMobile && (
             <button
               onClick={() => setCollapsed(!collapsed)}
               className="p-2 hover:bg-slate-600 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-seafoam-400"
+              aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
             >
-              <ChevronLeft className={`w-5 h-5 transition-transform ${collapsed ? 'rotate-180' : ''}`} />
+              <ChevronLeft className={`w-4 h-4 sm:w-5 sm:h-5 transition-transform ${collapsed ? 'rotate-180' : ''}`} />
             </button>
           )}
           {isMobile && (
             <button
-              onClick={toggleMobileMenu}
+              onClick={onCloseMobileSidebar}
               className="p-2 hover:bg-slate-600 rounded-lg transition-colors"
+              aria-label="Close menu"
             >
-              <X className="w-5 h-5" />
+              <X className="w-4 h-4 sm:w-5 sm:h-5" />
             </button>
           )}
         </div>
 
-        <nav className="mt-8 px-3 space-y-1 flex-1 overflow-y-auto sidebar-scroll">
+        <nav className="mt-4 sm:mt-8 px-2 sm:px-3 space-y-1 flex-1 overflow-y-auto sidebar-scroll">
           {filteredSections.map((section, sectionIndex) => (
             <div key={sectionIndex}>
               {section.divider && (
-                <div className="my-4 border-t border-slate-700"></div>
+                <div className="my-3 sm:my-4 border-t border-slate-700"></div>
               )}
               {section.items.map((item) => {
                 const Icon = item.icon;
@@ -170,18 +170,19 @@ export const Sidebar = () => {
                   <Link key={item.path} to={item.path} onClick={handleLinkClick} className="focus:outline-none">
                     <motion.div
                       whileHover={{ x: 4 }}
-                      className={`flex items-center gap-3 px-4 py-3 mb-1 rounded-lg transition-all ${
+                      className={`flex items-center gap-2 sm:gap-3 px-3 sm:px-4 py-2 sm:py-3 mb-1 rounded-lg transition-all ${
                         isActive
                           ? 'bg-seafoam-500 text-white shadow-lg'
                           : 'hover:bg-slate-600 text-slate-200'
                       }`}
                     >
-                      <Icon className="w-5 h-5 flex-shrink-0" />
-                      {(!collapsed || isMobile) && (
+                      <Icon className="w-4 h-4 sm:w-5 sm:h-5 flex-shrink-0" />
+                      {/* Show text label only on desktop or when sidebar is expanded */}
+                      {(!collapsed && !isMobile) && (
                         <motion.span
                           initial={{ opacity: 0 }}
                           animate={{ opacity: 1 }}
-                          className="font-medium text-sm"
+                          className="font-medium text-xs sm:text-sm"
                         >
                           {item.label}
                         </motion.span>
