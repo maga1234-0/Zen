@@ -100,20 +100,29 @@ const ProtectedLayout = ({ children }: { children: React.ReactNode }) => {
 function App() {
   const toast = useToast();
   const applyTheme = useSettingsStore((state) => state.applyTheme);
+  const theme = useSettingsStore((state) => state.theme);
   const language = useSettingsStore((state) => state.language);
   const { i18n } = useTranslation();
 
-  // Apply theme on mount and when system preference changes
+  // Apply theme on mount and when theme changes
   useEffect(() => {
+    console.log('App: Applying theme on mount or theme change:', theme);
     applyTheme();
+  }, [applyTheme, theme]);
 
-    // Listen for system theme changes
+  // Listen for system theme changes (for System theme mode)
+  useEffect(() => {
     const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
-    const handleChange = () => applyTheme();
+    const handleChange = () => {
+      console.log('App: System theme preference changed');
+      if (theme === 'System') {
+        applyTheme();
+      }
+    };
     mediaQuery.addEventListener('change', handleChange);
 
     return () => mediaQuery.removeEventListener('change', handleChange);
-  }, [applyTheme]);
+  }, [applyTheme, theme]);
 
   // Update i18n language when settings store language changes
   useEffect(() => {

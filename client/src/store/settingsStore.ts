@@ -34,27 +34,35 @@ export const useSettingsStore = create<SettingsState>()(
       paymentNotifications: true,
       signature: '',
       setSettings: (settings) => {
+        console.log('SettingsStore: Setting new settings:', settings);
         set(settings);
         // Apply theme immediately when changed
         if (settings.theme) {
+          console.log('SettingsStore: Theme changed to:', settings.theme);
           get().applyTheme();
         }
       },
       applyTheme: () => {
         const { theme } = get();
         const root = document.documentElement;
+        console.log('SettingsStore: Applying theme:', theme);
         
         if (theme === 'Dark') {
           root.classList.add('dark');
+          console.log('SettingsStore: Added dark class to document');
         } else if (theme === 'Light') {
           root.classList.remove('dark');
+          console.log('SettingsStore: Removed dark class from document');
         } else if (theme === 'System') {
           // Check system preference
           const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+          console.log('SettingsStore: System prefers dark mode:', prefersDark);
           if (prefersDark) {
             root.classList.add('dark');
+            console.log('SettingsStore: Added dark class to document (system preference)');
           } else {
             root.classList.remove('dark');
+            console.log('SettingsStore: Removed dark class from document (system preference)');
           }
         }
       },

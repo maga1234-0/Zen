@@ -181,6 +181,10 @@ export const Settings = () => {
     onSuccess: () => {
       console.log('Settings saved successfully to store');
       
+      // Apply theme immediately after saving
+      console.log('Settings (save): Applying theme:', settings.theme);
+      settingsStore.applyTheme();
+      
       // Change i18n language immediately
       console.log('Settings (save): Changing i18n language to:', settings.language);
       i18n.changeLanguage(settings.language);
@@ -199,6 +203,15 @@ export const Settings = () => {
   const handleChange = (field: keyof SettingsData, value: any) => {
     setSettings((prev) => ({ ...prev, [field]: value }));
     setHasChanges(true);
+    
+    // Apply theme immediately when theme is changed
+    if (field === 'theme') {
+      console.log('Settings (dropdown): Applying theme immediately:', value);
+      // Create a temporary settings object with the new theme
+      const tempSettings = { ...settings, theme: value };
+      settingsStore.setSettings({ theme: value as any });
+      settingsStore.applyTheme();
+    }
     
     // Update i18n language immediately when language is changed
     if (field === 'language') {
