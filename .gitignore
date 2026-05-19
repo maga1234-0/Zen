@@ -36,3 +36,7 @@ coverage/
 # Misc
 *.pem
 .cache/
+
+# Backend directory (separate repository)
+zen_backend/
+zen_backend_temp/
