@@ -146,7 +146,12 @@ function App() {
     console.log('App: language changed to:', language, 'i18n current language:', i18n.language);
     if (language && i18n.language !== language) {
       console.log('App: Changing i18n language to:', language);
-      i18n.changeLanguage(language);
+      i18n.changeLanguage(language).then(() => {
+        console.log('App: i18n language changed successfully to:', i18n.language);
+        console.log('App: Testing translation - "settings.title":', i18n.t('settings.title'));
+      }).catch((error) => {
+        console.error('App: Failed to change i18n language:', error);
+      });
     }
   }, [language, i18n]);
 

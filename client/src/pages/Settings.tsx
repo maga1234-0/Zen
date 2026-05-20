@@ -123,13 +123,13 @@ export const Settings = () => {
     handleChange('signature', signatureData);
     setShowSignaturePad(false);
     console.log('Signature saved! Remember to click "Save Changes" to persist it.');
-    alert('Signature saved! Remember to click "Save Changes" to persist it.');
+    alert(t('settings.signatureSaved'));
   };
 
   const removeSignature = () => {
     handleChange('signature', '');
     console.log('Signature removed! Remember to click "Save Changes".');
-    alert('Signature removed! Remember to click "Save Changes".');
+    alert(t('settings.signatureRemoved'));
   };
 
   // Use settings from store directly instead of API call
@@ -155,7 +155,14 @@ export const Settings = () => {
     
     // Change i18n language
     console.log('Settings: Changing i18n language to:', storeSettings.language);
-    i18n.changeLanguage(storeSettings.language);
+    console.log('Settings: Current i18n language:', i18n.language);
+    
+    i18n.changeLanguage(storeSettings.language).then(() => {
+      console.log('Settings: i18n language changed successfully to:', i18n.language);
+      console.log('Settings: Testing translation - "settings.title":', i18n.t('settings.title'));
+    }).catch((error) => {
+      console.error('Settings: Failed to change i18n language:', error);
+    });
   }, [settingsStore, i18n]);
 
   const saveSettingsMutation = useMutation({
@@ -187,7 +194,14 @@ export const Settings = () => {
       
       // Change i18n language immediately
       console.log('Settings (save): Changing i18n language to:', settings.language);
-      i18n.changeLanguage(settings.language);
+      console.log('Settings (save): Current i18n language:', i18n.language);
+      
+      i18n.changeLanguage(settings.language).then(() => {
+        console.log('Settings (save): i18n language changed successfully to:', i18n.language);
+        console.log('Settings (save): Testing translation - "settings.title":', i18n.t('settings.title'));
+      }).catch((error) => {
+        console.error('Settings (save): Failed to change i18n language:', error);
+      });
       
       console.log('Settings saved successfully');
       alert('Settings saved successfully');
@@ -216,7 +230,15 @@ export const Settings = () => {
     // Update i18n language immediately when language is changed
     if (field === 'language') {
       console.log('Settings (dropdown): Changing i18n language to:', value);
-      i18n.changeLanguage(value);
+      console.log('Settings (dropdown): Current i18n language:', i18n.language);
+      console.log('Settings (dropdown): Available i18n languages:', i18n.languages);
+      
+      i18n.changeLanguage(value).then(() => {
+        console.log('Settings (dropdown): i18n language changed successfully to:', i18n.language);
+        console.log('Settings (dropdown): Testing translation - "settings.title":', i18n.t('settings.title'));
+      }).catch((error) => {
+        console.error('Settings (dropdown): Failed to change i18n language:', error);
+      });
     }
   };
 
@@ -242,7 +264,7 @@ export const Settings = () => {
     });
     setHasChanges(false);
     console.log('Changes discarded');
-    alert('Changes discarded');
+    alert(t('settings.changesDiscarded'));
   };
 
   return (
@@ -276,7 +298,7 @@ export const Settings = () => {
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 dark:text-slate-200 mb-2">
-                Hotel Address
+                {t('settings.hotelAddress')}
               </label>
               <input
                 type="text"
@@ -288,7 +310,7 @@ export const Settings = () => {
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 dark:text-slate-200 mb-2">
-                City & Postal Code
+                {t('settings.hotelCity')}
               </label>
               <input
                 type="text"
@@ -300,7 +322,7 @@ export const Settings = () => {
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 dark:text-slate-200 mb-2">
-                Hotel Phone
+                {t('settings.hotelPhone')}
               </label>
               <input
                 type="text"
@@ -312,7 +334,7 @@ export const Settings = () => {
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 dark:text-slate-200 mb-2">
-                Hotel Email
+                {t('settings.hotelEmail')}
               </label>
               <input
                 type="email"
@@ -446,7 +468,7 @@ export const Settings = () => {
             <div className="p-2 bg-seafoam-100 dark:bg-seafoam-900 rounded-lg">
               <Edit3 className="w-5 h-5 text-seafoam-600 dark:text-seafoam-400" />
             </div>
-            <h2 className="text-xl font-semibold text-gray-800 dark:text-white">Invoice Signature</h2>
+            <h2 className="text-xl font-semibold text-gray-800 dark:text-white">{t('settings.invoiceSignature')}</h2>
           </div>
           <div className="space-y-4">
             {settings.signature ? (
@@ -465,7 +487,7 @@ export const Settings = () => {
                     className="flex-1 dark:border-slate-600 dark:text-slate-200"
                   >
                     <Edit3 className="w-4 h-4 mr-2" />
-                    Edit Signature
+                    {t('settings.editSignature')}
                   </Button>
                   <Button 
                     onClick={removeSignature}
@@ -473,7 +495,7 @@ export const Settings = () => {
                     className="flex-1"
                   >
                     <Trash2 className="w-4 h-4 mr-2" />
-                    Remove
+                    {t('settings.remove')}
                   </Button>
                 </div>
               </div>
@@ -483,11 +505,11 @@ export const Settings = () => {
                 className="w-full bg-seafoam-500 hover:bg-seafoam-600"
               >
                 <Edit3 className="w-4 h-4 mr-2" />
-                Draw Signature
+                {t('settings.drawSignature')}
               </Button>
             )}
             <p className="text-xs text-gray-500 dark:text-slate-400">
-              Your signature will appear on invoices
+              {t('settings.signatureAppearsOnInvoices')}
             </p>
           </div>
         </Card>
@@ -497,7 +519,7 @@ export const Settings = () => {
       {showSignaturePad && (
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
           <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-2xl w-full max-w-2xl p-6 border dark:border-slate-700">
-            <h2 className="text-xl font-bold text-gray-800 dark:text-white mb-4">Draw Your Signature</h2>
+            <h2 className="text-xl font-bold text-gray-800 dark:text-white mb-4">{t('settings.drawYourSignature')}</h2>
             
             <div className="border-2 border-gray-300 dark:border-slate-600 rounded-lg overflow-hidden mb-4">
               <canvas
@@ -518,20 +540,20 @@ export const Settings = () => {
                 variant="secondary"
                 className="flex-1 dark:border-slate-600 dark:text-slate-200"
               >
-                Clear
+                {t('settings.clear')}
               </Button>
               <Button
                 onClick={() => setShowSignaturePad(false)}
                 variant="secondary"
                 className="flex-1 dark:border-slate-600 dark:text-slate-200"
               >
-                Cancel
+                {t('settings.cancel')}
               </Button>
               <Button
                 onClick={saveSignature}
                 className="flex-1 bg-seafoam-500 hover:bg-seafoam-600"
               >
-                Save Signature
+                {t('settings.saveSignature')}
               </Button>
             </div>
           </div>
