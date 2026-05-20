@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Hotel, Mail, Lock, Eye, EyeOff, Sparkles } from 'lucide-react';
+import { Hotel, Mail, Lock, Eye, EyeOff, Shield, Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { useAuthStore } from '@/store/authStore';
 import api from '@/services/api';
@@ -59,17 +59,6 @@ export const Login = () => {
     }
   };
 
-  const demoAccounts = [
-    { role: 'Admin', email: 'admin@hotel.com', color: 'bg-seafoam-400' },
-    { role: 'Manager', email: 'manager@hotel.com', color: 'bg-greybrown-400' },
-    { role: 'Reception', email: 'reception@hotel.com', color: 'bg-gold-400' },
-  ];
-
-  const fillDemo = (email: string) => {
-    setEmail(email);
-    setPassword('password123');
-  };
-
   return (
     <div className="min-h-screen bg-gradient-to-br from-seafoam-50 via-mint-50 to-gold-50 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900 flex items-center justify-center p-4 relative overflow-hidden">
       {/* Animated background elements */}
@@ -116,16 +105,23 @@ export const Login = () => {
             className="flex justify-center mb-6"
           >
             <div className="relative">
-              <div className="absolute inset-0 bg-gradient-to-br from-seafoam-400 to-seafoam-600 rounded-2xl blur-lg opacity-50"></div>
-              <div className="relative bg-gradient-to-br from-seafoam-400 to-seafoam-600 p-4 rounded-2xl">
-                <Hotel className="w-12 h-12 text-white" />
+              <div className="absolute inset-0 bg-gradient-to-br from-seafoam-400 via-seafoam-500 to-seafoam-600 rounded-3xl blur-xl opacity-60 animate-pulse"></div>
+              <div className="relative bg-gradient-to-br from-seafoam-400 via-seafoam-500 to-seafoam-600 p-5 rounded-3xl shadow-2xl">
+                <Hotel className="w-14 h-14 text-white drop-shadow-lg" />
               </div>
               <motion.div
-                animate={{ rotate: 360 }}
-                transition={{ duration: 3, repeat: Infinity, ease: "linear" }}
-                className="absolute -top-1 -right-1"
+                animate={{ 
+                  rotate: 360,
+                  scale: [1, 1.2, 1]
+                }}
+                transition={{ 
+                  duration: 3, 
+                  repeat: Infinity, 
+                  ease: "linear" 
+                }}
+                className="absolute -top-2 -right-2"
               >
-                <Sparkles className="w-6 h-6 text-gold-400" />
+                <Sparkles className="w-7 h-7 text-gold-400 drop-shadow-lg" />
               </motion.div>
             </div>
           </motion.div>
@@ -136,10 +132,10 @@ export const Login = () => {
             transition={{ delay: 0.3 }}
             className="text-center mb-8"
           >
-            <h1 className="text-4xl font-bold bg-gradient-to-r from-seafoam-600 to-greybrown-600 dark:from-seafoam-400 dark:to-gold-400 bg-clip-text text-transparent mb-2">
+            <h1 className="text-4xl font-bold bg-gradient-to-r from-seafoam-600 via-seafoam-500 to-greybrown-600 dark:from-seafoam-400 dark:via-seafoam-300 dark:to-gold-400 bg-clip-text text-transparent mb-3">
               {t('login.title')}
             </h1>
-            <p className="text-gray-600 dark:text-slate-300 text-sm">
+            <p className="text-gray-600 dark:text-slate-300 text-base font-medium">
               {t('login.subtitle')}
             </p>
           </motion.div>
@@ -218,7 +214,7 @@ export const Login = () => {
               <Button
                 type="submit"
                 disabled={loading}
-                className="w-full bg-gradient-to-r from-seafoam-400 to-seafoam-600 hover:from-seafoam-500 hover:to-seafoam-700 text-white font-semibold py-4 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-[1.02]"
+                className="w-full bg-gradient-to-r from-seafoam-400 via-seafoam-500 to-seafoam-600 hover:from-seafoam-500 hover:via-seafoam-600 hover:to-seafoam-700 text-white font-semibold py-4 rounded-xl shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:scale-[1.02] disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
                 size="lg"
               >
                 {loading ? (
@@ -227,49 +223,26 @@ export const Login = () => {
                     {t('login.signingIn')}
                   </div>
                 ) : (
-                  t('login.signIn')
+                  <div className="flex items-center justify-center gap-2">
+                    <Shield className="w-5 h-5" />
+                    {t('login.signIn')}
+                  </div>
                 )}
               </Button>
             </motion.div>
           </form>
 
-          {/* Demo Accounts */}
+          {/* Security Badge */}
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.7 }}
-            className="mt-8 p-5 bg-gradient-to-br from-mint-50 to-seafoam-50 dark:from-slate-700/50 dark:to-slate-600/50 rounded-2xl border border-seafoam-100 dark:border-slate-600"
+            className="mt-8 p-4 bg-gradient-to-br from-mint-50 to-seafoam-50 dark:from-slate-700/50 dark:to-slate-600/50 rounded-2xl border border-seafoam-100 dark:border-slate-600"
           >
-            <p className="text-xs font-semibold text-gray-600 dark:text-slate-300 mb-3 flex items-center gap-2">
-              <Sparkles className="w-4 h-4 text-gold-400" />
-              {t('login.demoAccounts')}
-            </p>
-            <div className="space-y-2">
-              {demoAccounts.map((account, index) => (
-                <motion.button
-                  key={account.email}
-                  initial={{ opacity: 0, x: -20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: 0.8 + index * 0.1 }}
-                  onClick={() => fillDemo(account.email)}
-                  className="w-full flex items-center justify-between p-3 bg-white dark:bg-slate-700 hover:bg-gray-50 dark:hover:bg-slate-600 rounded-xl transition-all group border border-gray-100 dark:border-slate-600 hover:border-seafoam-200 dark:hover:border-seafoam-500 hover:shadow-md"
-                >
-                  <div className="flex items-center gap-3">
-                    <div className={`w-2 h-2 ${account.color} rounded-full`}></div>
-                    <div className="text-left">
-                      <p className="text-sm font-semibold text-gray-700 dark:text-white">{account.role}</p>
-                      <p className="text-xs text-gray-500 dark:text-slate-400">{account.email}</p>
-                    </div>
-                  </div>
-                  <div className="text-xs text-gray-400 dark:text-slate-400 group-hover:text-seafoam-500 transition-colors">
-                    {t('login.clickToFill')}
-                  </div>
-                </motion.button>
-              ))}
+            <div className="flex items-center justify-center gap-3 text-sm text-gray-600 dark:text-slate-300">
+              <Shield className="w-5 h-5 text-seafoam-500" />
+              <span className="font-medium">Secure Login with JWT Authentication</span>
             </div>
-            <p className="text-xs text-gray-500 dark:text-slate-400 mt-3 text-center">
-              Password: <span className="font-mono font-semibold text-gray-700 dark:text-white">password123</span>
-            </p>
           </motion.div>
         </div>
 
@@ -277,8 +250,8 @@ export const Login = () => {
         <motion.p
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          transition={{ delay: 0.9 }}
-          className="text-center text-sm text-gray-600 dark:text-slate-300 mt-6"
+          transition={{ delay: 0.8 }}
+          className="text-center text-sm text-gray-600 dark:text-slate-300 mt-6 font-medium"
         >
           {t('login.footer')}
         </motion.p>
