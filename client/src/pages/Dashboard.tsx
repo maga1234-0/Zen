@@ -2,6 +2,7 @@ import { useQuery } from '@tanstack/react-query';
 import { DollarSign, Calendar, TrendingUp, Home, Users, Bed, CheckCircle, Clock, AlertCircle, Sparkles } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { StatCard } from '@/components/dashboard/StatCard';
+import { AIInsights } from '@/components/dashboard/AIInsights';
 import { Card } from '@/components/ui/Card';
 import api from '@/services/api';
 import { DashboardStats, BookingTrend, RevenueData } from '@/types';
@@ -605,6 +606,15 @@ export const Dashboard = () => {
           </div>
         </Card>
       </div>
+
+      {/* AI Insights Section */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.5 }}
+      >
+        <AIInsights />
+      </motion.div>
     </div>
   );
 };
