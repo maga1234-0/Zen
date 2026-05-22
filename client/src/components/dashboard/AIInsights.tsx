@@ -1,7 +1,8 @@
 import { useState } from 'react';
-import { Sparkles, TrendingUp, MessageSquare, Brain, Loader2, ChevronDown, ChevronUp } from 'lucide-react';
+import { Sparkles, TrendingUp, MessageSquare, Loader2, ChevronDown, ChevronUp } from 'lucide-react';
 import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
+import { AIIcon } from '@/components/icons/AIIcon';
 import aiService from '@/services/aiService';
 import { useToast } from '@/hooks/useToast';
 
@@ -59,7 +60,7 @@ export const AIInsights = () => {
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-3">
             <div className="p-2 bg-gradient-to-br from-purple-500 to-pink-500 rounded-lg">
-              <Brain className="w-5 h-5 text-white" />
+              <AIIcon size={20} className="text-white" animate={false} />
             </div>
             <div>
               <h3 className="text-lg font-bold bg-gradient-to-r from-purple-600 via-pink-600 to-blue-600 dark:from-purple-400 dark:via-pink-400 dark:to-blue-400 bg-clip-text text-transparent">
@@ -244,7 +245,7 @@ export const AIInsights = () => {
         {!insights && !loading && (
           <div className="text-center py-8">
             <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-purple-100 to-pink-100 dark:from-purple-900/30 dark:to-pink-900/30 rounded-full mb-4">
-              <Brain className="w-8 h-8 text-purple-600 dark:text-purple-400" />
+              <AIIcon size={32} className="text-purple-600 dark:text-purple-400" />
             </div>
             <p className="text-gray-600 dark:text-slate-300 mb-2">
               No insights generated yet
