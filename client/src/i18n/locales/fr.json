@@ -11,9 +11,11 @@
     "payments": "Paiements",
     "reports": "Rapports",
     "housekeeping": "Ménage",
+    "maintenance": "Maintenance",
     "staff": "Personnel",
     "notifications": "Notifications",
-    "settings": "Paramètres"
+    "settings": "Paramètres",
+    "profile": "Profil"
   },
   "dashboard": {
     "title": "Tableau de bord",
@@ -23,7 +25,10 @@
     "totalBookings": "Réservations totales",
     "availableRooms": "Chambres disponibles",
     "revenueOverview": "Aperçu des revenus",
-    "recentBookings": "Réservations récentes"
+    "recentBookings": "Réservations récentes",
+    "recentActivities": "Activités récentes",
+    "bookingTrends": "Tendances des réservations",
+    "roomOccupancy": "Occupation des chambres"
   },
   "settings": {
     "title": "Paramètres",
@@ -71,12 +76,18 @@
     "available": "Disponible",
     "occupied": "Occupé",
     "maintenance": "Maintenance",
+    "dirty": "Sale",
+    "cleaning": "Nettoyage",
     "roomNumber": "Numéro de chambre",
     "floor": "Étage",
     "status": "Statut",
     "actions": "Actions",
     "edit": "Modifier",
-    "delete": "Supprimer"
+    "delete": "Supprimer",
+    "roomType": "Type de chambre",
+    "price": "Prix",
+    "quickBook": "Réservation rapide",
+    "viewDetails": "Voir les détails"
   },
   "bookings": {
     "title": "Réservations",
@@ -86,11 +97,35 @@
     "checkIns": "Arrivées aujourd'hui",
     "checkOuts": "Départs aujourd'hui",
     "pending": "En attente",
+    "confirmed": "Confirmé",
+    "checkedIn": "Arrivé",
+    "checkedOut": "Parti",
+    "cancelled": "Annulé",
     "guestName": "Nom du client",
     "room": "Chambre",
     "checkIn": "Arrivée",
     "checkOut": "Départ",
-    "status": "Statut"
+    "status": "Statut",
+    "guests": "Clients",
+    "nights": "Nuits",
+    "totalAmount": "Montant total",
+    "specialRequests": "Demandes spéciales"
+  },
+  "guests": {
+    "title": "Clients",
+    "subtitle": "Gérer les informations des clients",
+    "addGuest": "Ajouter un client",
+    "totalGuests": "Clients totaux",
+    "name": "Nom",
+    "email": "Email",
+    "phone": "Téléphone",
+    "address": "Adresse",
+    "city": "Ville",
+    "country": "Pays",
+    "idType": "Type de pièce d'identité",
+    "idNumber": "Numéro de pièce d'identité",
+    "dateOfBirth": "Date de naissance",
+    "incompleteProfile": "Profil incomplet"
   },
   "payments": {
     "title": "Paiements",
@@ -103,7 +138,14 @@
     "guest": "Client",
     "amount": "Montant",
     "method": "Méthode",
-    "date": "Date"
+    "date": "Date",
+    "cash": "Espèces",
+    "card": "Carte",
+    "mobileMoney": "Mobile Money",
+    "bankTransfer": "Virement bancaire",
+    "completed": "Complété",
+    "failed": "Échoué",
+    "refunded": "Remboursé"
   },
   "staff": {
     "title": "Personnel",
@@ -111,11 +153,18 @@
     "addStaff": "Ajouter du personnel",
     "totalStaff": "Personnel total",
     "active": "Actif",
+    "inactive": "Inactif",
     "name": "Nom",
     "email": "E-mail",
     "role": "Rôle",
     "phone": "Téléphone",
-    "status": "Statut"
+    "status": "Statut",
+    "admin": "Administrateur",
+    "manager": "Gestionnaire",
+    "receptionist": "Réceptionniste",
+    "housekeeping": "Ménage",
+    "maintenance": "Maintenance",
+    "accountant": "Comptable"
   },
   "housekeeping": {
     "title": "Ménage",
@@ -125,7 +174,46 @@
     "clean": "Propre",
     "allRooms": "Toutes les chambres",
     "startCleaning": "Commencer le nettoyage",
-    "markClean": "Marquer comme propre"
+    "markClean": "Marquer comme propre",
+    "floor": "Étage",
+    "urgent": "Urgent",
+    "normal": "Normal"
+  },
+  "maintenance": {
+    "title": "Maintenance",
+    "subtitle": "Gérer les tâches de maintenance",
+    "urgentTasks": "Tâches urgentes",
+    "normalTasks": "Tâches normales",
+    "totalTasks": "Tâches totales",
+    "room": "Chambre",
+    "reason": "Raison",
+    "reportedBy": "Signalé par",
+    "reportedAt": "Signalé le",
+    "complete": "Terminer",
+    "markComplete": "Marquer comme terminé"
+  },
+  "frontDesk": {
+    "title": "Réception",
+    "subtitle": "Gérer les arrivées et départs",
+    "todayCheckIns": "Arrivées aujourd'hui",
+    "todayCheckOuts": "Départs aujourd'hui",
+    "checkIn": "Enregistrer l'arrivée",
+    "checkOut": "Enregistrer le départ",
+    "guestName": "Nom du client",
+    "room": "Chambre",
+    "time": "Heure",
+    "status": "Statut"
+  },
+  "reports": {
+    "title": "Rapports",
+    "subtitle": "Analyser les performances de l'hôtel",
+    "revenue": "Revenu",
+    "occupancy": "Occupation",
+    "bookings": "Réservations",
+    "guests": "Clients",
+    "generateReport": "Générer un rapport",
+    "exportPDF": "Exporter en PDF",
+    "exportExcel": "Exporter en Excel"
   },
   "notifications": {
     "title": "Notifications",
@@ -134,7 +222,31 @@
     "clearAll": "Tout effacer",
     "unread": "Non lu",
     "total": "Total",
-    "noNotifications": "Aucune notification"
+    "noNotifications": "Aucune notification",
+    "newBooking": "Nouvelle réservation",
+    "checkIn": "Arrivée",
+    "checkOut": "Départ",
+    "payment": "Paiement",
+    "maintenance": "Maintenance",
+    "system": "Système"
+  },
+  "profile": {
+    "title": "Profil",
+    "subtitle": "Gérer votre profil utilisateur",
+    "personalInfo": "Informations personnelles",
+    "firstName": "Prénom",
+    "lastName": "Nom",
+    "email": "Email",
+    "phone": "Téléphone",
+    "role": "Rôle",
+    "changePassword": "Changer le mot de passe",
+    "currentPassword": "Mot de passe actuel",
+    "newPassword": "Nouveau mot de passe",
+    "confirmPassword": "Confirmer le mot de passe",
+    "updateProfile": "Mettre à jour le profil",
+    "profilePicture": "Photo de profil",
+    "uploadPhoto": "Télécharger une photo",
+    "removePhoto": "Supprimer la photo"
   },
   "common": {
     "loading": "Chargement...",
@@ -148,7 +260,25 @@
     "actions": "Actions",
     "confirm": "Confirmer",
     "yes": "Oui",
-    "no": "Non"
+    "no": "Non",
+    "close": "Fermer",
+    "back": "Retour",
+    "next": "Suivant",
+    "previous": "Précédent",
+    "submit": "Soumettre",
+    "reset": "Réinitialiser",
+    "refresh": "Actualiser",
+    "export": "Exporter",
+    "import": "Importer",
+    "print": "Imprimer",
+    "download": "Télécharger",
+    "upload": "Téléverser",
+    "view": "Voir",
+    "details": "Détails",
+    "success": "Succès",
+    "error": "Erreur",
+    "warning": "Avertissement",
+    "info": "Information"
   },
   "login": {
     "title": "Système de Gestion Hôtelière",
@@ -161,6 +291,38 @@
     "demoAccounts": "Comptes de démonstration rapide",
     "clickToFill": "Cliquer pour remplir",
     "passwordLabel": "Mot de passe",
-    "footer": "Construit avec ❤️ en utilisant React, TypeScript & Supabase"
+    "footer": "Construit avec ❤️ en utilisant React, TypeScript & Supabase",
+    "forgotPassword": "Mot de passe oublié ?",
+    "rememberMe": "Se souvenir de moi"
+  },
+  "ai": {
+    "insights": "Insights IA",
+    "poweredBy": "Propulsé par Google Gemini",
+    "generateInsights": "Générer des insights",
+    "analyzing": "Analyse en cours...",
+    "trend": "Tendance",
+    "dataPoints": "Points de données",
+    "occupancy": "Occupation",
+    "detailedAnalysis": "Analyse détaillée",
+    "peakPeriods": "Périodes de pointe",
+    "roomPreferences": "Préférences de chambres",
+    "revenueForecast": "Prévision de revenus",
+    "pricingRecommendations": "Recommandations de tarification",
+    "marketingSuggestions": "Suggestions marketing",
+    "summary": "Résumé",
+    "noInsights": "Aucun insight généré",
+    "clickToGenerate": "Cliquez sur \"Générer des insights\" pour analyser les tendances de réservation et obtenir des recommandations basées sur l'IA",
+    "insightsGenerated": "Insights IA générés avec succès !",
+    "insightsFailed": "Échec de la génération des insights"
+  },
+  "themes": {
+    "light": "Clair",
+    "dark": "Sombre",
+    "system": "Système"
+  },
+  "languages": {
+    "english": "Anglais",
+    "french": "Français",
+    "spanish": "Espagnol"
   }
 }

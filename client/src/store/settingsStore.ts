@@ -22,8 +22,8 @@ export const useSettingsStore = create<SettingsState>()(
   persist(
     (set, get) => ({
       theme: 'Dark',
-      language: 'English',
-      hotelName: 'Grand Seafoam Hotel',
+      language: 'French',
+      hotelName: 'Grand Hôtel Seafoam',
       hotelAddress: '123 Luxury Avenue',
       hotelCity: 'Paradise City, PC 12345',
       hotelPhone: '+1 (555) 123-4567',

@@ -10,7 +10,7 @@ const getStoredLanguage = () => {
     const stored = localStorage.getItem('settings-storage');
     if (stored) {
       const parsed = JSON.parse(stored);
-      const language = parsed.state?.language || 'English';
+      const language = parsed.state?.language || 'French';
       console.log('i18n: Loading language from localStorage:', language, 'Full parsed:', parsed);
       
       // Validate that the language exists in our resources
@@ -18,15 +18,15 @@ const getStoredLanguage = () => {
       if (validLanguages.includes(language)) {
         return language;
       } else {
-        console.warn('i18n: Invalid language in storage:', language, 'Defaulting to English');
-        return 'English';
+        console.warn('i18n: Invalid language in storage:', language, 'Defaulting to French');
+        return 'French';
       }
     }
-    console.log('i18n: No settings in localStorage, using default: English');
+    console.log('i18n: No settings in localStorage, using default: French');
   } catch (error) {
     console.error('Error reading language from localStorage:', error);
   }
-  return 'English';
+  return 'French';
 };
 
 // Initialize i18n with debug mode enabled
@@ -39,7 +39,7 @@ i18n
       Spanish: { translation: es },
     },
     lng: getStoredLanguage(),
-    fallbackLng: 'English',
+    fallbackLng: 'French',
     interpolation: {
       escapeValue: false,
     },
