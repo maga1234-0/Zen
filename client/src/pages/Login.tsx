@@ -132,11 +132,16 @@ export const Login = () => {
             transition={{ delay: 0.3 }}
             className="text-center mb-8"
           >
-            <h1 className="text-4xl font-bold bg-gradient-to-r from-seafoam-600 via-seafoam-500 to-greybrown-600 dark:from-seafoam-400 dark:via-seafoam-300 dark:to-gold-400 bg-clip-text text-transparent mb-3">
-              {t('login.title')}
+            <h1 className="text-5xl font-bold mb-3">
+              <span className="bg-gradient-to-r from-seafoam-600 via-teal-600 to-cyan-600 dark:from-seafoam-400 dark:via-teal-400 dark:to-cyan-400 bg-clip-text text-transparent tracking-tight">
+                ZENIT
+              </span>
+              <span className="text-2xl font-semibold text-gray-600 dark:text-slate-400 ml-2">
+                PMS
+              </span>
             </h1>
             <p className="text-gray-600 dark:text-slate-300 text-base font-medium">
-              {t('login.subtitle')}
+              Property Management System
             </p>
           </motion.div>
 
