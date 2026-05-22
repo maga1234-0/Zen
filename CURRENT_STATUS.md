@@ -1,8 +1,15 @@
 # 🏨 Hotel PMS - Current Status
 
-**Last Updated**: May 14, 2026
+**Last Updated**: May 22, 2026
 
 ## ✅ System Status: FULLY OPERATIONAL - ALL MIGRATIONS COMPLETE
+
+### Recent Updates (May 22, 2026)
+- ✅ **FIXED**: Duplicate guest name display issue (e.g., "John John")
+- ✅ Updated SQL queries to conditionally display guest names
+- ✅ Added helper function for guest name construction in notifications
+- ✅ Backend now intelligently handles single-name guests
+- ✅ No database migration required - backward compatible
 
 ### Recent Updates (May 14, 2026)
 - ✅ **ALL DATABASE MIGRATIONS COMPLETED**

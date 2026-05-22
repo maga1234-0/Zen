@@ -110,7 +110,11 @@ export const getRecentActivities = async (req: AuthRequest, res: Response) => {
         b.check_in_date,
         b.check_out_date,
         b.created_at,
-        g.first_name || ' ' || g.last_name as guest_name,
+        CASE 
+          WHEN g.last_name = '' OR g.last_name IS NULL OR g.last_name = g.first_name 
+          THEN g.first_name 
+          ELSE g.first_name || ' ' || g.last_name 
+        END as guest_name,
         r.room_number
        FROM bookings b
        JOIN guests g ON b.guest_id = g.id

@@ -104,16 +104,17 @@ export const Bookings = () => {
         // Parse guest name - handle various formats
         const nameParts = bookingData.guestName.trim().split(/\s+/); // Split by any whitespace
         const firstName = nameParts[0] || '';
-        const lastName = nameParts.slice(1).join(' ') || firstName; // Use remaining parts as last name, or duplicate first name if none
+        const lastName = nameParts.length > 1 ? nameParts.slice(1).join(' ') : ''; // Empty string if no last name provided
 
         // Check if guest already exists (case-insensitive, trimmed comparison)
         const guestsResponse = await api.get('/guests');
         const existingGuest = guestsResponse.data.find((g: any) => {
           const existingFirst = g.first_name.toLowerCase().trim();
-          const existingLast = g.last_name.toLowerCase().trim();
+          const existingLast = (g.last_name || '').toLowerCase().trim();
           const inputFirst = firstName.toLowerCase().trim();
           const inputLast = lastName.toLowerCase().trim();
           
+          // Match if both first and last names match (or both last names are empty)
           return existingFirst === inputFirst && existingLast === inputLast;
         });
 
@@ -126,7 +127,7 @@ export const Bookings = () => {
           // Create minimal guest record (can be completed later in Guests page)
           const guestResponse = await api.post('/guests', {
             firstName: firstName.trim(),
-            lastName: lastName.trim(),
+            lastName: lastName.trim() || firstName.trim(), // Use first name as last name if empty (required by DB)
             phone: null, // NULL - to be filled later
             email: null, // NULL - to be filled later
           });

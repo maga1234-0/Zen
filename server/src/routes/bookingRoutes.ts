@@ -7,12 +7,24 @@ const router = Router();
 
 router.use(authenticate);
 
+// Helper function to construct guest name without duplicates
+const constructGuestName = (firstName: string, lastName: string): string => {
+  if (!lastName || lastName.trim() === '' || lastName === firstName) {
+    return firstName;
+  }
+  return `${firstName} ${lastName}`;
+};
+
 // Get all bookings
 router.get('/', async (req: AuthRequest, res) => {
   try {
     const result = await pool.query(
       `SELECT b.*, 
-        g.first_name || ' ' || g.last_name as guest_name,
+        CASE 
+          WHEN g.last_name = '' OR g.last_name IS NULL OR g.last_name = g.first_name 
+          THEN g.first_name 
+          ELSE g.first_name || ' ' || g.last_name 
+        END as guest_name,
         g.phone as guest_phone,
         r.room_number,
         r.status as room_status
@@ -32,7 +44,11 @@ router.get('/today/checkins', async (req: AuthRequest, res) => {
   try {
     const result = await pool.query(
       `SELECT b.*, 
-        g.first_name || ' ' || g.last_name as guest_name,
+        CASE 
+          WHEN g.last_name = '' OR g.last_name IS NULL OR g.last_name = g.first_name 
+          THEN g.first_name 
+          ELSE g.first_name || ' ' || g.last_name 
+        END as guest_name,
         g.phone as guest_phone,
         r.room_number,
         r.status as room_status
@@ -56,7 +72,11 @@ router.get('/today/checkouts', async (req: AuthRequest, res) => {
   try {
     const result = await pool.query(
       `SELECT b.*, 
-        g.first_name || ' ' || g.last_name as guest_name,
+        CASE 
+          WHEN g.last_name = '' OR g.last_name IS NULL OR g.last_name = g.first_name 
+          THEN g.first_name 
+          ELSE g.first_name || ' ' || g.last_name 
+        END as guest_name,
         g.phone as guest_phone,
         r.room_number,
         r.status as room_status
@@ -80,7 +100,11 @@ router.get('/unpaid', async (req: AuthRequest, res) => {
   try {
     const result = await pool.query(
       `SELECT b.*, 
-        g.first_name || ' ' || g.last_name as guest_name,
+        CASE 
+          WHEN g.last_name = '' OR g.last_name IS NULL OR g.last_name = g.first_name 
+          THEN g.first_name 
+          ELSE g.first_name || ' ' || g.last_name 
+        END as guest_name,
         g.phone as guest_phone,
         r.room_number
        FROM bookings b
@@ -154,7 +178,7 @@ router.post('/', async (req: AuthRequest, res) => {
     // Send notification about new booking
     const room = await pool.query('SELECT room_number FROM rooms WHERE id = $1', [roomId]);
     const guest = await pool.query('SELECT first_name, last_name FROM guests WHERE id = $1', [guestId]);
-    const guestName = `${guest.rows[0].first_name} ${guest.rows[0].last_name}`;
+    const guestName = constructGuestName(guest.rows[0].first_name, guest.rows[0].last_name);
     const roomNumber = room.rows[0].room_number;
     
     await notificationService.notifyNewBooking(guestName, roomNumber, checkInDate);
@@ -216,7 +240,7 @@ router.patch('/:id/status', async (req: AuthRequest, res) => {
       );
       
       if (roomInfo.rows.length > 0 && bookingInfo.rows.length > 0) {
-        const guestName = `${bookingInfo.rows[0].first_name} ${bookingInfo.rows[0].last_name}`;
+        const guestName = constructGuestName(bookingInfo.rows[0].first_name, bookingInfo.rows[0].last_name);
         await notificationService.notifyCheckOut(guestName, roomInfo.rows[0].room_number);
       }
     }
@@ -240,7 +264,7 @@ router.patch('/:id/status', async (req: AuthRequest, res) => {
       );
       
       if (roomInfo.rows.length > 0 && bookingInfo.rows.length > 0) {
-        const guestName = `${bookingInfo.rows[0].first_name} ${bookingInfo.rows[0].last_name}`;
+        const guestName = constructGuestName(bookingInfo.rows[0].first_name, bookingInfo.rows[0].last_name);
         await notificationService.notifyCheckIn(guestName, roomInfo.rows[0].room_number);
       }
     }
@@ -275,7 +299,7 @@ router.patch('/:id/status', async (req: AuthRequest, res) => {
       );
       
       if (roomInfo.rows.length > 0 && bookingInfo.rows.length > 0) {
-        const guestName = `${bookingInfo.rows[0].first_name} ${bookingInfo.rows[0].last_name}`;
+        const guestName = constructGuestName(bookingInfo.rows[0].first_name, bookingInfo.rows[0].last_name);
         await notificationService.notifyBookingCancelled(guestName, roomInfo.rows[0].room_number);
       }
     }
@@ -338,7 +362,7 @@ router.delete('/:id', async (req: AuthRequest, res) => {
 
     const roomId = bookingResult.rows[0].room_id;
     const roomNumber = bookingResult.rows[0].room_number;
-    const guestName = `${bookingResult.rows[0].first_name} ${bookingResult.rows[0].last_name}`;
+    const guestName = constructGuestName(bookingResult.rows[0].first_name, bookingResult.rows[0].last_name);
 
     // Delete the booking
     await client.query('DELETE FROM bookings WHERE id = $1', [id]);
