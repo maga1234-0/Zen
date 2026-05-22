@@ -10,7 +10,7 @@ export const AIInsights = () => {
   const [loading, setLoading] = useState(false);
   const [insights, setInsights] = useState<any>(null);
   const [expanded, setExpanded] = useState(false);
-  const { showToast } = useToast();
+  const toast = useToast();
 
   const generateInsights = async () => {
     setLoading(true);
@@ -20,15 +20,14 @@ export const AIInsights = () => {
       if (result.success) {
         setInsights(result);
         setExpanded(true);
-        showToast('AI insights generated successfully!', 'success');
+        toast.success('AI insights generated successfully!');
       } else {
-        showToast('Failed to generate insights', 'error');
+        toast.error('Failed to generate insights');
       }
     } catch (error: any) {
       console.error('AI Insights Error:', error);
-      showToast(
-        error.response?.data?.message || 'Failed to generate AI insights. Make sure the API key is configured.',
-        'error'
+      toast.error(
+        error.response?.data?.message || 'Failed to generate AI insights. Make sure the API key is configured.'
       );
     } finally {
       setLoading(false);
@@ -169,7 +168,7 @@ export const AIInsights = () => {
                         {Object.entries(insights.predictions.roomTypePreferences).map(([type, percentage]) => (
                           <div key={type} className="bg-gray-50 dark:bg-slate-600 rounded p-2">
                             <span className="text-gray-600 dark:text-slate-300">{type}:</span>
-                            <span className="font-semibold text-gray-800 dark:text-white ml-2">{percentage}</span>
+                            <span className="font-semibold text-gray-800 dark:text-white ml-2">{String(percentage)}</span>
                           </div>
                         ))}
                       </div>
