@@ -74,21 +74,73 @@ export const updateUser = async (req: AuthRequest, res: Response) => {
 };
 
 export const deleteUser = async (req: AuthRequest, res: Response) => {
+  const client = await pool.connect();
   try {
     const { id } = req.params;
 
-    const result = await pool.query(
-      'DELETE FROM users WHERE id = $1 RETURNING id',
+    await client.query('BEGIN');
+
+    // Check if user exists
+    const userCheck = await client.query(
+      'SELECT id, email, first_name, last_name FROM users WHERE id = $1',
       [id]
     );
 
-    if (result.rows.length === 0) {
+    if (userCheck.rows.length === 0) {
+      await client.query('ROLLBACK');
       return res.status(404).json({ message: 'User not found' });
     }
 
+    const user = userCheck.rows[0];
+
+    // Set created_by to NULL for bookings created by this user
+    await client.query(
+      'UPDATE bookings SET created_by = NULL WHERE created_by = $1',
+      [id]
+    );
+
+    // Set maintenance_reported_by to NULL for rooms reported by this user
+    await client.query(
+      'UPDATE rooms SET maintenance_reported_by = NULL WHERE maintenance_reported_by = $1',
+      [id]
+    );
+
+    // Delete audit logs (or set user_id to NULL if you want to keep the logs)
+    await client.query(
+      'DELETE FROM audit_logs WHERE user_id = $1',
+      [id]
+    );
+
+    // Delete user settings (has ON DELETE CASCADE, but being explicit)
+    await client.query(
+      'DELETE FROM user_settings WHERE user_id = $1',
+      [id]
+    );
+
+    // Delete notifications (has ON DELETE CASCADE, but being explicit)
+    await client.query(
+      'DELETE FROM notifications WHERE user_id = $1',
+      [id]
+    );
+
+    // Finally, delete the user
+    await client.query(
+      'DELETE FROM users WHERE id = $1',
+      [id]
+    );
+
+    await client.query('COMMIT');
+
+    console.log(`✅ User deleted: ${user.email} (${user.first_name} ${user.last_name})`);
     res.json({ message: 'User deleted successfully' });
-  } catch (error) {
+  } catch (error: any) {
+    await client.query('ROLLBACK');
     console.error('Delete user error:', error);
-    res.status(500).json({ message: 'Server error' });
+    res.status(500).json({ 
+      message: 'Failed to delete user', 
+      error: error.message 
+    });
+  } finally {
+    client.release();
   }
 };
