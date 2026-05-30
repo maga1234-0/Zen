@@ -9,6 +9,7 @@
     "guests": "Clients",
     "billing": "Facturation",
     "payments": "Paiements",
+    "restaurant": "Restaurant & Bar",
     "reports": "Rapports",
     "housekeeping": "Ménage",
     "maintenance": "Maintenance",
@@ -324,5 +325,54 @@
     "english": "Anglais",
     "french": "Français",
     "spanish": "Espagnol"
+  },
+  "restaurant": {
+    "title": "Restaurant & Bar",
+    "subtitle": "Gestion des commandes, menu et réservations",
+    "newOrder": "Nouvelle Commande",
+    "activeOrders": "Commandes Actives",
+    "dailyRevenue": "Revenus du Jour",
+    "availableTables": "Tables Disponibles",
+    "uniqueCustomers": "Clients Uniques",
+    "orders": "Commandes",
+    "menu": "Menu",
+    "tables": "Tables",
+    "reservations": "Réservations",
+    "searchOrder": "Rechercher une commande...",
+    "allStatuses": "Tous les statuts",
+    "orderNumber": "N° Commande",
+    "table": "Table",
+    "room": "Chambre",
+    "guest": "Client",
+    "server": "Serveur",
+    "amount": "Montant",
+    "time": "Heure",
+    "start": "Commencer",
+    "ready": "Prête",
+    "serve": "Servir",
+    "complete": "Terminer",
+    "noOrders": "Aucune commande",
+    "status": {
+      "pending": "En attente",
+      "confirmed": "Confirmée",
+      "preparing": "En préparation",
+      "ready": "Prête",
+      "served": "Servie",
+      "completed": "Terminée",
+      "cancelled": "Annulée"
+    },
+    "orderType": {
+      "dine_in": "Sur place",
+      "room_service": "Room Service",
+      "takeaway": "À emporter",
+      "bar": "Bar"
+    },
+    "tableStatus": {
+      "available": "Disponible",
+      "occupied": "Occupée",
+      "reserved": "Réservée",
+      "cleaning": "Nettoyage"
+    },
+    "seats": "places"
   }
 }

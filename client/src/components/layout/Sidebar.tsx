@@ -16,6 +16,7 @@ import {
   Sparkles,
   Menu,
   X,
+  UtensilsCrossed,
 } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { useAuthStore } from '@/store/authStore';
@@ -62,6 +63,7 @@ export const Sidebar = ({
         { icon: Bed, label: t('nav.rooms'), path: '/rooms' },
         { icon: Users, label: t('nav.guests'), path: '/guests' },
         { icon: CreditCard, label: t('nav.payments'), path: '/payments' },
+        { icon: UtensilsCrossed, label: t('nav.restaurant'), path: '/restaurant' },
         { icon: FileText, label: t('nav.reports'), path: '/reports' },
         { icon: Sparkles, label: t('nav.housekeeping'), path: '/housekeeping' },
         { icon: UserCog, label: t('nav.staff'), path: '/staff' },
