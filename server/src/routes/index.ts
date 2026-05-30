@@ -8,6 +8,7 @@ import userRoutes from './userRoutes';
 import paymentRoutes from './paymentRoutes';
 import notificationRoutes from './notificationRoutes';
 import aiRoutes from './aiRoutes';
+import restaurantRoutes from './restaurantRoutes';
 
 const router = Router();
 
@@ -20,5 +21,6 @@ router.use('/users', userRoutes);
 router.use('/payments', paymentRoutes);
 router.use('/notifications', notificationRoutes);
 router.use('/ai', aiRoutes);
+router.use('/restaurant', restaurantRoutes);
 
 export default router;
