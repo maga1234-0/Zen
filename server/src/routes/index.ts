@@ -9,6 +9,7 @@ import paymentRoutes from './paymentRoutes';
 import notificationRoutes from './notificationRoutes';
 import aiRoutes from './aiRoutes';
 import restaurantRoutes from './restaurantRoutes';
+import onlineBookingRoutes from './onlineBookingRoutes';
 
 const router = Router();
 
@@ -22,5 +23,6 @@ router.use('/payments', paymentRoutes);
 router.use('/notifications', notificationRoutes);
 router.use('/ai', aiRoutes);
 router.use('/restaurant', restaurantRoutes);
+router.use('/online-booking', onlineBookingRoutes);
 
 export default router;

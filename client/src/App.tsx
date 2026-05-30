@@ -14,6 +14,7 @@ import { Reports } from '@/pages/Reports';
 import { Housekeeping } from '@/pages/Housekeeping';
 import { Notifications } from '@/pages/Notifications';
 import { Restaurant } from '@/pages/Restaurant';
+import { PublicBooking } from '@/pages/PublicBooking';
 import { Sidebar } from '@/components/layout/Sidebar';
 import { Navbar } from '@/components/layout/Navbar';
 import { ToastContainer } from '@/components/ui/Toast';
@@ -163,6 +164,7 @@ function App() {
           <ToastContainer toasts={toast.toasts} onRemove={toast.removeToast} />
           <Routes>
             <Route path="/login" element={<Login />} />
+            <Route path="/book" element={<PublicBooking />} />
             <Route
               path="/dashboard"
               element={
