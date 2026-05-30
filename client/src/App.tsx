@@ -15,6 +15,7 @@ import { Housekeeping } from '@/pages/Housekeeping';
 import { Notifications } from '@/pages/Notifications';
 import { Restaurant } from '@/pages/Restaurant';
 import { PublicBooking } from '@/pages/PublicBooking';
+import { Spa } from '@/pages/Spa';
 import { Sidebar } from '@/components/layout/Sidebar';
 import { Navbar } from '@/components/layout/Navbar';
 import { ToastContainer } from '@/components/ui/Toast';
@@ -218,6 +219,14 @@ function App() {
               element={
                 <ProtectedLayout>
                   <Restaurant />
+                </ProtectedLayout>
+              }
+            />
+            <Route
+              path="/spa"
+              element={
+                <ProtectedLayout>
+                  <Spa />
                 </ProtectedLayout>
               }
             />
