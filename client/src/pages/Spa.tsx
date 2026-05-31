@@ -258,7 +258,7 @@ export default function Spa() {
               <div>
                 <p className="text-sm text-gray-600 dark:text-slate-400">Revenu total</p>
                 <p className="text-2xl font-bold text-gray-900 dark:text-white mt-1">
-                  {statistics.general.total_revenue.toFixed(2)}€
+                  {(statistics.general.total_revenue || 0).toFixed(2)}€
                 </p>
               </div>
               <div className="w-12 h-12 bg-purple-100 dark:bg-purple-900/20 rounded-lg flex items-center justify-center">
@@ -434,7 +434,7 @@ export default function Spa() {
                           </span>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-white">
-                          {booking.total_amount.toFixed(2)}€
+                          {(booking.total_amount || 0).toFixed(2)}€
                         </td>
                       </tr>
                     ))
@@ -551,14 +551,14 @@ export default function Spa() {
               <div className="pt-4 border-t border-gray-200 dark:border-slate-700">
                 <div className="flex items-center justify-between mb-2">
                   <span className="text-sm text-gray-500 dark:text-slate-500 line-through">
-                    {pkg.regular_price.toFixed(2)}€
+                    {(pkg.regular_price || 0).toFixed(2)}€
                   </span>
                   <span className="text-xs bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-400 px-2 py-1 rounded-full">
-                    Économisez {pkg.savings.toFixed(2)}€
+                    Économisez {(pkg.savings || 0).toFixed(2)}€
                   </span>
                 </div>
                 <div className="text-2xl font-bold text-purple-600 dark:text-purple-400">
-                  {pkg.package_price.toFixed(2)}€
+                  {(pkg.package_price || 0).toFixed(2)}€
                 </div>
               </div>
             </Card>
