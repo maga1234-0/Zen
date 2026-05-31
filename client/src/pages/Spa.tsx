@@ -62,7 +62,7 @@ interface Statistics {
   therapistPerformance: any[];
 }
 
-export const Spa = () => {
+export default function Spa() {
   const { t } = useTranslation();
   const toast = useToastContext();
   const [activeTab, setActiveTab] = useState<'bookings' | 'services' | 'therapists' | 'packages' | 'products'>('bookings');
@@ -577,4 +577,4 @@ export const Spa = () => {
       )}
     </div>
   );
-};
+}
