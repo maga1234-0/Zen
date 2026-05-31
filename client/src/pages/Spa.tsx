@@ -84,6 +84,7 @@ export default function Spa() {
   const [showBookingModal, setShowBookingModal] = useState(false);
   const [showServiceModal, setShowServiceModal] = useState(false);
   const [showTherapistModal, setShowTherapistModal] = useState(false);
+  const [backendError, setBackendError] = useState(false);
 
 
   useEffect(() => {
@@ -92,6 +93,7 @@ export default function Spa() {
 
   const loadData = async () => {
     setLoading(true);
+    setBackendError(false);
     try {
       if (activeTab === 'bookings') {
         await loadBookings();
@@ -105,35 +107,85 @@ export default function Spa() {
       }
     } catch (error) {
       console.error('Load data error:', error);
-      toast.error('Erreur lors du chargement des données');
+      setBackendError(true);
     } finally {
       setLoading(false);
     }
   };
 
   const loadBookings = async () => {
-    const response = await api.get('/spa/bookings');
-    setBookings(response.data);
+    try {
+      const response = await api.get('/spa/bookings');
+      setBookings(Array.isArray(response.data) ? response.data : []);
+    } catch (error) {
+      console.error('Bookings load error:', error);
+      setBookings([]);
+      toast.error('Impossible de charger les réservations. Vérifiez que le backend est déployé.');
+    }
   };
 
   const loadServices = async () => {
-    const response = await api.get('/spa/services');
-    setServices(response.data);
+    try {
+      const response = await api.get('/spa/services');
+      setServices(Array.isArray(response.data) ? response.data : []);
+    } catch (error) {
+      console.error('Services load error:', error);
+      setServices([]);
+      toast.error('Impossible de charger les services. Vérifiez que le backend est déployé.');
+    }
   };
 
   const loadTherapists = async () => {
-    const response = await api.get('/spa/therapists');
-    setTherapists(response.data);
+    try {
+      const response = await api.get('/spa/therapists');
+      setTherapists(Array.isArray(response.data) ? response.data : []);
+    } catch (error) {
+      console.error('Therapists load error:', error);
+      setTherapists([]);
+      toast.error('Impossible de charger les thérapeutes. Vérifiez que le backend est déployé.');
+    }
   };
 
   const loadPackages = async () => {
-    const response = await api.get('/spa/packages');
-    setPackages(response.data);
+    try {
+      const response = await api.get('/spa/packages');
+      setPackages(Array.isArray(response.data) ? response.data : []);
+    } catch (error) {
+      console.error('Packages load error:', error);
+      setPackages([]);
+      toast.error('Impossible de charger les forfaits. Vérifiez que le backend est déployé.');
+    }
   };
 
   const loadStatistics = async () => {
-    const response = await api.get('/spa/statistics');
-    setStatistics(response.data);
+    try {
+      const response = await api.get('/spa/statistics');
+      // Ensure all numeric values have defaults
+      const data = response.data || {};
+      setStatistics({
+        general: {
+          completed_bookings: data.general?.completed_bookings || 0,
+          confirmed_bookings: data.general?.confirmed_bookings || 0,
+          pending_bookings: data.general?.pending_bookings || 0,
+          total_revenue: data.general?.total_revenue || 0
+        },
+        topServices: data.topServices || [],
+        therapistPerformance: data.therapistPerformance || []
+      });
+    } catch (error) {
+      console.error('Statistics load error:', error);
+      // Set default empty statistics if backend is not ready
+      setStatistics({
+        general: {
+          completed_bookings: 0,
+          confirmed_bookings: 0,
+          pending_bookings: 0,
+          total_revenue: 0
+        },
+        topServices: [],
+        therapistPerformance: []
+      });
+    }
   };
 
   const getStatusColor = (status: string) => {
@@ -206,6 +258,37 @@ export default function Spa() {
           Nouvelle Réservation
         </Button>
       </div>
+
+      {/* Backend Warning */}
+      {backendError && (
+        <Card className="p-4 bg-yellow-50 dark:bg-yellow-900/20 border-yellow-200 dark:border-yellow-800">
+          <div className="flex items-start gap-3">
+            <div className="w-6 h-6 bg-yellow-100 dark:bg-yellow-900/40 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+              <span className="text-yellow-600 dark:text-yellow-400 text-sm font-bold">!</span>
+            </div>
+            <div className="flex-1">
+              <h3 className="text-sm font-semibold text-yellow-800 dark:text-yellow-300 mb-1">
+                Backend non déployé
+              </h3>
+              <p className="text-sm text-yellow-700 dark:text-yellow-400 mb-2">
+                Le module spa n'est pas encore disponible sur le backend. Veuillez redéployer le backend sur Render.
+              </p>
+              <div className="text-xs text-yellow-600 dark:text-yellow-500">
+                <strong>Action requise:</strong> Aller sur{' '}
+                <a 
+                  href="https://dashboard.render.com" 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="underline hover:text-yellow-800 dark:hover:text-yellow-300"
+                >
+                  dashboard.render.com
+                </a>
+                {' '}→ Sélectionner votre service → Cliquer "Manual Deploy"
+              </div>
+            </div>
+          </div>
+        </Card>
+      )}
 
 
       {/* Statistics Cards */}
