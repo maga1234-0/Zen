@@ -396,10 +396,14 @@ DECLARE
     hotel_id_var UUID;
     hotel_name_var VARCHAR(255);
 BEGIN
-    SELECT COUNT(*), MAX(id), MAX(name) 
-    INTO hotel_count, hotel_id_var, hotel_name_var
-    FROM hotels 
-    WHERE name = 'Grand Seafoam Hotel';
+    SELECT COUNT(*) INTO hotel_count FROM hotels WHERE name = 'Grand Seafoam Hotel';
+    
+    IF hotel_count > 0 THEN
+        SELECT id, name INTO hotel_id_var, hotel_name_var 
+        FROM hotels 
+        WHERE name = 'Grand Seafoam Hotel' 
+        LIMIT 1;
+    END IF;
     
     RAISE NOTICE '';
     RAISE NOTICE '🏨 ============================================';
@@ -459,10 +463,14 @@ DECLARE
     user_email_var VARCHAR(255);
     user_role_var VARCHAR(20);
 BEGIN
-    SELECT COUNT(*), MAX(id), MAX(email), MAX(role)
-    INTO user_count, user_id_var, user_email_var, user_role_var
-    FROM users 
-    WHERE email = 'admin@hotel.com';
+    SELECT COUNT(*) INTO user_count FROM users WHERE email = 'admin@hotel.com';
+    
+    IF user_count > 0 THEN
+        SELECT id, email, role INTO user_id_var, user_email_var, user_role_var
+        FROM users 
+        WHERE email = 'admin@hotel.com'
+        LIMIT 1;
+    END IF;
     
     RAISE NOTICE '';
     RAISE NOTICE '👤 ============================================';
