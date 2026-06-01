@@ -230,6 +230,8 @@ export const Dashboard = () => {
       const res = await api.get('/dashboard/stats');
       return res.data;
     },
+    refetchInterval: 30000, // Rafraîchir toutes les 30 secondes
+    refetchOnWindowFocus: true, // Rafraîchir quand la fenêtre reprend le focus
   });
 
   const { data: bookingTrends } = useQuery<BookingTrend[]>({
@@ -238,6 +240,8 @@ export const Dashboard = () => {
       const res = await api.get('/dashboard/booking-trends');
       return res.data;
     },
+    refetchInterval: 60000, // Rafraîchir toutes les 60 secondes
+    refetchOnWindowFocus: true,
   });
 
   const { data: revenueData } = useQuery<RevenueData[]>({
@@ -246,6 +250,8 @@ export const Dashboard = () => {
       const res = await api.get('/dashboard/revenue-analytics');
       return res.data;
     },
+    refetchInterval: 60000, // Rafraîchir toutes les 60 secondes
+    refetchOnWindowFocus: true,
   });
 
   const { data: recentActivities } = useQuery({
@@ -254,6 +260,8 @@ export const Dashboard = () => {
       const res = await api.get('/dashboard/recent-activities');
       return res.data;
     },
+    refetchInterval: 30000, // Rafraîchir toutes les 30 secondes
+    refetchOnWindowFocus: true,
   });
 
   const roomStatusData = [
