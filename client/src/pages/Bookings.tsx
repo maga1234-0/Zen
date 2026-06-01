@@ -52,6 +52,17 @@ export const Bookings = () => {
     },
   });
 
+  // Get hotel ID dynamically
+  const { data: hotels } = useQuery({
+    queryKey: ['hotels'],
+    queryFn: async () => {
+      const res = await api.get('/hotels');
+      return res.data;
+    },
+  });
+
+  const hotelId = hotels?.[0]?.id;
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
@@ -106,38 +117,25 @@ export const Bookings = () => {
         const firstName = nameParts[0] || '';
         const lastName = nameParts.length > 1 ? nameParts.slice(1).join(' ') : ''; // Empty string if no last name provided
 
-        // Check if guest already exists (case-insensitive, trimmed comparison)
-        const guestsResponse = await api.get('/guests');
-        const existingGuest = guestsResponse.data.find((g: any) => {
-          const existingFirst = g.first_name.toLowerCase().trim();
-          const existingLast = (g.last_name || '').toLowerCase().trim();
-          const inputFirst = firstName.toLowerCase().trim();
-          const inputLast = lastName.toLowerCase().trim();
-          
-          // Match if both first and last names match (or both last names are empty)
-          return existingFirst === inputFirst && existingLast === inputLast;
+        // Always create a new guest for each booking to avoid confusion
+        // Users can merge duplicates later in the Guests page if needed
+        const guestResponse = await api.post('/guests', {
+          firstName: firstName.trim(),
+          lastName: lastName.trim() || firstName.trim(), // Use first name as last name if empty (required by DB)
+          phone: '000-000-0000', // Placeholder - to be filled later
+          email: `${firstName.toLowerCase().trim()}@placeholder.com`, // Placeholder - to be filled later
         });
+        const guestId = guestResponse.data.id;
+        console.log('✅ Created new guest record:', guestResponse.data);
+        toast.info('New guest created. Complete their details in the Guests page.');
 
-        let guestId;
-        if (existingGuest) {
-          guestId = existingGuest.id;
-          console.log('✅ Using existing guest:', existingGuest);
-          toast.info(`Using existing guest: ${existingGuest.first_name} ${existingGuest.last_name}`);
-        } else {
-          // Create minimal guest record (can be completed later in Guests page)
-          const guestResponse = await api.post('/guests', {
-            firstName: firstName.trim(),
-            lastName: lastName.trim() || firstName.trim(), // Use first name as last name if empty (required by DB)
-            phone: '000-000-0000', // Placeholder - to be filled later
-            email: `${firstName.toLowerCase().trim()}@placeholder.com`, // Placeholder - to be filled later
-          });
-          guestId = guestResponse.data.id;
-          console.log('✅ Created minimal guest record:', guestResponse.data);
-          toast.info('New guest created. Complete their details in the Guests page.');
+        if (!hotelId) {
+          toast.error('Hotel not found. Please contact administrator.');
+          return;
         }
 
         const payload = {
-          hotelId: '550e8400-e29b-41d4-a716-446655440000',
+          hotelId,
           guestId,
           roomId: bookingData.roomId,
           checkInDate: bookingData.checkInDate,
