@@ -63,6 +63,17 @@ export const Rooms = () => {
     },
   });
 
+  // Get hotel ID dynamically
+  const { data: hotels } = useQuery({
+    queryKey: ['hotels'],
+    queryFn: async () => {
+      const res = await api.get('/hotels');
+      return res.data;
+    },
+  });
+
+  const hotelId = hotels?.[0]?.id;
+
   const createRoomMutation = useMutation({
     mutationFn: async (data: any) => {
       const res = await api.post('/rooms', data);
@@ -160,7 +171,12 @@ export const Rooms = () => {
 
   const handleSubmitAdd = (e: React.FormEvent) => {
     e.preventDefault();
-    const hotelId = '550e8400-e29b-41d4-a716-446655440000';
+    
+    if (!hotelId) {
+      toast.error('Hotel not found. Please contact administrator.');
+      return;
+    }
+    
     createRoomMutation.mutate({
       hotelId,
       roomTypeId: newRoom.roomTypeId,
@@ -184,7 +200,11 @@ export const Rooms = () => {
       });
 
       const guestId = guestRes.data.id;
-      const hotelId = '550e8400-e29b-41d4-a716-446655440000'; // Correct hotel ID
+      
+      if (!hotelId) {
+        toast.error('Hotel not found. Please contact administrator.');
+        return;
+      }
 
       // Calculate total amount (days * base_price)
       const checkIn = new Date(bookingData.checkInDate);
