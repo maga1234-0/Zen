@@ -18,6 +18,7 @@ export const Restaurant = () => {
   const [activeTab, setActiveTab] = useState<TabType>('orders');
   const [searchTerm, setSearchTerm] = useState('');
   const [filterStatus, setFilterStatus] = useState('all');
+  const [showOrderModal, setShowOrderModal] = useState(false);
 
   // Fetch restaurant stats
   const { data: stats } = useQuery({
@@ -140,7 +141,7 @@ export const Restaurant = () => {
             Gestion des commandes, menu et réservations
           </p>
         </div>
-        <Button className="bg-seafoam-500 hover:bg-seafoam-600 w-full sm:w-auto">
+        <Button onClick={() => setShowOrderModal(true)} className="bg-seafoam-500 hover:bg-seafoam-600 w-full sm:w-auto">
           <Plus className="w-4 h-4 mr-2" />
           Nouvelle Commande
         </Button>
@@ -403,6 +404,94 @@ export const Restaurant = () => {
             Réservations de tables - En développement
           </p>
         </Card>
+      )}
+
+      {/* Order Modal */}
+      {showOrderModal && (
+        <>
+          <div 
+            className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50"
+            onClick={() => setShowOrderModal(false)}
+          />
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+            <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-2xl w-full max-w-2xl p-6 border dark:border-slate-700">
+              <div className="flex items-center justify-between mb-6">
+                <h2 className="text-2xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
+                  <UtensilsCrossed className="w-6 h-6 text-seafoam-500" />
+                  Nouvelle Commande Restaurant
+                </h2>
+                <button
+                  onClick={() => setShowOrderModal(false)}
+                  className="p-2 hover:bg-gray-100 dark:hover:bg-slate-700 rounded-lg transition-colors"
+                >
+                  <span className="text-2xl text-gray-500 dark:text-slate-400">×</span>
+                </button>
+              </div>
+
+              <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4 mb-6">
+                <div className="flex items-start gap-3">
+                  <div className="w-6 h-6 bg-blue-100 dark:bg-blue-900/40 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+                    <span className="text-blue-600 dark:text-blue-400 text-sm font-bold">ℹ</span>
+                  </div>
+                  <div>
+                    <h3 className="text-sm font-semibold text-blue-800 dark:text-blue-300 mb-1">
+                      Module Restaurant actif
+                    </h3>
+                    <p className="text-sm text-blue-700 dark:text-blue-400 mb-2">
+                      Le module restaurant est déployé et fonctionnel. Vous pouvez créer des commandes pour:
+                    </p>
+                    <ul className="text-sm text-blue-700 dark:text-blue-400 list-disc list-inside space-y-1">
+                      <li>Service en salle (dine-in)</li>
+                      <li>Service en chambre (room service)</li>
+                      <li>À emporter (takeaway)</li>
+                      <li>Bar</li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+
+              <div className="text-center py-8">
+                <ChefHat className="w-16 h-16 text-seafoam-400 mx-auto mb-4" />
+                <p className="text-gray-600 dark:text-slate-400 mb-4">
+                  Fonctionnalités disponibles pour créer une commande:
+                </p>
+                <ul className="text-sm text-gray-500 dark:text-slate-500 space-y-2 text-left max-w-md mx-auto">
+                  <li>✓ Sélection du type de service</li>
+                  <li>✓ Choix de la table ou chambre</li>
+                  <li>✓ Ajout d'articles du menu</li>
+                  <li>✓ Notes spéciales et allergies</li>
+                  <li>✓ Gestion des paiements</li>
+                </ul>
+              </div>
+
+              <div className="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg p-4 mb-6">
+                <p className="text-sm text-yellow-700 dark:text-yellow-400">
+                  <strong>Note:</strong> Le formulaire complet de création de commande sera disponible dans une prochaine mise à jour. 
+                  Pour l'instant, vous pouvez gérer les commandes existantes depuis l'onglet "Commandes".
+                </p>
+              </div>
+
+              <div className="flex justify-end gap-3">
+                <Button
+                  onClick={() => setShowOrderModal(false)}
+                  variant="secondary"
+                  className="dark:border-slate-600 dark:text-slate-200"
+                >
+                  Fermer
+                </Button>
+                <Button
+                  onClick={() => {
+                    setShowOrderModal(false);
+                    setActiveTab('orders');
+                  }}
+                  className="bg-seafoam-500 hover:bg-seafoam-600"
+                >
+                  Voir les Commandes
+                </Button>
+              </div>
+            </div>
+          </div>
+        </>
       )}
     </div>
   );

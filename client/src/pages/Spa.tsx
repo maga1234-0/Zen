@@ -658,6 +658,84 @@ export default function Spa() {
           </p>
         </div>
       )}
+
+      {/* Booking Modal */}
+      {showBookingModal && (
+        <>
+          <div 
+            className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50"
+            onClick={() => setShowBookingModal(false)}
+          />
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+            <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-2xl w-full max-w-2xl p-6 border dark:border-slate-700">
+              <div className="flex items-center justify-between mb-6">
+                <h2 className="text-2xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
+                  <Calendar className="w-6 h-6 text-purple-500" />
+                  Nouvelle Réservation Spa
+                </h2>
+                <button
+                  onClick={() => setShowBookingModal(false)}
+                  className="p-2 hover:bg-gray-100 dark:hover:bg-slate-700 rounded-lg transition-colors"
+                >
+                  <span className="text-2xl text-gray-500 dark:text-slate-400">×</span>
+                </button>
+              </div>
+
+              <div className="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg p-4 mb-6">
+                <div className="flex items-start gap-3">
+                  <div className="w-6 h-6 bg-yellow-100 dark:bg-yellow-900/40 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+                    <span className="text-yellow-600 dark:text-yellow-400 text-sm font-bold">!</span>
+                  </div>
+                  <div>
+                    <h3 className="text-sm font-semibold text-yellow-800 dark:text-yellow-300 mb-1">
+                      Module Spa en cours de déploiement
+                    </h3>
+                    <p className="text-sm text-yellow-700 dark:text-yellow-400 mb-2">
+                      Le module spa n'est pas encore disponible sur le backend. Pour activer cette fonctionnalité:
+                    </p>
+                    <ol className="text-sm text-yellow-700 dark:text-yellow-400 list-decimal list-inside space-y-1">
+                      <li>Allez sur <a href="https://dashboard.render.com" target="_blank" rel="noopener noreferrer" className="underline font-semibold">dashboard.render.com</a></li>
+                      <li>Sélectionnez votre service backend</li>
+                      <li>Cliquez sur "Manual Deploy" → "Deploy latest commit"</li>
+                      <li>Attendez 3-5 minutes pour le déploiement</li>
+                    </ol>
+                  </div>
+                </div>
+              </div>
+
+              <div className="text-center py-8">
+                <Sparkles className="w-16 h-16 text-purple-400 mx-auto mb-4" />
+                <p className="text-gray-600 dark:text-slate-400 mb-4">
+                  Une fois le backend déployé, vous pourrez créer des réservations spa avec:
+                </p>
+                <ul className="text-sm text-gray-500 dark:text-slate-500 space-y-2 text-left max-w-md mx-auto">
+                  <li>✓ Sélection du service spa</li>
+                  <li>✓ Choix du thérapeute</li>
+                  <li>✓ Date et heure de rendez-vous</li>
+                  <li>✓ Informations du client</li>
+                  <li>✓ Gestion des paiements</li>
+                </ul>
+              </div>
+
+              <div className="flex justify-end gap-3 mt-6">
+                <Button
+                  onClick={() => setShowBookingModal(false)}
+                  variant="secondary"
+                  className="dark:border-slate-600 dark:text-slate-200"
+                >
+                  Fermer
+                </Button>
+                <Button
+                  onClick={() => window.open('https://dashboard.render.com', '_blank')}
+                  className="bg-purple-500 hover:bg-purple-600"
+                >
+                  Aller sur Render
+                </Button>
+              </div>
+            </div>
+          </div>
+        </>
+      )}
     </div>
   );
 }
