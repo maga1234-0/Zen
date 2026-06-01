@@ -532,8 +532,18 @@ export default function Spa() {
 
       {/* Services Tab */}
       {activeTab === 'services' && (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {services.map((service) => (
+        <>
+          <div className="flex justify-end mb-4">
+            <Button
+              onClick={() => setShowServiceModal(true)}
+              className="bg-purple-500 hover:bg-purple-600"
+            >
+              <Plus className="w-4 h-4 mr-2" />
+              Ajouter un Service
+            </Button>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {services.map((service) => (
             <Card key={service.id} className="p-6 hover:shadow-lg transition-shadow">
               <div className="flex items-start justify-between mb-4">
                 <div className="flex-1">
@@ -571,8 +581,18 @@ export default function Spa() {
 
       {/* Therapists Tab */}
       {activeTab === 'therapists' && (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {therapists.map((therapist) => (
+        <>
+          <div className="flex justify-end mb-4">
+            <Button
+              onClick={() => setShowTherapistModal(true)}
+              className="bg-purple-500 hover:bg-purple-600"
+            >
+              <Plus className="w-4 h-4 mr-2" />
+              Ajouter un Thérapeute
+            </Button>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {therapists.map((therapist) => (
             <Card key={therapist.id} className="p-6 hover:shadow-lg transition-shadow">
               <div className="flex items-start justify-between mb-4">
                 <div className="flex-1">
@@ -605,8 +625,18 @@ export default function Spa() {
 
       {/* Packages Tab */}
       {activeTab === 'packages' && (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {packages.map((pkg) => (
+        <>
+          <div className="flex justify-end mb-4">
+            <Button
+              onClick={() => toast.info('Fonctionnalité à venir: Créer un package spa')}
+              className="bg-purple-500 hover:bg-purple-600"
+            >
+              <Plus className="w-4 h-4 mr-2" />
+              Ajouter un Package
+            </Button>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {packages.map((pkg) => (
             <Card key={pkg.id} className="p-6 hover:shadow-lg transition-shadow border-2 border-purple-200 dark:border-purple-800">
               <div className="mb-4">
                 <div className="flex items-center justify-between mb-2">
@@ -651,12 +681,23 @@ export default function Spa() {
 
       {/* Products Tab */}
       {activeTab === 'products' && (
-        <div className="text-center py-12">
-          <ShoppingBag className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-          <p className="text-gray-600 dark:text-slate-400">
-            Gestion des produits spa à venir
-          </p>
-        </div>
+        <>
+          <div className="flex justify-end mb-4">
+            <Button
+              onClick={() => toast.info('Fonctionnalité à venir: Ajouter un produit spa')}
+              className="bg-purple-500 hover:bg-purple-600"
+            >
+              <Plus className="w-4 h-4 mr-2" />
+              Ajouter un Produit
+            </Button>
+          </div>
+          <div className="text-center py-12">
+            <ShoppingBag className="w-16 h-16 text-gray-400 mx-auto mb-4" />
+            <p className="text-gray-600 dark:text-slate-400">
+              Gestion des produits spa à venir
+            </p>
+          </div>
+        </>
       )}
 
       {/* Booking Modal */}
