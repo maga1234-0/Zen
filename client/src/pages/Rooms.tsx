@@ -53,6 +53,8 @@ export const Rooms = () => {
       const res = await api.get('/rooms');
       return res.data;
     },
+    refetchInterval: 30000, // Rafraîchir toutes les 30 secondes
+    refetchOnWindowFocus: true, // Rafraîchir au retour sur l'onglet
   });
 
   const { data: roomTypes } = useQuery({
@@ -61,6 +63,8 @@ export const Rooms = () => {
       const res = await api.get('/rooms/types');
       return res.data;
     },
+    refetchInterval: 60000, // Rafraîchir toutes les 60 secondes
+    refetchOnWindowFocus: true,
   });
 
   // Get hotel ID dynamically
@@ -70,6 +74,8 @@ export const Rooms = () => {
       const res = await api.get('/hotels');
       return res.data;
     },
+    refetchInterval: 60000, // Rafraîchir toutes les 60 secondes
+    refetchOnWindowFocus: true,
   });
 
   const hotelId = hotels?.[0]?.id;

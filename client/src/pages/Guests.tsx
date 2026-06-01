@@ -37,6 +37,8 @@ export const Guests = () => {
       const res = await api.get('/guests');
       return res.data;
     },
+    refetchInterval: 30000, // Rafraîchir toutes les 30 secondes
+    refetchOnWindowFocus: true,
   });
 
   const createGuestMutation = useMutation({
