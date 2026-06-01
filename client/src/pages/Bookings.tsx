@@ -128,8 +128,8 @@ export const Bookings = () => {
           const guestResponse = await api.post('/guests', {
             firstName: firstName.trim(),
             lastName: lastName.trim() || firstName.trim(), // Use first name as last name if empty (required by DB)
-            phone: null, // NULL - to be filled later
-            email: null, // NULL - to be filled later
+            phone: '000-000-0000', // Placeholder - to be filled later
+            email: `${firstName.toLowerCase().trim()}@placeholder.com`, // Placeholder - to be filled later
           });
           guestId = guestResponse.data.id;
           console.log('✅ Created minimal guest record:', guestResponse.data);
