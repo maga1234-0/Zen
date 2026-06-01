@@ -27,6 +27,8 @@ export const Reports = () => {
         occupiedRooms: rooms.data.filter((r: any) => r.status === 'occupied').length,
       };
     },
+    refetchInterval: 60000, // Rafraîchir toutes les 60 secondes
+    refetchOnWindowFocus: true, // Rafraîchir quand la fenêtre reprend le focus
   });
 
   const generateReport = async (reportType: string) => {

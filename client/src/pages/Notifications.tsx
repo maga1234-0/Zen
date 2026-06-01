@@ -18,6 +18,8 @@ export const Notifications = () => {
       const res = await api.get('/notifications');
       return res.data;
     },
+    refetchInterval: 30000, // Rafraîchir toutes les 30 secondes
+    refetchOnWindowFocus: true, // Rafraîchir quand la fenêtre reprend le focus
   });
 
   const markAllReadMutation = useMutation({

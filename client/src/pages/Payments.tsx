@@ -29,6 +29,8 @@ export const Payments = () => {
       const res = await api.get('/payments');
       return res.data;
     },
+    refetchInterval: 30000, // Rafraîchir toutes les 30 secondes
+    refetchOnWindowFocus: true, // Rafraîchir quand la fenêtre reprend le focus
   });
 
   // Fetch unpaid bookings
@@ -38,6 +40,8 @@ export const Payments = () => {
       const res = await api.get('/bookings/unpaid');
       return res.data;
     },
+    refetchInterval: 30000, // Rafraîchir toutes les 30 secondes
+    refetchOnWindowFocus: true, // Rafraîchir quand la fenêtre reprend le focus
   });
 
   const handleBookingSelect = (booking: any) => {

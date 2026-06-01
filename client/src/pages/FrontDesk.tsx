@@ -12,8 +12,8 @@ export const FrontDesk = () => {
       console.log('Today\'s check-ins from API:', res.data);
       return res.data;
     },
-    refetchInterval: 30000, // Refresh every 30 seconds
-    refetchOnWindowFocus: true, // Refresh when window gains focus
+    refetchInterval: 30000, // Rafraîchir toutes les 30 secondes
+    refetchOnWindowFocus: true, // Rafraîchir quand la fenêtre reprend le focus
   });
 
   const { data: checkOuts, isLoading: loadingCheckOuts } = useQuery({
@@ -23,8 +23,8 @@ export const FrontDesk = () => {
       console.log('Today\'s check-outs from API:', res.data);
       return res.data;
     },
-    refetchInterval: 30000, // Refresh every 30 seconds
-    refetchOnWindowFocus: true, // Refresh when window gains focus
+    refetchInterval: 30000, // Rafraîchir toutes les 30 secondes
+    refetchOnWindowFocus: true, // Rafraîchir quand la fenêtre reprend le focus
   });
 
   const formatTime = (dateString: string) => {

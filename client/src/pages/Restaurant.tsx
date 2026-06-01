@@ -26,7 +26,8 @@ export const Restaurant = () => {
       const res = await api.get('/restaurant/stats');
       return res.data;
     },
-    refetchInterval: 30000, // Refresh every 30 seconds
+    refetchInterval: 30000, // Rafraîchir toutes les 30 secondes
+    refetchOnWindowFocus: true, // Rafraîchir quand la fenêtre reprend le focus
   });
 
   // Fetch orders
@@ -38,6 +39,8 @@ export const Restaurant = () => {
       return res.data;
     },
     enabled: activeTab === 'orders',
+    refetchInterval: 30000, // Rafraîchir toutes les 30 secondes
+    refetchOnWindowFocus: true, // Rafraîchir quand la fenêtre reprend le focus
   });
 
   // Fetch menu items
@@ -48,6 +51,8 @@ export const Restaurant = () => {
       return res.data;
     },
     enabled: activeTab === 'menu',
+    refetchInterval: 60000, // Rafraîchir toutes les 60 secondes
+    refetchOnWindowFocus: true, // Rafraîchir quand la fenêtre reprend le focus
   });
 
   // Fetch tables
@@ -58,6 +63,8 @@ export const Restaurant = () => {
       return res.data;
     },
     enabled: activeTab === 'tables',
+    refetchInterval: 30000, // Rafraîchir toutes les 30 secondes
+    refetchOnWindowFocus: true, // Rafraîchir quand la fenêtre reprend le focus
   });
 
   // Fetch reservations
@@ -68,6 +75,8 @@ export const Restaurant = () => {
       return res.data;
     },
     enabled: activeTab === 'reservations',
+    refetchInterval: 30000, // Rafraîchir toutes les 30 secondes
+    refetchOnWindowFocus: true, // Rafraîchir quand la fenêtre reprend le focus
   });
 
   const updateOrderStatusMutation = useMutation({

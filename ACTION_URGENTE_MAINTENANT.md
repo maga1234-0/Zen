@@ -1,22 +1,17 @@
-# ⚡ EXÉCUTER CE SCRIPT MAINTENANT
+# ⚡ ACTION URGENTE MAINTENANT
 
-## 🎯 PROBLÈME
+## 🚨 PROBLÈME ACTUEL
 
-Le problème vient de la **base de données**, pas du code !
-
-**Aucun hôtel n'existe dans Supabase** → Erreur `hotel_id_fkey`
+La création de réservation ne fonctionne toujours pas car **aucun hôtel n'existe dans Supabase**.
 
 ---
 
 ## ✅ SOLUTION (2 MINUTES)
 
 ### 1. Ouvrir Supabase
-
 https://supabase.com/dashboard
 
-### 2. Cliquer "SQL Editor"
-
-Menu gauche → SQL Editor → New query
+### 2. SQL Editor → New query
 
 ### 3. Copier-coller ce script
 
@@ -65,13 +60,10 @@ BEGIN
 END $$;
 ```
 
-### 4. Cliquer "Run" (ou F5)
+### 4. Cliquer "Run" (F5)
 
 ### 5. Tester immédiatement
-
 https://zen-lyart.vercel.app/bookings
-
-**Créer une réservation** → ✅ Doit fonctionner !
 
 ---
 
@@ -85,16 +77,23 @@ https://zen-lyart.vercel.app/bookings
 
 ---
 
-## 💡 CE QUE ÇA FAIT
+## 🎯 APRÈS LE SCRIPT
 
-1. ✅ Crée un hôtel "Zen Hotel" si aucun n'existe
-2. ✅ Corrige toutes les chambres orphelines
-3. ✅ Corrige toutes les réservations orphelines
+1. ✅ Un hôtel existe dans Supabase
+2. ✅ Toutes les chambres ont un hotel_id valide
+3. ✅ Toutes les réservations ont un hotel_id valide
+4. ✅ La création de réservation fonctionne
 
 ---
 
-**⚡ PAS BESOIN D'ATTENDRE UN DÉPLOIEMENT !**
+## ⏰ PUIS ATTENDRE 3 MINUTES
 
-**🔧 EXÉCUTEZ LE SCRIPT MAINTENANT !**
+Le Dashboard sera en temps réel après le déploiement Vercel (3 minutes).
+
+---
+
+**⚡ EXÉCUTEZ LE SCRIPT MAINTENANT !**
 
 **🧪 TESTEZ IMMÉDIATEMENT APRÈS !**
+
+**⏰ PUIS ATTENDEZ 3 MIN POUR LE DASHBOARD !**

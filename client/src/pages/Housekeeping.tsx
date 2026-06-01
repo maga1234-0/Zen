@@ -15,6 +15,8 @@ export const Housekeeping = () => {
       const res = await api.get('/rooms');
       return res.data;
     },
+    refetchInterval: 30000, // Rafraîchir toutes les 30 secondes
+    refetchOnWindowFocus: true, // Rafraîchir quand la fenêtre reprend le focus
   });
 
   const updateRoomStatusMutation = useMutation({

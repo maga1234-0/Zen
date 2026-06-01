@@ -21,6 +21,8 @@ export const Maintenance = () => {
       const res = await api.get('/rooms');
       return res.data.filter((room: any) => room.status === 'maintenance');
     },
+    refetchInterval: 30000, // Rafraîchir toutes les 30 secondes
+    refetchOnWindowFocus: true, // Rafraîchir quand la fenêtre reprend le focus
   });
 
   const completeMaintenanceMutation = useMutation({

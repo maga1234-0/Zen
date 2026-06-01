@@ -33,6 +33,8 @@ export const Staff = () => {
       const res = await api.get('/users');
       return res.data;
     },
+    refetchInterval: 60000, // Rafraîchir toutes les 60 secondes
+    refetchOnWindowFocus: true, // Rafraîchir quand la fenêtre reprend le focus
   });
 
   const updateStaffMutation = useMutation({
