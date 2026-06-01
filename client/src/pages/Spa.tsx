@@ -544,39 +544,40 @@ export default function Spa() {
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {services.map((service) => (
-            <Card key={service.id} className="p-6 hover:shadow-lg transition-shadow">
-              <div className="flex items-start justify-between mb-4">
-                <div className="flex-1">
-                  <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-1">
-                    {service.name}
-                  </h3>
-                  <p className="text-sm text-gray-600 dark:text-slate-400">
-                    {service.category_name}
-                  </p>
+              <Card key={service.id} className="p-6 hover:shadow-lg transition-shadow">
+                <div className="flex items-start justify-between mb-4">
+                  <div className="flex-1">
+                    <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-1">
+                      {service.name}
+                    </h3>
+                    <p className="text-sm text-gray-600 dark:text-slate-400">
+                      {service.category_name}
+                    </p>
+                  </div>
+                  <span className={`px-2 py-1 text-xs font-semibold rounded-full ${
+                    service.is_active 
+                      ? 'bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-400' 
+                      : 'bg-gray-100 text-gray-800 dark:bg-gray-900/20 dark:text-gray-400'
+                  }`}>
+                    {service.is_active ? 'Actif' : 'Inactif'}
+                  </span>
                 </div>
-                <span className={`px-2 py-1 text-xs font-semibold rounded-full ${
-                  service.is_active 
-                    ? 'bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-400' 
-                    : 'bg-gray-100 text-gray-800 dark:bg-gray-900/20 dark:text-gray-400'
-                }`}>
-                  {service.is_active ? 'Actif' : 'Inactif'}
-                </span>
-              </div>
-              <p className="text-sm text-gray-600 dark:text-slate-400 mb-4 line-clamp-2">
-                {service.description}
-              </p>
-              <div className="flex items-center justify-between pt-4 border-t border-gray-200 dark:border-slate-700">
-                <div className="flex items-center text-sm text-gray-600 dark:text-slate-400">
-                  <Clock className="w-4 h-4 mr-1" />
-                  {service.duration} min
+                <p className="text-sm text-gray-600 dark:text-slate-400 mb-4 line-clamp-2">
+                  {service.description}
+                </p>
+                <div className="flex items-center justify-between pt-4 border-t border-gray-200 dark:border-slate-700">
+                  <div className="flex items-center text-sm text-gray-600 dark:text-slate-400">
+                    <Clock className="w-4 h-4 mr-1" />
+                    {service.duration} min
+                  </div>
+                  <div className="text-lg font-bold text-purple-600 dark:text-purple-400">
+                    {Number(service.price || 0).toFixed(2)}€
+                  </div>
                 </div>
-                <div className="text-lg font-bold text-purple-600 dark:text-purple-400">
-                  {Number(service.price || 0).toFixed(2)}€
-                </div>
-              </div>
-            </Card>
-          ))}
-        </div>
+              </Card>
+            ))}
+          </div>
+        </>
       )}
 
       {/* Therapists Tab */}
@@ -593,34 +594,35 @@ export default function Spa() {
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {therapists.map((therapist) => (
-            <Card key={therapist.id} className="p-6 hover:shadow-lg transition-shadow">
-              <div className="flex items-start justify-between mb-4">
-                <div className="flex-1">
-                  <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-1">
-                    {therapist.first_name} {therapist.last_name}
-                  </h3>
-                  <div className="flex flex-wrap gap-1 mt-2">
-                    {therapist.specialties.map((specialty, index) => (
-                      <span
-                        key={index}
-                        className="px-2 py-1 text-xs bg-purple-100 text-purple-800 dark:bg-purple-900/20 dark:text-purple-400 rounded-full"
-                      >
-                        {specialty}
-                      </span>
-                    ))}
+              <Card key={therapist.id} className="p-6 hover:shadow-lg transition-shadow">
+                <div className="flex items-start justify-between mb-4">
+                  <div className="flex-1">
+                    <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-1">
+                      {therapist.first_name} {therapist.last_name}
+                    </h3>
+                    <div className="flex flex-wrap gap-1 mt-2">
+                      {therapist.specialties.map((specialty, index) => (
+                        <span
+                          key={index}
+                          className="px-2 py-1 text-xs bg-purple-100 text-purple-800 dark:bg-purple-900/20 dark:text-purple-400 rounded-full"
+                        >
+                          {specialty}
+                        </span>
+                      ))}
+                    </div>
                   </div>
+                  <span className={`px-2 py-1 text-xs font-semibold rounded-full ${
+                    therapist.is_active 
+                      ? 'bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-400' 
+                      : 'bg-gray-100 text-gray-800 dark:bg-gray-900/20 dark:text-gray-400'
+                  }`}>
+                    {therapist.is_active ? 'Actif' : 'Inactif'}
+                  </span>
                 </div>
-                <span className={`px-2 py-1 text-xs font-semibold rounded-full ${
-                  therapist.is_active 
-                    ? 'bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-400' 
-                    : 'bg-gray-100 text-gray-800 dark:bg-gray-900/20 dark:text-gray-400'
-                }`}>
-                  {therapist.is_active ? 'Actif' : 'Inactif'}
-                </span>
-              </div>
-            </Card>
-          ))}
-        </div>
+              </Card>
+            ))}
+          </div>
+        </>
       )}
 
       {/* Packages Tab */}
@@ -637,46 +639,47 @@ export default function Spa() {
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {packages.map((pkg) => (
-            <Card key={pkg.id} className="p-6 hover:shadow-lg transition-shadow border-2 border-purple-200 dark:border-purple-800">
-              <div className="mb-4">
-                <div className="flex items-center justify-between mb-2">
-                  <h3 className="text-lg font-bold text-gray-900 dark:text-white">
-                    {pkg.name}
-                  </h3>
-                  <Package className="w-6 h-6 text-purple-500" />
+              <Card key={pkg.id} className="p-6 hover:shadow-lg transition-shadow border-2 border-purple-200 dark:border-purple-800">
+                <div className="mb-4">
+                  <div className="flex items-center justify-between mb-2">
+                    <h3 className="text-lg font-bold text-gray-900 dark:text-white">
+                      {pkg.name}
+                    </h3>
+                    <Package className="w-6 h-6 text-purple-500" />
+                  </div>
+                  <p className="text-sm text-gray-600 dark:text-slate-400 mb-3">
+                    {pkg.description}
+                  </p>
+                  <div className="flex items-center text-sm text-gray-600 dark:text-slate-400 mb-3">
+                    <Clock className="w-4 h-4 mr-1" />
+                    {pkg.total_duration} minutes
+                  </div>
+                  <div className="space-y-1 mb-4">
+                    <p className="text-xs text-gray-500 dark:text-slate-500">Services inclus:</p>
+                    {pkg.services.map((service: any, index: number) => (
+                      <p key={index} className="text-sm text-gray-700 dark:text-slate-300">
+                        • {service.name}
+                      </p>
+                    ))}
+                  </div>
                 </div>
-                <p className="text-sm text-gray-600 dark:text-slate-400 mb-3">
-                  {pkg.description}
-                </p>
-                <div className="flex items-center text-sm text-gray-600 dark:text-slate-400 mb-3">
-                  <Clock className="w-4 h-4 mr-1" />
-                  {pkg.total_duration} minutes
+                <div className="pt-4 border-t border-gray-200 dark:border-slate-700">
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-sm text-gray-500 dark:text-slate-500 line-through">
+                      {Number(pkg.regular_price || 0).toFixed(2)}€
+                    </span>
+                    <span className="text-xs bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-400 px-2 py-1 rounded-full">
+                      Économisez {Number(pkg.savings || 0).toFixed(2)}€
+                    </span>
+                  </div>
+                  <div className="text-2xl font-bold text-purple-600 dark:text-purple-400">
+                    {Number(pkg.package_price || 0).toFixed(2)}€
+                  </div>
                 </div>
-                <div className="space-y-1 mb-4">
-                  <p className="text-xs text-gray-500 dark:text-slate-500">Services inclus:</p>
-                  {pkg.services.map((service: any, index: number) => (
-                    <p key={index} className="text-sm text-gray-700 dark:text-slate-300">
-                      • {service.name}
-                    </p>
-                  ))}
-                </div>
-              </div>
-              <div className="pt-4 border-t border-gray-200 dark:border-slate-700">
-                <div className="flex items-center justify-between mb-2">
-                  <span className="text-sm text-gray-500 dark:text-slate-500 line-through">
-                    {Number(pkg.regular_price || 0).toFixed(2)}€
-                  </span>
-                  <span className="text-xs bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-400 px-2 py-1 rounded-full">
-                    Économisez {Number(pkg.savings || 0).toFixed(2)}€
-                  </span>
-                </div>
-                <div className="text-2xl font-bold text-purple-600 dark:text-purple-400">
-                  {Number(pkg.package_price || 0).toFixed(2)}€
-                </div>
-              </div>
-            </Card>
-          ))}
-        </div>
+              </Card>
+            ))}
+          </div>
+        </>
       )}
 
       {/* Products Tab */}
