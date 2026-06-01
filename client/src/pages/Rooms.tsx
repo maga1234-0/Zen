@@ -261,7 +261,7 @@ export const Rooms = () => {
   const filteredRooms = rooms?.filter((room: any) => {
     // Search filter
     const matchesSearch = 
-      room.room_number.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (room.room_number && room.room_number.toLowerCase().includes(searchTerm.toLowerCase())) ||
       (room.type_name && room.type_name.toLowerCase().includes(searchTerm.toLowerCase()));
 
     // Status filter
