@@ -549,7 +549,7 @@ export const Restaurant = () => {
                           {item.category_name}
                         </td>
                         <td className="px-6 py-4 text-sm font-medium text-gray-900 dark:text-white">
-                          {item.price.toFixed(2)}€
+                          {Number(item.price || 0).toFixed(2)}€
                         </td>
                         <td className="px-6 py-4 text-sm text-gray-900 dark:text-white">
                           {item.preparation_time ? `${item.preparation_time} min` : '-'}
