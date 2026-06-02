@@ -18,7 +18,8 @@ export type Permission =
   | 'restaurant.view'
   | 'restaurant.orders.view' | 'restaurant.orders.create' | 'restaurant.orders.update' | 'restaurant.orders.update_status' | 'restaurant.orders.update_payment'
   | 'restaurant.menu.view' | 'restaurant.menu.create' | 'restaurant.menu.update' | 'restaurant.menu.delete'
-  | 'restaurant.tables.view' | 'restaurant.tables.update'
+  | 'restaurant.tables.view' | 'restaurant.tables.create' | 'restaurant.tables.update' | 'restaurant.tables.delete' | 'restaurant.tables.update_status'
+  | 'restaurant.reservations.view' | 'restaurant.reservations.create' | 'restaurant.reservations.update' | 'restaurant.reservations.delete'
   | 'restaurant.payments.create' | 'restaurant.payments.refund'
   | 'restaurant.stats.view' | 'restaurant.stats.view_production'
   | 'restaurant.print.tickets' | 'restaurant.print.invoices';
@@ -41,7 +42,8 @@ const rolePermissions: Record<Role, Permission[]> = {
     'restaurant.view',
     'restaurant.orders.view', 'restaurant.orders.create', 'restaurant.orders.update', 'restaurant.orders.update_status', 'restaurant.orders.update_payment',
     'restaurant.menu.view', 'restaurant.menu.create', 'restaurant.menu.update', 'restaurant.menu.delete',
-    'restaurant.tables.view', 'restaurant.tables.update',
+    'restaurant.tables.view', 'restaurant.tables.create', 'restaurant.tables.update', 'restaurant.tables.delete', 'restaurant.tables.update_status',
+    'restaurant.reservations.view', 'restaurant.reservations.create', 'restaurant.reservations.update', 'restaurant.reservations.delete',
     'restaurant.payments.create', 'restaurant.payments.refund',
     'restaurant.stats.view', 'restaurant.stats.view_production',
     'restaurant.print.tickets', 'restaurant.print.invoices',
@@ -63,7 +65,8 @@ const rolePermissions: Record<Role, Permission[]> = {
     'restaurant.view',
     'restaurant.orders.view', 'restaurant.orders.create', 'restaurant.orders.update', 'restaurant.orders.update_status', 'restaurant.orders.update_payment',
     'restaurant.menu.view', 'restaurant.menu.create', 'restaurant.menu.update', 'restaurant.menu.delete',
-    'restaurant.tables.view', 'restaurant.tables.update',
+    'restaurant.tables.view', 'restaurant.tables.create', 'restaurant.tables.update', 'restaurant.tables.delete', 'restaurant.tables.update_status',
+    'restaurant.reservations.view', 'restaurant.reservations.create', 'restaurant.reservations.update', 'restaurant.reservations.delete',
     'restaurant.payments.create', 'restaurant.payments.refund',
     'restaurant.stats.view', 'restaurant.stats.view_production',
     'restaurant.print.tickets', 'restaurant.print.invoices',
@@ -129,7 +132,8 @@ const rolePermissions: Record<Role, Permission[]> = {
     'restaurant.view',
     'restaurant.orders.view', 'restaurant.orders.create', 'restaurant.orders.update', 'restaurant.orders.update_status', 'restaurant.orders.update_payment',
     'restaurant.menu.view', 'restaurant.menu.create', 'restaurant.menu.update', 'restaurant.menu.delete',
-    'restaurant.tables.view', 'restaurant.tables.update',
+    'restaurant.tables.view', 'restaurant.tables.create', 'restaurant.tables.update', 'restaurant.tables.delete', 'restaurant.tables.update_status',
+    'restaurant.reservations.view', 'restaurant.reservations.create', 'restaurant.reservations.update', 'restaurant.reservations.delete',
     'restaurant.payments.create', 'restaurant.payments.refund',
     'restaurant.stats.view', // Can view all stats
     'restaurant.print.tickets', 'restaurant.print.invoices',
