@@ -31,6 +31,334 @@ interface MenuItem {
   preparation_time?: number;
 }
 
+// Chef View - Simplified kitchen interface
+const ChefView = () => {
+  const toast = useToastContext();
+  const queryClient = useQueryClient();
+  const [filterStatus, setFilterStatus] = useState<string>('pending,preparing,ready');
+  const [activeTab, setActiveTab] = useState<'orders' | 'menu'>('orders');
+
+  // Fetch orders for kitchen
+  const { data: orders, isLoading: ordersLoading } = useQuery({
+    queryKey: ['restaurant-orders-kitchen', filterStatus],
+    queryFn: async () => {
+      const params = filterStatus ? `?status=${filterStatus}` : '';
+      const res = await api.get(`/restaurant/orders${params}`);
+      return res.data;
+    },
+    enabled: activeTab === 'orders',
+    refetchInterval: 10000, // Rafraîchir toutes les 10 secondes pour la cuisine
+  });
+
+  // Fetch menu items (read-only for chef)
+  const { data: menuItems, isLoading: menuLoading } = useQuery({
+    queryKey: ['menu-items-chef'],
+    queryFn: async () => {
+      const res = await api.get('/restaurant/menu/items');
+      return res.data;
+    },
+    enabled: activeTab === 'menu',
+  });
+
+  const updateOrderStatusMutation = useMutation({
+    mutationFn: async ({ id, status }: { id: string; status: string }) => {
+      const res = await api.put(`/restaurant/orders/${id}/status`, { status });
+      return res.data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['restaurant-orders-kitchen'] });
+      queryClient.invalidateQueries({ queryKey: ['restaurant-stats'] });
+      toast.success('Statut de commande mis à jour!');
+    },
+    onError: () => {
+      toast.error('Erreur lors de la mise à jour');
+    },
+  });
+
+  const getStatusBadge = (status: string) => {
+    const badges: Record<string, { bg: string; text: string; label: string }> = {
+      pending: { bg: 'bg-yellow-100 dark:bg-yellow-900', text: 'text-yellow-700 dark:text-yellow-300', label: 'En attente' },
+      preparing: { bg: 'bg-orange-100 dark:bg-orange-900', text: 'text-orange-700 dark:text-orange-300', label: 'En préparation' },
+      ready: { bg: 'bg-green-100 dark:bg-green-900', text: 'text-green-700 dark:text-green-300', label: 'Prête' },
+    };
+    const badge = badges[status] || badges.pending;
+    return (
+      <span className={`text-xs px-2 py-1 rounded-full ${badge.bg} ${badge.text}`}>
+        {badge.label}
+      </span>
+    );
+  };
+
+  return (
+    <div className="p-3 sm:p-4 md:p-6 space-y-4 sm:space-y-6">
+      {/* Header */}
+      <div>
+        <h1 className="text-2xl sm:text-3xl font-bold text-gray-800 dark:text-white flex items-center gap-2">
+          <ChefHat className="w-7 h-7 text-orange-500" />
+          Cuisine - Vue Chef
+        </h1>
+        <p className="text-sm sm:text-base text-gray-500 dark:text-slate-300">
+          Gérez la préparation des commandes
+        </p>
+      </div>
+
+      {/* Tabs */}
+      <div className="flex gap-2 border-b dark:border-slate-700">
+        <button
+          onClick={() => setActiveTab('orders')}
+          className={`flex items-center gap-2 px-4 py-2 border-b-2 transition-colors ${
+            activeTab === 'orders'
+              ? 'border-orange-500 text-orange-600 dark:text-orange-400'
+              : 'border-transparent text-gray-500 dark:text-slate-400'
+          }`}
+        >
+          <ChefHat className="w-4 h-4" />
+          Commandes
+        </button>
+        <button
+          onClick={() => setActiveTab('menu')}
+          className={`flex items-center gap-2 px-4 py-2 border-b-2 transition-colors ${
+            activeTab === 'menu'
+              ? 'border-orange-500 text-orange-600 dark:text-orange-400'
+              : 'border-transparent text-gray-500 dark:text-slate-400'
+          }`}
+        >
+          <UtensilsCrossed className="w-4 h-4" />
+          Menu
+        </button>
+      </div>
+
+      {/* Content */}
+      {activeTab === 'orders' && (
+        <Card>
+          <div className="p-4 border-b dark:border-slate-700">
+            <div className="flex gap-2 flex-wrap">
+              <button
+                onClick={() => setFilterStatus('pending,preparing,ready')}
+                className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                  filterStatus === 'pending,preparing,ready'
+                    ? 'bg-orange-500 text-white'
+                    : 'bg-gray-100 dark:bg-slate-700 text-gray-700 dark:text-slate-300'
+                }`}
+              >
+                Actives
+              </button>
+              <button
+                onClick={() => setFilterStatus('pending')}
+                className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                  filterStatus === 'pending'
+                    ? 'bg-yellow-500 text-white'
+                    : 'bg-gray-100 dark:bg-slate-700 text-gray-700 dark:text-slate-300'
+                }`}
+              >
+                En attente
+              </button>
+              <button
+                onClick={() => setFilterStatus('preparing')}
+                className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                  filterStatus === 'preparing'
+                    ? 'bg-orange-500 text-white'
+                    : 'bg-gray-100 dark:bg-slate-700 text-gray-700 dark:text-slate-300'
+                }`}
+              >
+                En cours
+              </button>
+              <button
+                onClick={() => setFilterStatus('ready')}
+                className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                  filterStatus === 'ready'
+                    ? 'bg-green-500 text-white'
+                    : 'bg-gray-100 dark:bg-slate-700 text-gray-700 dark:text-slate-300'
+                }`}
+              >
+                Prêtes
+              </button>
+            </div>
+          </div>
+
+          <div className="p-4">
+            {ordersLoading ? (
+              <div className="text-center py-12">
+                <div className="inline-block w-8 h-8 border-4 border-orange-400 border-t-transparent rounded-full animate-spin"></div>
+              </div>
+            ) : orders && orders.length > 0 ? (
+              <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-4">
+                {orders.map((order: any) => (
+                  <motion.div
+                    key={order.id}
+                    initial={{ opacity: 0, scale: 0.95 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    className={`border-2 rounded-lg p-4 ${
+                      order.status === 'pending'
+                        ? 'border-yellow-300 bg-yellow-50 dark:border-yellow-700 dark:bg-yellow-900/20'
+                        : order.status === 'preparing'
+                        ? 'border-orange-300 bg-orange-50 dark:border-orange-700 dark:bg-orange-900/20'
+                        : 'border-green-300 bg-green-50 dark:border-green-700 dark:bg-green-900/20'
+                    }`}
+                  >
+                    <div className="flex items-start justify-between mb-3">
+                      <div>
+                        <h3 className="text-xl font-bold text-gray-800 dark:text-white">
+                          {order.order_number}
+                        </h3>
+                        <p className="text-sm font-medium text-gray-600 dark:text-slate-400">
+                          {order.order_type === 'dine_in' && `🍽️ Table ${order.table_number}`}
+                          {order.order_type === 'room_service' && `🏨 Chambre ${order.room_number}`}
+                          {order.order_type === 'takeaway' && '📦 À emporter'}
+                          {order.order_type === 'bar' && '🍸 Bar'}
+                        </p>
+                      </div>
+                      {getStatusBadge(order.status)}
+                    </div>
+
+                    <div className="mb-3 text-xs text-gray-500 dark:text-slate-400">
+                      ⏰ {new Date(order.created_at).toLocaleTimeString('fr-FR', { 
+                        hour: '2-digit', 
+                        minute: '2-digit' 
+                      })}
+                    </div>
+
+                    {/* Order items details */}
+                    {order.items && order.items.length > 0 && (
+                      <div className="mb-4 space-y-2">
+                        {order.items.map((item: any, idx: number) => (
+                          <div key={idx} className="bg-white dark:bg-slate-800 p-2 rounded border dark:border-slate-600">
+                            <div className="flex justify-between items-start">
+                              <span className="font-medium text-gray-800 dark:text-white">
+                                {item.quantity}x {item.item_name}
+                              </span>
+                              {item.preparation_time && (
+                                <span className="text-xs text-gray-500 dark:text-slate-400">
+                                  ⏱️ {item.preparation_time}min
+                                </span>
+                              )}
+                            </div>
+                            {item.special_instructions && (
+                              <p className="text-xs text-orange-600 dark:text-orange-400 mt-1">
+                                📝 {item.special_instructions}
+                              </p>
+                            )}
+                          </div>
+                        ))}
+                      </div>
+                    )}
+
+                    {order.special_instructions && (
+                      <div className="mb-3 p-2 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-700 rounded">
+                        <p className="text-xs text-blue-800 dark:text-blue-300">
+                          <strong>Instructions:</strong> {order.special_instructions}
+                        </p>
+                      </div>
+                    )}
+
+                    <div className="flex gap-2">
+                      {order.status === 'pending' && (
+                        <Button
+                          size="sm"
+                          onClick={() => updateOrderStatusMutation.mutate({ id: order.id, status: 'preparing' })}
+                          className="flex-1 bg-orange-500 hover:bg-orange-600 text-white font-bold"
+                        >
+                          ▶️ Commencer
+                        </Button>
+                      )}
+                      {order.status === 'preparing' && (
+                        <Button
+                          size="sm"
+                          onClick={() => updateOrderStatusMutation.mutate({ id: order.id, status: 'ready' })}
+                          className="flex-1 bg-green-500 hover:bg-green-600 text-white font-bold"
+                        >
+                          ✅ Prête
+                        </Button>
+                      )}
+                      {order.status === 'ready' && (
+                        <div className="flex-1 text-center py-2 bg-green-100 dark:bg-green-900/30 rounded font-bold text-green-700 dark:text-green-300">
+                          ✅ Prête à servir
+                        </div>
+                      )}
+                    </div>
+                  </motion.div>
+                ))}
+              </div>
+            ) : (
+              <div className="text-center py-12">
+                <ChefHat className="w-16 h-16 text-gray-300 dark:text-slate-600 mx-auto mb-4" />
+                <p className="text-gray-500 dark:text-slate-400">Aucune commande active</p>
+              </div>
+            )}
+          </div>
+        </Card>
+      )}
+
+      {activeTab === 'menu' && (
+        <Card className="p-4">
+          {menuLoading ? (
+            <div className="text-center py-12">
+              <div className="inline-block w-8 h-8 border-4 border-orange-400 border-t-transparent rounded-full animate-spin"></div>
+            </div>
+          ) : menuItems && menuItems.length > 0 ? (
+            <div className="overflow-x-auto">
+              <table className="w-full">
+                <thead className="bg-gray-50 dark:bg-slate-800">
+                  <tr>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-slate-400 uppercase">
+                      Article
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-slate-400 uppercase">
+                      Catégorie
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-slate-400 uppercase">
+                      Temps Préparation
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-slate-400 uppercase">
+                      Statut
+                    </th>
+                  </tr>
+                </thead>
+                <tbody className="bg-white dark:bg-slate-900 divide-y divide-gray-200 dark:divide-slate-700">
+                  {menuItems.map((item: MenuItem) => (
+                    <tr key={item.id} className={item.is_available ? '' : 'opacity-50'}>
+                      <td className="px-6 py-4">
+                        <div>
+                          <p className="font-medium text-gray-900 dark:text-white">{item.name}</p>
+                          {item.description && (
+                            <p className="text-sm text-gray-500 dark:text-slate-400 line-clamp-1">
+                              {item.description}
+                            </p>
+                          )}
+                        </div>
+                      </td>
+                      <td className="px-6 py-4 text-sm text-gray-900 dark:text-white">
+                        {item.category_name}
+                      </td>
+                      <td className="px-6 py-4 text-sm font-medium text-gray-900 dark:text-white">
+                        {item.preparation_time ? `⏱️ ${item.preparation_time} min` : '-'}
+                      </td>
+                      <td className="px-6 py-4">
+                        <span className={`text-xs px-2 py-1 rounded-full ${
+                          item.is_available
+                            ? 'bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-300'
+                            : 'bg-red-100 dark:bg-red-900 text-red-700 dark:text-red-300'
+                        }`}>
+                          {item.is_available ? 'Disponible' : 'Indisponible'}
+                        </span>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          ) : (
+            <div className="text-center py-12">
+              <UtensilsCrossed className="w-16 h-16 text-gray-300 dark:text-slate-600 mx-auto mb-4" />
+              <p className="text-gray-500 dark:text-slate-400">Aucun article dans le menu</p>
+            </div>
+          )}
+        </Card>
+      )}
+    </div>
+  );
+};
+
 export const Restaurant = () => {
   const toast = useToastContext();
   const queryClient = useQueryClient();
@@ -38,6 +366,11 @@ export const Restaurant = () => {
   const [activeTab, setActiveTab] = useState<TabType>('orders');
   const [searchTerm, setSearchTerm] = useState('');
   const [filterStatus, setFilterStatus] = useState('all');
+
+  // If user is a chef, show simplified chef view
+  if (user?.role === 'restaurant_chef') {
+    return <ChefView />;
+  }
   const [showOrderModal, setShowOrderModal] = useState(false);
   const [showMenuModal, setShowMenuModal] = useState(false);
   const [showTableModal, setShowTableModal] = useState(false);
