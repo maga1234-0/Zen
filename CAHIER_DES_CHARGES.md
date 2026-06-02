@@ -74,13 +74,15 @@ Application web responsive accessible depuis navigateurs desktop, tablettes et m
 ✅ **Notifications** - Alertes en temps réel
 ✅ **Paramètres** - Configuration de l'hôtel, préférences
 ✅ **Intelligence Artificielle** - Recommandations et analyses
+✅ **Restaurant & Bar** - Gestion des commandes, menu, tables, réservations
+✅ **Spa & Wellness** - Soins, forfaits, réservations
 
 ### 3.2 Modules Non Inclus (Hors Périmètre)
-❌ Gestion de restaurant/bar
 ❌ Système de réservation en ligne public
 ❌ Intégration avec OTA (Booking.com, Expedia, etc.)
-❌ Gestion de spa/wellness
 ❌ Point de vente (POS) pour boutique
+❌ Gestion d'événements et conférences
+❌ Gestion de parking
 
 
 ---
@@ -231,6 +233,75 @@ Application web responsive accessible depuis navigateurs desktop, tablettes et m
 ❌ Paramètres (pas d'accès)
 ✅ Profil (modification)
 
+---
+
+### 5.7 Rôles Restaurant (NOUVEAU)
+
+#### 5.7.1 Serveur Restaurant (Restaurant Server)
+**Accès création de commandes et service**
+
+✅ Tableau de bord (statistiques limitées)
+✅ Restaurant - Commandes (création, lecture)
+✅ Restaurant - Menu (consultation uniquement)
+✅ Restaurant - Tables (consultation uniquement)
+✅ Restaurant - Impression (tickets)
+✅ Chambres (consultation pour affecter commandes)
+❌ Restaurant - Modification menu
+❌ Restaurant - Statistiques financières
+❌ Restaurant - Paiements
+❌ Autres modules hôtel
+
+#### 5.7.2 Caissier Restaurant (Restaurant Cashier)
+**Accès encaissements et paiements**
+
+✅ Tableau de bord (statistiques limitées)
+✅ Restaurant - Commandes (consultation, modification paiement)
+✅ Restaurant - Menu (consultation uniquement)
+✅ Restaurant - Paiements (création, remboursement)
+✅ Restaurant - Impression (factures, reçus)
+❌ Restaurant - Création commandes
+❌ Restaurant - Modification menu
+❌ Restaurant - Statistiques ventes
+
+#### 5.7.3 Responsable Restaurant (Restaurant Manager)
+**Accès complet module restaurant**
+
+✅ Tableau de bord (statistiques complètes)
+✅ Restaurant - Commandes (CRUD complet)
+✅ Restaurant - Menu (CRUD complet, gestion prix)
+✅ Restaurant - Catégories (CRUD complet)
+✅ Restaurant - Tables (CRUD complet)
+✅ Restaurant - Réservations tables (CRUD complet)
+✅ Restaurant - Paiements (lecture, remboursement)
+✅ Restaurant - Statistiques (toutes)
+✅ Restaurant - Rapports (lecture, export)
+✅ Restaurant - Impression (tous types)
+✅ Chambres (consultation pour affecter commandes)
+
+#### 5.7.4 Chef de Cuisine (Restaurant Chef)
+**Accès cuisine et production**
+
+✅ Tableau de bord (statistiques limitées)
+✅ Restaurant - Commandes (lecture, modification statut cuisine)
+✅ Restaurant - Menu (consultation uniquement)
+✅ Restaurant - Statistiques production (temps, quantités)
+✅ Restaurant - Impression (tickets cuisine)
+❌ Restaurant - Création commandes
+❌ Restaurant - Prix et finances
+❌ Restaurant - Paiements
+❌ Restaurant - Modification menu
+
+---
+
+### 5.8 Extension Rôle Réceptionniste pour Restaurant
+
+**Permissions restaurant ajoutées**:
+✅ Restaurant - Commandes (consultation uniquement)
+✅ Restaurant - Paiements (ajout au folio chambre)
+✅ Restaurant - Rapports (consommation client)
+- Permet de voir les consommations restaurant d'un client
+- Permet d'ajouter les charges restaurant au folio de la chambre
+- Permet de vérifier les dépenses avant le check-out
 
 ---
 
@@ -708,6 +779,170 @@ Application web responsive accessible depuis navigateurs desktop, tablettes et m
 - Mot de passe: minimum 6 caractères
 - Confirmation obligatoire pour modifications
 
+---
+
+### 6.14 MODULE RESTAURANT & BAR (NOUVEAU)
+
+#### Fonctionnalités
+
+**Gestion du Menu**
+- Création/Modification/Suppression d'articles
+- Organisation par catégories (Entrées, Plats, Desserts, Boissons, etc.)
+- Gestion des prix
+- Disponibilité des articles (actif/inactif)
+- Options diététiques (végétarien, vegan, sans gluten)
+- Temps de préparation estimé
+- Descriptions multilingues
+
+**Gestion des Commandes**
+- Création de commande avec types:
+  - Service en chambre (Room Service)
+  - En salle (Dine-in)
+  - À emporter (Takeaway)
+  - Bar
+- Sélection des articles du menu
+- Quantités et instructions spéciales par article
+- Calcul automatique:
+  - Sous-total
+  - TVA (10%)
+  - Frais de service (15% pour room service)
+  - Total
+- Statuts de commande:
+  - Pending (en attente)
+  - Confirmed (confirmée)
+  - Preparing (en préparation)
+  - Ready (prête)
+  - Served (servie)
+  - Completed (terminée)
+  - Cancelled (annulée)
+
+**Gestion des Tables**
+- Numéro de table
+- Capacité
+- Statuts: Available, Occupied, Reserved, Cleaning
+- Affectation automatique aux commandes dine-in
+
+**Gestion des Paiements Restaurant**
+- Encaissement direct
+- Ajout au folio chambre
+- Méthodes de paiement (Cash, Card, Transfer)
+- Statuts: Paid, Partial, Pending
+- Remboursements
+
+**Statistiques et Rapports**
+- Commandes actives en temps réel
+- Revenus du jour/mois
+- Tables disponibles/occupées
+- Clients uniques
+- Articles les plus vendus
+- Performance par période
+- Rapports exportables
+
+**Interface selon Rôle**
+- **Serveur**: Création commandes, impression tickets
+- **Caissier**: Encaissement, factures
+- **Chef**: Mise à jour statuts cuisine, tickets production
+- **Responsable**: Gestion complète menu, stats, rapports
+
+#### Règles Métier Restaurant
+- Une commande doit contenir au moins un article
+- Prix minimum article: 0.01€
+- TVA fixe: 10%
+- Frais de service room service: 15%
+- Commande room service nécessite chambre occupée
+- Commande dine-in nécessite table disponible
+- Chef peut seulement modifier statut (preparing↔ready)
+- Serveur ne peut pas modifier les prix
+- Caissier ne peut pas créer de commandes
+- Notification automatique cuisine pour nouvelles commandes
+- Rafraîchissement données toutes les 30 secondes
+- Historique complet des commandes conservé
+
+#### Intégration avec l'Hôtel
+- Liaison commandes room service ↔ réservations chambres
+- Ajout charges restaurant au folio client
+- Facturation groupée au check-out
+- Statistiques restaurant dans dashboard global
+- Notifications restaurant distribuées par rôle
+
+---
+
+### 6.15 MODULE SPA & WELLNESS (NOUVEAU)
+
+#### Fonctionnalités
+
+**Gestion des Soins**
+- Catalogue de soins (Massages, Soins visage, Soins corps, etc.)
+- Nom et description détaillée
+- Durée (en minutes)
+- Prix standard
+- Disponibilité
+- Images (à venir)
+
+**Gestion des Forfaits**
+- Création de forfaits combinant plusieurs soins
+- Prix forfait (avec remise)
+- Économies calculées automatiquement
+- Description du forfait
+- Durée totale
+- Disponibilité
+
+**Réservations Spa**
+- Sélection soin ou forfait
+- Choix date et heure
+- Liaison avec client hôtel (optionnel)
+- Liaison avec chambre (pour clients hôtel)
+- Statuts:
+  - Pending (en attente)
+  - Confirmed (confirmée)
+  - In Progress (en cours)
+  - Completed (terminée)
+  - Cancelled (annulée)
+  - No Show (absence)
+- Notes et demandes spéciales
+
+**Gestion des Paiements Spa**
+- Paiement direct
+- Ajout au folio chambre (clients hôtel)
+- Méthodes: Cash, Card, Transfer, Room Charge
+- Statuts: Paid, Partial, Pending
+- Factures et reçus
+
+**Statistiques et Rapports**
+- Réservations du jour
+- Revenus période
+- Taux d'occupation
+- Soins les plus demandés
+- Performance par thérapeute (à venir)
+- Statistiques forfaits vs soins individuels
+
+**Calendrier et Planning**
+- Vue journalière/hebdomadaire/mensuelle
+- Disponibilités en temps réel
+- Conflits détectés automatiquement
+- Rappels automatiques clients (à venir)
+
+#### Règles Métier Spa
+- Durée minimum soin: 15 minutes
+- Prix minimum: 0.01€
+- Réservation possible uniquement si soin disponible
+- Pas de chevauchement de réservations pour même thérapeute
+- Prix forfait doit être < somme des soins individuels
+- Économie forfait affichée automatiquement
+- Client hôtel peut charger sur chambre
+- Client externe paiement obligatoire immédiat
+- Notification 24h avant rendez-vous (à venir)
+- Annulation gratuite jusqu'à 24h avant
+- No-show enregistré dans historique client
+- Statistiques actualisées en temps réel
+
+#### Intégration avec l'Hôtel
+- Liaison réservations spa ↔ clients hôtel
+- Ajout charges spa au folio chambre
+- Facturation groupée au check-out
+- Statistiques spa dans dashboard global
+- Clients hôtel prioritaires pour réservations
+- Forfaits spéciaux pour clients longue durée
 
 ---
 
@@ -953,14 +1188,30 @@ Intégration de Google Gemini AI pour fournir des analyses intelligentes et des 
 
 #### Tables Principales
 1. **users** - Utilisateurs du système
-2. **guests** - Clients de l'hôtel
-3. **rooms** - Chambres
-4. **bookings** - Réservations
-5. **payments** - Paiements
-6. **notifications** - Notifications
-7. **user_settings** - Paramètres utilisateur
-8. **audit_logs** - Journal d'audit
-9. **guest_reviews** - Avis clients (pour IA)
+2. **roles** - Rôles et permissions (JSONB)
+3. **guests** - Clients de l'hôtel
+4. **rooms** - Chambres
+5. **bookings** - Réservations
+6. **payments** - Paiements
+7. **notifications** - Notifications
+8. **user_settings** - Paramètres utilisateur
+9. **audit_logs** - Journal d'audit
+10. **guest_reviews** - Avis clients (pour IA)
+
+#### Tables Restaurant (NOUVEAU)
+11. **restaurant_menu_categories** - Catégories menu restaurant
+12. **restaurant_menu_items** - Articles du menu
+13. **restaurant_tables** - Tables du restaurant
+14. **restaurant_orders** - Commandes restaurant
+15. **restaurant_order_items** - Détails commandes (articles)
+16. **restaurant_table_reservations** - Réservations de tables
+
+#### Tables Spa (NOUVEAU)
+17. **spa_treatments** - Soins spa
+18. **spa_packages** - Forfaits spa
+19. **spa_package_treatments** - Liaison forfaits-soins
+20. **spa_bookings** - Réservations spa
+21. **spa_payments** - Paiements spa
 
 #### Relations
 - bookings → guests (many-to-one)
@@ -969,6 +1220,17 @@ Intégration de Google Gemini AI pour fournir des analyses intelligentes et des 
 - payments → bookings (many-to-one)
 - notifications → users (many-to-one)
 - user_settings → users (one-to-one)
+- users → roles (many-to-one)
+- restaurant_orders → bookings (many-to-one, optionnel)
+- restaurant_orders → guests (many-to-one, optionnel)
+- restaurant_orders → rooms (many-to-one, optionnel)
+- restaurant_orders → restaurant_tables (many-to-one, optionnel)
+- restaurant_order_items → restaurant_orders (many-to-one)
+- restaurant_order_items → restaurant_menu_items (many-to-one)
+- spa_bookings → guests (many-to-one, optionnel)
+- spa_bookings → bookings (many-to-one, optionnel)
+- spa_bookings → spa_treatments (many-to-one, optionnel)
+- spa_bookings → spa_packages (many-to-one, optionnel)
 
 ### 9.5 API REST
 
@@ -1012,6 +1274,44 @@ POST   /api/ai/recommend-room
 POST   /api/ai/generate-message
 GET    /api/ai/sentiment-analysis
 GET    /api/ai/predict-occupancy
+
+GET    /api/restaurant/menu/categories
+GET    /api/restaurant/menu/items
+POST   /api/restaurant/menu/items
+PUT    /api/restaurant/menu/items/:id
+DELETE /api/restaurant/menu/items/:id
+
+GET    /api/restaurant/tables
+PUT    /api/restaurant/tables/:id/status
+
+GET    /api/restaurant/orders
+GET    /api/restaurant/orders/:id
+POST   /api/restaurant/orders
+PUT    /api/restaurant/orders/:id/status
+PUT    /api/restaurant/orders/:id/payment
+
+GET    /api/restaurant/reservations
+POST   /api/restaurant/reservations
+PUT    /api/restaurant/reservations/:id/status
+
+GET    /api/restaurant/stats
+
+GET    /api/spa/treatments
+POST   /api/spa/treatments
+PUT    /api/spa/treatments/:id
+DELETE /api/spa/treatments/:id
+
+GET    /api/spa/packages
+POST   /api/spa/packages
+PUT    /api/spa/packages/:id
+DELETE /api/spa/packages/:id
+
+GET    /api/spa/bookings
+POST   /api/spa/bookings
+PUT    /api/spa/bookings/:id
+DELETE /api/spa/bookings/:id
+
+GET    /api/spa/stats
 ```
 
 ---
@@ -1027,10 +1327,18 @@ GET    /api/ai/predict-occupancy
 
 
 ### 10.2 Autorisation
-- **Modèle**: RBAC (Role-Based Access Control)
-- **Vérification**: Côté serveur obligatoire
-- **Middleware**: Vérification du rôle avant action
-- **Frontend**: Masquage UI selon permissions
+- **Modèle**: RBAC (Role-Based Access Control) avec permissions JSONB
+- **Structure Permissions**: Format hiérarchique (ex: `restaurant.menu.create`)
+- **Stockage**: Table `roles` avec colonne `permissions` (JSONB)
+- **Vérification**: 
+  - Frontend: Masquage UI selon permissions
+  - Backend: Middleware `checkPermission` sur toutes les routes protégées
+- **Middleware**:
+  - `checkPermission(resource, action)` - Vérification permission unique
+  - `checkAnyPermission(permissionPairs[])` - Vérification permissions multiples (OR)
+  - `checkOwnership(resource, action, check)` - Vérification ownership
+- **Bypass**: Admin et Manager ont accès complet automatique
+- **Granularité**: Permissions au niveau action (create, read, update, delete, update_status, etc.)
 
 ### 10.3 Protection des Données
 - **En transit**: HTTPS/TLS 1.3
@@ -1278,6 +1586,30 @@ NODE_ENV=production
 - Rôle: Accountant
 - Accès: Finances
 
+#### Serveur Restaurant (NOUVEAU)
+- Email: serveur@hotel.com
+- Mot de passe: serveur123
+- Rôle: Restaurant Server
+- Accès: Création commandes restaurant
+
+#### Caissier Restaurant (NOUVEAU)
+- Email: caissier@hotel.com
+- Mot de passe: caissier123
+- Rôle: Restaurant Cashier
+- Accès: Encaissements restaurant
+
+#### Responsable Restaurant (NOUVEAU)
+- Email: resto-manager@hotel.com
+- Mot de passe: restaurant123
+- Rôle: Restaurant Manager
+- Accès: Gestion complète restaurant
+
+#### Chef de Cuisine (NOUVEAU)
+- Email: chef@hotel.com
+- Mot de passe: chef123
+- Rôle: Restaurant Chef
+- Accès: Cuisine et production
+
 
 ### 15.2 Types de Chambres
 
@@ -1387,9 +1719,51 @@ NODE_ENV=production
 
 ---
 
-**Document créé le**: 30 Mai 2026
-**Version**: 1.0
-**Statut**: ✅ Complet et Validé
+## 18. HISTORIQUE DES VERSIONS
+
+### Version 2.0 - 2 Juin 2026
+**Ajouts Majeurs**:
+- ✅ Module Restaurant & Bar complet
+  - Gestion menu (catégories, articles, prix)
+  - Gestion commandes (room service, dine-in, takeaway, bar)
+  - Gestion tables et réservations
+  - Statistiques et rapports restaurant
+  - Intégration paiements et folio chambre
+- ✅ Module Spa & Wellness complet
+  - Gestion soins et forfaits
+  - Réservations spa
+  - Intégration clients hôtel
+  - Statistiques spa
+- ✅ Système RBAC avancé
+  - 4 nouveaux rôles restaurant (Serveur, Caissier, Manager, Chef)
+  - Permissions granulaires (JSONB)
+  - Middleware backend protection routes
+  - Interface conditionnelle frontend
+  - Extension rôle réceptionniste pour restaurant
+- ✅ Tables database: 21 tables (vs 9 initialement)
+- ✅ Endpoints API: +30 nouveaux endpoints
+- ✅ Comptes de test: +4 rôles restaurant
+
+**Améliorations**:
+- Rafraîchissement automatique données (30s)
+- Permissions granulaires au niveau action
+- Double validation frontend/backend
+- Architecture modulaire extensible
+
+### Version 1.0 - 30 Mai 2026
+**Version Initiale**:
+- Modules hôtel de base (Dashboard, Réservations, Chambres, Clients, Front Desk, Housekeeping, Maintenance, Paiements, Personnel, Rapports, Notifications, Paramètres)
+- Intelligence Artificielle (Google Gemini)
+- 6 rôles de base (Admin, Manager, Réceptionniste, Housekeeping, Maintenance, Comptable)
+- Authentification JWT
+- Déploiement Vercel + Render + Supabase
+
+---
+
+**Document créé le**: 30 Mai 2026  
+**Dernière mise à jour**: 2 Juin 2026  
+**Version**: 2.0  
+**Statut**: ✅ Complet et Validé - Inclut Modules Restaurant & Spa + RBAC
 
 ---
 
