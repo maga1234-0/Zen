@@ -8,10 +8,12 @@ import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useToastContext } from '@/App';
 import { useConfirm } from '@/hooks/useConfirm';
+import { useAuthStore } from '@/store/authStore';
 
 export const Staff = () => {
   const toast = useToastContext();
   const confirmDialog = useConfirm();
+  const { user } = useAuthStore();
   const [searchTerm, setSearchTerm] = useState('');
   const [showAddModal, setShowAddModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
@@ -35,6 +37,17 @@ export const Staff = () => {
     },
     refetchInterval: 60000, // Rafraîchir toutes les 60 secondes
     refetchOnWindowFocus: true, // Rafraîchir quand la fenêtre reprend le focus
+  });
+
+  // Filter staff based on user role
+  const filteredStaff = staff?.filter((member: any) => {
+    // Restaurant manager sees only restaurant staff
+    if (user?.role === 'restaurant_manager') {
+      const restaurantRoles = ['restaurant_server', 'restaurant_cashier', 'restaurant_chef', 'restaurant_manager'];
+      return restaurantRoles.includes(member.role);
+    }
+    // All other roles see all staff
+    return true;
   });
 
   // Fetch available roles from database
@@ -269,7 +282,7 @@ export const Staff = () => {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-200 dark:divide-slate-700">
-                  {staff?.map((member: any) => (
+                  {filteredStaff?.map((member: any) => (
                     <tr key={member.id} className="hover:bg-gray-50 dark:hover:bg-slate-700">
                       <td className="px-4 sm:px-6 py-4 whitespace-nowrap">
                         <div className="flex items-center gap-3">
@@ -337,7 +350,7 @@ export const Staff = () => {
 
             {/* Mobile Card View */}
             <div className="md:hidden space-y-4">
-              {staff?.map((member: any) => (
+              {filteredStaff?.map((member: any) => (
                 <div key={member.id} className="bg-white dark:bg-slate-800 rounded-lg border dark:border-slate-700 p-4">
                   <div className="flex items-start justify-between mb-3">
                     <div className="flex items-center gap-3">
