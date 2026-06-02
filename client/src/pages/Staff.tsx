@@ -205,6 +205,15 @@ export const Staff = () => {
         return 'bg-orange-100 text-orange-700 dark:bg-orange-900 dark:text-orange-300';
       case 'accountant':
         return 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900 dark:text-yellow-300';
+      // Restaurant Roles
+      case 'restaurant_manager':
+        return 'bg-rose-100 text-rose-700 dark:bg-rose-900 dark:text-rose-300';
+      case 'restaurant_server':
+        return 'bg-cyan-100 text-cyan-700 dark:bg-cyan-900 dark:text-cyan-300';
+      case 'restaurant_cashier':
+        return 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900 dark:text-emerald-300';
+      case 'restaurant_chef':
+        return 'bg-amber-100 text-amber-700 dark:bg-amber-900 dark:text-amber-300';
       default:
         return 'bg-gray-100 text-gray-700 dark:bg-slate-600 dark:text-slate-200';
     }
@@ -525,6 +534,10 @@ export const Staff = () => {
                       {formData.role === 'housekeeping' && '🧹 Room status and housekeeping tasks management'}
                       {formData.role === 'maintenance' && '🔧 Room status viewing and maintenance alerts'}
                       {formData.role === 'accountant' && '💰 Billing and financial reports only'}
+                      {formData.role === 'restaurant_manager' && '🍽️ Full restaurant management: orders, menu, tables, reservations'}
+                      {formData.role === 'restaurant_server' && '👨‍🍳 Create orders, manage tables, view menu'}
+                      {formData.role === 'restaurant_cashier' && '💳 Process payments, handle refunds, print receipts'}
+                      {formData.role === 'restaurant_chef' && '👨‍🍳 View orders, update order status, kitchen operations'}
                     </p>
                   </div>
 
