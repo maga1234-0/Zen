@@ -1,4 +1,5 @@
-export type Role = 'admin' | 'manager' | 'receptionist' | 'housekeeping' | 'accountant' | 'maintenance';
+export type Role = 'admin' | 'manager' | 'receptionist' | 'housekeeping' | 'accountant' | 'maintenance' 
+  | 'restaurant_server' | 'restaurant_cashier' | 'restaurant_manager' | 'restaurant_chef';
 
 export type Permission = 
   | 'dashboard.view'
@@ -12,7 +13,15 @@ export type Permission =
   | 'maintenance.view' | 'maintenance.update'
   | 'staff.view' | 'staff.manage'
   | 'notifications.view'
-  | 'settings.view' | 'settings.edit';
+  | 'settings.view' | 'settings.edit'
+  // Restaurant permissions
+  | 'restaurant.view'
+  | 'restaurant.orders.view' | 'restaurant.orders.create' | 'restaurant.orders.update' | 'restaurant.orders.update_status' | 'restaurant.orders.update_payment'
+  | 'restaurant.menu.view' | 'restaurant.menu.create' | 'restaurant.menu.update' | 'restaurant.menu.delete'
+  | 'restaurant.tables.view' | 'restaurant.tables.update'
+  | 'restaurant.payments.create' | 'restaurant.payments.refund'
+  | 'restaurant.stats.view' | 'restaurant.stats.view_production'
+  | 'restaurant.print.tickets' | 'restaurant.print.invoices';
 
 const rolePermissions: Record<Role, Permission[]> = {
   admin: [
@@ -28,6 +37,14 @@ const rolePermissions: Record<Role, Permission[]> = {
     'staff.view', 'staff.manage',
     'notifications.view',
     'settings.view', 'settings.edit',
+    // Restaurant - Full access
+    'restaurant.view',
+    'restaurant.orders.view', 'restaurant.orders.create', 'restaurant.orders.update', 'restaurant.orders.update_status', 'restaurant.orders.update_payment',
+    'restaurant.menu.view', 'restaurant.menu.create', 'restaurant.menu.update', 'restaurant.menu.delete',
+    'restaurant.tables.view', 'restaurant.tables.update',
+    'restaurant.payments.create', 'restaurant.payments.refund',
+    'restaurant.stats.view', 'restaurant.stats.view_production',
+    'restaurant.print.tickets', 'restaurant.print.invoices',
   ],
   manager: [
     'dashboard.view',
@@ -41,7 +58,15 @@ const rolePermissions: Record<Role, Permission[]> = {
     'maintenance.view', 'maintenance.update',
     'staff.view', 'staff.manage',
     'notifications.view',
-    'settings.view', // Limited settings access
+    'settings.view',
+    // Restaurant - Full access
+    'restaurant.view',
+    'restaurant.orders.view', 'restaurant.orders.create', 'restaurant.orders.update', 'restaurant.orders.update_status', 'restaurant.orders.update_payment',
+    'restaurant.menu.view', 'restaurant.menu.create', 'restaurant.menu.update', 'restaurant.menu.delete',
+    'restaurant.tables.view', 'restaurant.tables.update',
+    'restaurant.payments.create', 'restaurant.payments.refund',
+    'restaurant.stats.view', 'restaurant.stats.view_production',
+    'restaurant.print.tickets', 'restaurant.print.invoices',
   ],
   receptionist: [
     'dashboard.view',
@@ -51,6 +76,10 @@ const rolePermissions: Record<Role, Permission[]> = {
     'guests.view', 'guests.edit',
     'billing.view', 'billing.create', 'billing.process',
     'notifications.view',
+    // Restaurant - Limited access (can view orders and add to room folio)
+    'restaurant.view',
+    'restaurant.orders.view',
+    'restaurant.payments.create', // Can add to room folio
   ],
   housekeeping: [
     'dashboard.view',
@@ -69,6 +98,52 @@ const rolePermissions: Record<Role, Permission[]> = {
     'reservations.view',
     'billing.view', 'billing.create', 'billing.process', 'billing.refund',
     'reports.view', 'reports.financial', 'reports.export',
+    'notifications.view',
+  ],
+  // ============================================
+  // RESTAURANT ROLES
+  // ============================================
+  restaurant_server: [
+    'dashboard.view',
+    'restaurant.view',
+    'restaurant.orders.view', 'restaurant.orders.create', // Can create orders
+    'restaurant.menu.view', // Can view menu
+    'restaurant.tables.view', // Can view tables
+    'restaurant.print.tickets', // Can print tickets
+    'notifications.view',
+    'rooms.view', // To assign to rooms
+  ],
+  restaurant_cashier: [
+    'dashboard.view',
+    'restaurant.view',
+    'restaurant.orders.view', // Can view all orders
+    'restaurant.orders.update_payment', // Can process payments
+    'restaurant.menu.view', // Can view menu
+    'restaurant.payments.create', // Can create payments
+    'restaurant.payments.refund', // Can refund
+    'restaurant.print.invoices', // Can print invoices
+    'notifications.view',
+  ],
+  restaurant_manager: [
+    'dashboard.view',
+    'restaurant.view',
+    'restaurant.orders.view', 'restaurant.orders.create', 'restaurant.orders.update', 'restaurant.orders.update_status', 'restaurant.orders.update_payment',
+    'restaurant.menu.view', 'restaurant.menu.create', 'restaurant.menu.update', 'restaurant.menu.delete',
+    'restaurant.tables.view', 'restaurant.tables.update',
+    'restaurant.payments.create', 'restaurant.payments.refund',
+    'restaurant.stats.view', // Can view all stats
+    'restaurant.print.tickets', 'restaurant.print.invoices',
+    'notifications.view',
+    'rooms.view', // To assign to rooms
+  ],
+  restaurant_chef: [
+    'dashboard.view',
+    'restaurant.view',
+    'restaurant.orders.view', // Can view orders
+    'restaurant.orders.update_status', // Can update status (preparing, ready)
+    'restaurant.menu.view', // Can view menu
+    'restaurant.stats.view_production', // Can view production stats
+    'restaurant.print.tickets', // Can print kitchen tickets
     'notifications.view',
   ],
 };
@@ -95,6 +170,8 @@ export const canAccessRoute = (userRole: string, path: string): boolean => {
     '/staff': ['staff.view'],
     '/notifications': ['notifications.view'],
     '/settings': ['settings.view'],
+    '/restaurant': ['restaurant.view'],
+    '/spa': ['dashboard.view'], // Everyone can access spa for now
   };
 
   const requiredPermissions = routePermissions[path];
@@ -116,6 +193,8 @@ export const getAccessibleRoutes = (userRole: string) => {
     { path: '/staff', label: 'Staff' },
     { path: '/notifications', label: 'Notifications' },
     { path: '/settings', label: 'Settings' },
+    { path: '/restaurant', label: 'Restaurant' },
+    { path: '/spa', label: 'Spa' },
   ];
 
   return allRoutes.filter(route => canAccessRoute(userRole, route.path));

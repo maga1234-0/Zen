@@ -10,6 +10,8 @@ import { CreateOrderModal } from '@/components/restaurant/CreateOrderModal';
 import api from '@/services/api';
 import { useToastContext } from '@/App';
 import { motion } from 'framer-motion';
+import { useAuthStore } from '@/store/authStore';
+import { hasPermission } from '@/utils/permissions';
 
 type TabType = 'orders' | 'menu' | 'tables' | 'reservations';
 
@@ -30,6 +32,7 @@ interface MenuItem {
 export const Restaurant = () => {
   const toast = useToastContext();
   const queryClient = useQueryClient();
+  const { user } = useAuthStore();
   const [activeTab, setActiveTab] = useState<TabType>('orders');
   const [searchTerm, setSearchTerm] = useState('');
   const [filterStatus, setFilterStatus] = useState('all');
@@ -48,6 +51,13 @@ export const Restaurant = () => {
     is_gluten_free: false,
     preparation_time: '',
   });
+
+  // Check user permissions
+  const canCreateOrder = user?.role ? hasPermission(user.role, 'restaurant.orders.create') : false;
+  const canUpdateMenu = user?.role ? hasPermission(user.role, 'restaurant.menu.update') : false;
+  const canDeleteMenu = user?.role ? hasPermission(user.role, 'restaurant.menu.delete') : false;
+  const canViewStats = user?.role ? hasPermission(user.role, 'restaurant.stats.view') : false;
+  const canUpdateOrderStatus = user?.role ? hasPermission(user.role, 'restaurant.orders.update_status') : false;
 
   // Order form states
   const [orderForm, setOrderForm] = useState({
@@ -409,70 +419,74 @@ export const Restaurant = () => {
             Gestion des commandes, menu et réservations
           </p>
         </div>
-        <Button onClick={() => setShowOrderModal(true)} className="bg-seafoam-500 hover:bg-seafoam-600 w-full sm:w-auto">
-          <Plus className="w-4 h-4 mr-2" />
-          Nouvelle Commande
-        </Button>
+        {canCreateOrder && (
+          <Button onClick={() => setShowOrderModal(true)} className="bg-seafoam-500 hover:bg-seafoam-600 w-full sm:w-auto">
+            <Plus className="w-4 h-4 mr-2" />
+            Nouvelle Commande
+          </Button>
+        )}
       </div>
 
       {/* Statistics Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <Card className="p-4">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm text-gray-500 dark:text-slate-400">Commandes Actives</p>
-              <p className="text-2xl font-bold text-gray-800 dark:text-white">
-                {stats?.orders?.active_orders || 0}
-              </p>
+      {canViewStats && (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          <Card className="p-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-gray-500 dark:text-slate-400">Commandes Actives</p>
+                <p className="text-2xl font-bold text-gray-800 dark:text-white">
+                  {stats?.orders?.active_orders || 0}
+                </p>
+              </div>
+              <div className="w-12 h-12 bg-orange-100 dark:bg-orange-900/30 rounded-lg flex items-center justify-center">
+                <ChefHat className="w-6 h-6 text-orange-600 dark:text-orange-400" />
+              </div>
             </div>
-            <div className="w-12 h-12 bg-orange-100 dark:bg-orange-900/30 rounded-lg flex items-center justify-center">
-              <ChefHat className="w-6 h-6 text-orange-600 dark:text-orange-400" />
-            </div>
-          </div>
-        </Card>
+          </Card>
 
-        <Card className="p-4">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm text-gray-500 dark:text-slate-400">Revenus du Jour</p>
-              <p className="text-2xl font-bold text-gray-800 dark:text-white">
-                {parseFloat(stats?.orders?.total_revenue || 0).toFixed(2)}€
-              </p>
+          <Card className="p-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-gray-500 dark:text-slate-400">Revenus du Jour</p>
+                <p className="text-2xl font-bold text-gray-800 dark:text-white">
+                  {parseFloat(stats?.orders?.total_revenue || 0).toFixed(2)}€
+                </p>
+              </div>
+              <div className="w-12 h-12 bg-green-100 dark:bg-green-900/30 rounded-lg flex items-center justify-center">
+                <DollarSign className="w-6 h-6 text-green-600 dark:text-green-400" />
+              </div>
             </div>
-            <div className="w-12 h-12 bg-green-100 dark:bg-green-900/30 rounded-lg flex items-center justify-center">
-              <DollarSign className="w-6 h-6 text-green-600 dark:text-green-400" />
-            </div>
-          </div>
-        </Card>
+          </Card>
 
-        <Card className="p-4">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm text-gray-500 dark:text-slate-400">Tables Disponibles</p>
-              <p className="text-2xl font-bold text-gray-800 dark:text-white">
-                {stats?.tables?.available_tables || 0}/{stats?.tables?.total_tables || 0}
-              </p>
+          <Card className="p-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-gray-500 dark:text-slate-400">Tables Disponibles</p>
+                <p className="text-2xl font-bold text-gray-800 dark:text-white">
+                  {stats?.tables?.available_tables || 0}/{stats?.tables?.total_tables || 0}
+                </p>
+              </div>
+              <div className="w-12 h-12 bg-blue-100 dark:bg-blue-900/30 rounded-lg flex items-center justify-center">
+                <Coffee className="w-6 h-6 text-blue-600 dark:text-blue-400" />
+              </div>
             </div>
-            <div className="w-12 h-12 bg-blue-100 dark:bg-blue-900/30 rounded-lg flex items-center justify-center">
-              <Coffee className="w-6 h-6 text-blue-600 dark:text-blue-400" />
-            </div>
-          </div>
-        </Card>
+          </Card>
 
-        <Card className="p-4">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm text-gray-500 dark:text-slate-400">Clients Uniques</p>
-              <p className="text-2xl font-bold text-gray-800 dark:text-white">
-                {stats?.orders?.unique_customers || 0}
-              </p>
+          <Card className="p-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-gray-500 dark:text-slate-400">Clients Uniques</p>
+                <p className="text-2xl font-bold text-gray-800 dark:text-white">
+                  {stats?.orders?.unique_customers || 0}
+                </p>
+              </div>
+              <div className="w-12 h-12 bg-purple-100 dark:bg-purple-900/30 rounded-lg flex items-center justify-center">
+                <Users className="w-6 h-6 text-purple-600 dark:text-purple-400" />
+              </div>
             </div>
-            <div className="w-12 h-12 bg-purple-100 dark:bg-purple-900/30 rounded-lg flex items-center justify-center">
-              <Users className="w-6 h-6 text-purple-600 dark:text-purple-400" />
-            </div>
-          </div>
-        </Card>
-      </div>
+          </Card>
+        </div>
+      )}
 
       {/* Tabs */}
       <div className="flex gap-2 border-b dark:border-slate-700 overflow-x-auto">
@@ -578,7 +592,7 @@ export const Restaurant = () => {
                     </div>
 
                     <div className="flex gap-2">
-                      {order.status === 'pending' && (
+                      {canUpdateOrderStatus && order.status === 'pending' && (
                         <Button
                           size="sm"
                           onClick={() => updateOrderStatusMutation.mutate({ id: order.id, status: 'preparing' })}
@@ -587,7 +601,7 @@ export const Restaurant = () => {
                           Commencer
                         </Button>
                       )}
-                      {order.status === 'preparing' && (
+                      {canUpdateOrderStatus && order.status === 'preparing' && (
                         <Button
                           size="sm"
                           onClick={() => updateOrderStatusMutation.mutate({ id: order.id, status: 'ready' })}
@@ -596,7 +610,7 @@ export const Restaurant = () => {
                           Prête
                         </Button>
                       )}
-                      {order.status === 'ready' && (
+                      {canUpdateOrderStatus && order.status === 'ready' && (
                         <Button
                           size="sm"
                           onClick={() => updateOrderStatusMutation.mutate({ id: order.id, status: 'served' })}
@@ -605,7 +619,7 @@ export const Restaurant = () => {
                           Servir
                         </Button>
                       )}
-                      {order.status === 'served' && (
+                      {canUpdateOrderStatus && order.status === 'served' && (
                         <Button
                           size="sm"
                           onClick={() => updateOrderStatusMutation.mutate({ id: order.id, status: 'completed' })}
@@ -630,19 +644,21 @@ export const Restaurant = () => {
 
       {activeTab === 'menu' && (
         <div className="space-y-4">
-          <div className="flex justify-end">
-            <Button
-              onClick={() => {
-                setEditingMenuItem(null);
-                resetMenuForm();
-                setShowMenuModal(true);
-              }}
-              className="bg-seafoam-500 hover:bg-seafoam-600"
-            >
-              <Plus className="w-4 h-4 mr-2" />
-              Ajouter un Article
-            </Button>
-          </div>
+          {canUpdateMenu && (
+            <div className="flex justify-end">
+              <Button
+                onClick={() => {
+                  setEditingMenuItem(null);
+                  resetMenuForm();
+                  setShowMenuModal(true);
+                }}
+                className="bg-seafoam-500 hover:bg-seafoam-600"
+              >
+                <Plus className="w-4 h-4 mr-2" />
+                Ajouter un Article
+              </Button>
+            </div>
+          )}
 
           <Card>
             {menuLoading ? (
@@ -729,24 +745,28 @@ export const Restaurant = () => {
                         </td>
                         <td className="px-6 py-4 text-right">
                           <div className="flex justify-end gap-2">
-                            <button
-                              onClick={() => handleEditMenuItem(item)}
-                              className="p-2 text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-lg transition-colors"
-                              title="Modifier"
-                            >
-                              <Edit className="w-4 h-4" />
-                            </button>
-                            <button
-                              onClick={() => {
-                                if (confirm('Êtes-vous sûr de vouloir supprimer cet article?')) {
-                                  deleteMenuItemMutation.mutate(item.id);
-                                }
-                              }}
-                              className="p-2 text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors"
-                              title="Supprimer"
-                            >
-                              <Trash2 className="w-4 h-4" />
-                            </button>
+                            {canUpdateMenu && (
+                              <button
+                                onClick={() => handleEditMenuItem(item)}
+                                className="p-2 text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-lg transition-colors"
+                                title="Modifier"
+                              >
+                                <Edit className="w-4 h-4" />
+                              </button>
+                            )}
+                            {canDeleteMenu && (
+                              <button
+                                onClick={() => {
+                                  if (confirm('Êtes-vous sûr de vouloir supprimer cet article?')) {
+                                    deleteMenuItemMutation.mutate(item.id);
+                                  }
+                                }}
+                                className="p-2 text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors"
+                                title="Supprimer"
+                              >
+                                <Trash2 className="w-4 h-4" />
+                              </button>
+                            )}
                           </div>
                         </td>
                       </tr>
@@ -758,17 +778,19 @@ export const Restaurant = () => {
               <div className="text-center py-12">
                 <UtensilsCrossed className="w-16 h-16 text-gray-300 dark:text-slate-600 mx-auto mb-4" />
                 <p className="text-gray-500 dark:text-slate-400 mb-4">Aucun article dans le menu</p>
-                <Button
-                  onClick={() => {
-                    setEditingMenuItem(null);
-                    resetMenuForm();
-                    setShowMenuModal(true);
-                  }}
-                  className="bg-seafoam-500 hover:bg-seafoam-600"
-                >
-                  <Plus className="w-4 h-4 mr-2" />
-                  Ajouter le premier article
-                </Button>
+                {canUpdateMenu && (
+                  <Button
+                    onClick={() => {
+                      setEditingMenuItem(null);
+                      resetMenuForm();
+                      setShowMenuModal(true);
+                    }}
+                    className="bg-seafoam-500 hover:bg-seafoam-600"
+                  >
+                    <Plus className="w-4 h-4 mr-2" />
+                    Ajouter le premier article
+                  </Button>
+                )}
               </div>
             )}
           </Card>
