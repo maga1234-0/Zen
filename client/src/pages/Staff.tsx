@@ -37,6 +37,15 @@ export const Staff = () => {
     refetchOnWindowFocus: true, // Rafraîchir quand la fenêtre reprend le focus
   });
 
+  // Fetch available roles from database
+  const { data: roles, isLoading: rolesLoading } = useQuery({
+    queryKey: ['roles'],
+    queryFn: async () => {
+      const res = await api.get('/auth/roles');
+      return res.data;
+    },
+  });
+
   const updateStaffMutation = useMutation({
     mutationFn: async (data: any) => {
       const res = await api.put(`/users/${data.id}`, data);
@@ -488,13 +497,26 @@ export const Staff = () => {
                       value={formData.role}
                       onChange={(e) => setFormData({ ...formData, role: e.target.value })}
                       className="w-full px-3 sm:px-4 py-2 text-sm sm:text-base border dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-seafoam-400 dark:bg-slate-700 dark:text-white"
+                      disabled={rolesLoading}
                     >
-                      <option value="receptionist">Receptionist</option>
-                      <option value="housekeeping">Housekeeping</option>
-                      <option value="maintenance">Maintenance</option>
-                      <option value="accountant">Accountant</option>
-                      <option value="manager">Manager</option>
-                      <option value="admin">Admin</option>
+                      {rolesLoading ? (
+                        <option>Loading roles...</option>
+                      ) : roles && roles.length > 0 ? (
+                        roles.map((role: any) => (
+                          <option key={role.id} value={role.name}>
+                            {role.description || role.name}
+                          </option>
+                        ))
+                      ) : (
+                        <>
+                          <option value="receptionist">Receptionist</option>
+                          <option value="housekeeping">Housekeeping</option>
+                          <option value="maintenance">Maintenance</option>
+                          <option value="accountant">Accountant</option>
+                          <option value="manager">Manager</option>
+                          <option value="admin">Admin</option>
+                        </>
+                      )}
                     </select>
                     <p className="text-xs text-gray-500 dark:text-slate-400 mt-1">
                       {formData.role === 'admin' && '✅ Full access to all features'}
@@ -627,13 +649,26 @@ export const Staff = () => {
                       value={editingStaff.role}
                       onChange={(e) => setEditingStaff({ ...editingStaff, role: e.target.value })}
                       className="w-full px-3 sm:px-4 py-2 text-sm sm:text-base border dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-seafoam-400 dark:bg-slate-700 dark:text-white"
+                      disabled={rolesLoading}
                     >
-                      <option value="receptionist">Receptionist</option>
-                      <option value="housekeeping">Housekeeping</option>
-                      <option value="maintenance">Maintenance</option>
-                      <option value="accountant">Accountant</option>
-                      <option value="manager">Manager</option>
-                      <option value="admin">Admin</option>
+                      {rolesLoading ? (
+                        <option>Loading roles...</option>
+                      ) : roles && roles.length > 0 ? (
+                        roles.map((role: any) => (
+                          <option key={role.id} value={role.name}>
+                            {role.description || role.name}
+                          </option>
+                        ))
+                      ) : (
+                        <>
+                          <option value="receptionist">Receptionist</option>
+                          <option value="housekeeping">Housekeeping</option>
+                          <option value="maintenance">Maintenance</option>
+                          <option value="accountant">Accountant</option>
+                          <option value="manager">Manager</option>
+                          <option value="admin">Admin</option>
+                        </>
+                      )}
                     </select>
                   </div>
 
