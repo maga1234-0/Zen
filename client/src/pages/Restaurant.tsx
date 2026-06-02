@@ -6,6 +6,7 @@ import {
 } from 'lucide-react';
 import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
+import { CreateOrderModal } from '@/components/restaurant/CreateOrderModal';
 import api from '@/services/api';
 import { useToastContext } from '@/App';
 import { motion } from 'framer-motion';
@@ -47,6 +48,24 @@ export const Restaurant = () => {
     is_gluten_free: false,
     preparation_time: '',
   });
+
+  // Order form states
+  const [orderForm, setOrderForm] = useState({
+    order_type: 'room_service' as 'room_service' | 'dine_in' | 'takeaway' | 'bar',
+    room_id: '',
+    table_id: '',
+    guest_id: '',
+    booking_id: '',
+    special_instructions: '',
+  });
+  const [orderItems, setOrderItems] = useState<Array<{
+    menu_item_id: string;
+    item_name: string;
+    quantity: number;
+    unit_price: number;
+    special_instructions: string;
+  }>>([]);
+  const [selectedCategory, setSelectedCategory] = useState<string>('all');
 
   // Fetch restaurant stats
   const { data: stats } = useQuery({
@@ -91,7 +110,27 @@ export const Restaurant = () => {
       const res = await api.get('/restaurant/menu/categories');
       return res.data;
     },
-    enabled: activeTab === 'menu' || showMenuModal,
+    enabled: activeTab === 'menu' || showMenuModal || showOrderModal,
+  });
+
+  // Fetch active bookings (occupied rooms) for order creation
+  const { data: activeBookings } = useQuery({
+    queryKey: ['active-bookings'],
+    queryFn: async () => {
+      const res = await api.get('/bookings?status=checked_in');
+      return res.data;
+    },
+    enabled: showOrderModal,
+  });
+
+  // Fetch menu items for order creation
+  const { data: availableMenuItems } = useQuery({
+    queryKey: ['available-menu-items'],
+    queryFn: async () => {
+      const res = await api.get('/restaurant/menu/items?available_only=true');
+      return res.data;
+    },
+    enabled: showOrderModal,
   });
 
   // Fetch tables
@@ -216,6 +255,112 @@ export const Restaurant = () => {
     };
 
     saveMenuItemMutation.mutate(data);
+  };
+
+  // Order management functions
+  const addItemToOrder = (item: any) => {
+    const existingItem = orderItems.find(oi => oi.menu_item_id === item.id);
+    if (existingItem) {
+      setOrderItems(orderItems.map(oi => 
+        oi.menu_item_id === item.id 
+          ? { ...oi, quantity: oi.quantity + 1 }
+          : oi
+      ));
+    } else {
+      setOrderItems([...orderItems, {
+        menu_item_id: item.id,
+        item_name: item.name,
+        quantity: 1,
+        unit_price: item.price,
+        special_instructions: '',
+      }]);
+    }
+  };
+
+  const removeItemFromOrder = (menu_item_id: string) => {
+    setOrderItems(orderItems.filter(item => item.menu_item_id !== menu_item_id));
+  };
+
+  const updateItemQuantity = (menu_item_id: string, quantity: number) => {
+    if (quantity <= 0) {
+      removeItemFromOrder(menu_item_id);
+    } else {
+      setOrderItems(orderItems.map(item =>
+        item.menu_item_id === menu_item_id ? { ...item, quantity } : item
+      ));
+    }
+  };
+
+  const calculateOrderTotal = () => {
+    const subtotal = orderItems.reduce((sum, item) => sum + (item.unit_price * item.quantity), 0);
+    const tax = subtotal * 0.1; // 10% tax
+    const service_charge = orderForm.order_type === 'room_service' ? subtotal * 0.15 : 0; // 15% for room service
+    return {
+      subtotal,
+      tax,
+      service_charge,
+      total: subtotal + tax + service_charge,
+    };
+  };
+
+  const resetOrderForm = () => {
+    setOrderForm({
+      order_type: 'room_service',
+      room_id: '',
+      table_id: '',
+      guest_id: '',
+      booking_id: '',
+      special_instructions: '',
+    });
+    setOrderItems([]);
+    setSelectedCategory('all');
+  };
+
+  // Create order mutation
+  const createOrderMutation = useMutation({
+    mutationFn: async (data: any) => {
+      const res = await api.post('/restaurant/orders', data);
+      return res.data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['restaurant-orders'] });
+      queryClient.invalidateQueries({ queryKey: ['restaurant-stats'] });
+      toast.success('Commande créée avec succès!');
+      setShowOrderModal(false);
+      resetOrderForm();
+    },
+    onError: () => {
+      toast.error('Erreur lors de la création de la commande');
+    },
+  });
+
+  const handleCreateOrder = () => {
+    if (orderItems.length === 0) {
+      toast.error('Ajoutez au moins un article à la commande');
+      return;
+    }
+
+    if (orderForm.order_type === 'room_service' && !orderForm.booking_id) {
+      toast.error('Sélectionnez une chambre');
+      return;
+    }
+
+    if (orderForm.order_type === 'dine_in' && !orderForm.table_id) {
+      toast.error('Sélectionnez une table');
+      return;
+    }
+
+    const totals = calculateOrderTotal();
+    const orderData = {
+      ...orderForm,
+      items: orderItems,
+      subtotal: totals.subtotal,
+      tax: totals.tax,
+      service_charge: totals.service_charge,
+      total_amount: totals.total,
+    };
+
+    createOrderMutation.mutate(orderData);
   };
 
   const getStatusBadge = (status: string) => {
@@ -670,90 +815,27 @@ export const Restaurant = () => {
 
       {/* Order Modal */}
       {showOrderModal && (
-        <>
-          <div 
-            className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50"
-            onClick={() => setShowOrderModal(false)}
-          />
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-            <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-2xl w-full max-w-2xl p-6 border dark:border-slate-700">
-              <div className="flex items-center justify-between mb-6">
-                <h2 className="text-2xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
-                  <UtensilsCrossed className="w-6 h-6 text-seafoam-500" />
-                  Nouvelle Commande Restaurant
-                </h2>
-                <button
-                  onClick={() => setShowOrderModal(false)}
-                  className="p-2 hover:bg-gray-100 dark:hover:bg-slate-700 rounded-lg transition-colors"
-                >
-                  <span className="text-2xl text-gray-500 dark:text-slate-400">×</span>
-                </button>
-              </div>
-
-              <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4 mb-6">
-                <div className="flex items-start gap-3">
-                  <div className="w-6 h-6 bg-blue-100 dark:bg-blue-900/40 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
-                    <span className="text-blue-600 dark:text-blue-400 text-sm font-bold">ℹ</span>
-                  </div>
-                  <div>
-                    <h3 className="text-sm font-semibold text-blue-800 dark:text-blue-300 mb-1">
-                      Module Restaurant actif
-                    </h3>
-                    <p className="text-sm text-blue-700 dark:text-blue-400 mb-2">
-                      Le module restaurant est déployé et fonctionnel. Vous pouvez créer des commandes pour:
-                    </p>
-                    <ul className="text-sm text-blue-700 dark:text-blue-400 list-disc list-inside space-y-1">
-                      <li>Service en salle (dine-in)</li>
-                      <li>Service en chambre (room service)</li>
-                      <li>À emporter (takeaway)</li>
-                      <li>Bar</li>
-                    </ul>
-                  </div>
-                </div>
-              </div>
-
-              <div className="text-center py-8">
-                <ChefHat className="w-16 h-16 text-seafoam-400 mx-auto mb-4" />
-                <p className="text-gray-600 dark:text-slate-400 mb-4">
-                  Fonctionnalités disponibles pour créer une commande:
-                </p>
-                <ul className="text-sm text-gray-500 dark:text-slate-500 space-y-2 text-left max-w-md mx-auto">
-                  <li>✓ Sélection du type de service</li>
-                  <li>✓ Choix de la table ou chambre</li>
-                  <li>✓ Ajout d'articles du menu</li>
-                  <li>✓ Notes spéciales et allergies</li>
-                  <li>✓ Gestion des paiements</li>
-                </ul>
-              </div>
-
-              <div className="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg p-4 mb-6">
-                <p className="text-sm text-yellow-700 dark:text-yellow-400">
-                  <strong>Note:</strong> Le formulaire complet de création de commande sera disponible dans une prochaine mise à jour. 
-                  Pour l'instant, vous pouvez gérer les commandes existantes depuis l'onglet "Commandes".
-                </p>
-              </div>
-
-              <div className="flex justify-end gap-3">
-                <Button
-                  onClick={() => setShowOrderModal(false)}
-                  variant="secondary"
-                  className="dark:border-slate-600 dark:text-slate-200"
-                >
-                  Fermer
-                </Button>
-                <Button
-                  onClick={() => {
-                    setShowOrderModal(false);
-                    setActiveTab('orders');
-                  }}
-                  className="bg-seafoam-500 hover:bg-seafoam-600"
-                >
-                  Voir les Commandes
-                </Button>
-              </div>
-            </div>
-          </div>
-        </>
+        <CreateOrderModal
+          onClose={() => {
+            setShowOrderModal(false);
+            resetOrderForm();
+          }}
+          orderForm={orderForm}
+          setOrderForm={setOrderForm}
+          orderItems={orderItems}
+          addItemToOrder={addItemToOrder}
+          removeItemFromOrder={removeItemFromOrder}
+          updateItemQuantity={updateItemQuantity}
+          calculateOrderTotal={calculateOrderTotal}
+          handleCreateOrder={handleCreateOrder}
+          activeBookings={activeBookings}
+          tables={tables}
+          availableMenuItems={availableMenuItems}
+          menuCategories={menuCategories}
+          selectedCategory={selectedCategory}
+          setSelectedCategory={setSelectedCategory}
+          isLoading={createOrderMutation.isPending}
+        />
       )}
 
       {/* Menu Item Modal */}
