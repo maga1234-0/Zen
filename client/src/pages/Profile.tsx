@@ -27,12 +27,12 @@ export const Profile = () => {
     e.preventDefault();
     
     if (passwordData.newPassword !== passwordData.confirmPassword) {
-      toast.error('New passwords do not match');
+      toast.error('Les nouveaux mots de passe ne correspondent pas');
       return;
     }
 
     if (passwordData.newPassword.length < 6) {
-      toast.error('Password must be at least 6 characters');
+      toast.error('Le mot de passe doit contenir au moins 6 caractères');
       return;
     }
 
@@ -44,7 +44,7 @@ export const Profile = () => {
         newPassword: passwordData.newPassword,
       });
 
-      toast.success('Password changed successfully!');
+      toast.success('Mot de passe modifié avec succès !');
       setPasswordData({
         currentPassword: '',
         newPassword: '',
@@ -53,7 +53,7 @@ export const Profile = () => {
       setShowPasswordSection(false);
     } catch (error: any) {
       console.error('Password change error:', error);
-      const errorMsg = error.response?.data?.message || 'Failed to change password';
+      const errorMsg = error.response?.data?.message || 'Échec de la modification du mot de passe';
       toast.error(errorMsg);
     } finally {
       setIsChangingPassword(false);
@@ -66,13 +66,13 @@ export const Profile = () => {
 
     // Validate file type
     if (!file.type.startsWith('image/')) {
-      toast.error('Please upload an image file');
+      toast.error('Veuillez télécharger un fichier image');
       return;
     }
 
     // Validate file size (max 2MB)
     if (file.size > 2 * 1024 * 1024) {
-      toast.error('Image size must be less than 2MB');
+      toast.error('La taille de l\'image doit être inférieure à 2 Mo');
       return;
     }
 
@@ -96,23 +96,23 @@ export const Profile = () => {
             setAuth({ ...user, profile_picture: base64String }, useAuthStore.getState().token || '');
           }
 
-          toast.success('Profile picture updated successfully!');
+          toast.success('Photo de profil mise à jour avec succès !');
         } catch (error: any) {
           console.error('Upload error:', error);
-          toast.error(error.response?.data?.message || 'Failed to upload profile picture');
+          toast.error(error.response?.data?.message || 'Échec du téléchargement de la photo de profil');
         } finally {
           setIsUploadingPicture(false);
         }
       };
 
       reader.onerror = () => {
-        toast.error('Failed to read image file');
+        toast.error('Échec de la lecture du fichier image');
         setIsUploadingPicture(false);
       };
 
       reader.readAsDataURL(file);
     } catch (error) {
-      toast.error('Failed to process image');
+      toast.error('Échec du traitement de l\'image');
       setIsUploadingPicture(false);
     }
   };
