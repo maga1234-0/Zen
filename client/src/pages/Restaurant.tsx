@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { 
   UtensilsCrossed, Plus, Search, Filter, Clock, DollarSign,
-  CheckCircle, XCircle, Coffee, Wine, ChefHat, Users
+  CheckCircle, XCircle, Coffee, Wine, ChefHat, Users, Edit, Trash2, X
 } from 'lucide-react';
 import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
@@ -12,6 +12,20 @@ import { motion } from 'framer-motion';
 
 type TabType = 'orders' | 'menu' | 'tables' | 'reservations';
 
+interface MenuItem {
+  id: string;
+  name: string;
+  name_fr?: string;
+  description?: string;
+  price: number;
+  category_name: string;
+  is_available: boolean;
+  is_vegetarian?: boolean;
+  is_vegan?: boolean;
+  is_gluten_free?: boolean;
+  preparation_time?: number;
+}
+
 export const Restaurant = () => {
   const toast = useToastContext();
   const queryClient = useQueryClient();
@@ -19,6 +33,20 @@ export const Restaurant = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [filterStatus, setFilterStatus] = useState('all');
   const [showOrderModal, setShowOrderModal] = useState(false);
+  const [showMenuModal, setShowMenuModal] = useState(false);
+  const [editingMenuItem, setEditingMenuItem] = useState<MenuItem | null>(null);
+  const [menuFormData, setMenuFormData] = useState({
+    name: '',
+    name_fr: '',
+    description: '',
+    price: '',
+    category_id: '',
+    is_available: true,
+    is_vegetarian: false,
+    is_vegan: false,
+    is_gluten_free: false,
+    preparation_time: '',
+  });
 
   // Fetch restaurant stats
   const { data: stats } = useQuery({
@@ -48,12 +76,22 @@ export const Restaurant = () => {
   const { data: menuItems, isLoading: menuLoading } = useQuery({
     queryKey: ['menu-items'],
     queryFn: async () => {
-      const res = await api.get('/restaurant/menu/items?available_only=true');
+      const res = await api.get('/restaurant/menu/items');
       return res.data;
     },
     enabled: activeTab === 'menu',
     refetchInterval: 60000, // Rafraîchir toutes les 60 secondes
     refetchOnWindowFocus: true, // Rafraîchir quand la fenêtre reprend le focus
+  });
+
+  // Fetch menu categories
+  const { data: menuCategories } = useQuery({
+    queryKey: ['menu-categories'],
+    queryFn: async () => {
+      const res = await api.get('/restaurant/menu/categories');
+      return res.data;
+    },
+    enabled: activeTab === 'menu' || showMenuModal,
   });
 
   // Fetch tables
@@ -94,6 +132,91 @@ export const Restaurant = () => {
       toast.error('Erreur lors de la mise à jour');
     },
   });
+
+  // Create/Update menu item mutation
+  const saveMenuItemMutation = useMutation({
+    mutationFn: async (data: any) => {
+      if (editingMenuItem) {
+        const res = await api.put(`/restaurant/menu/items/${editingMenuItem.id}`, data);
+        return res.data;
+      } else {
+        const res = await api.post('/restaurant/menu/items', data);
+        return res.data;
+      }
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['menu-items'] });
+      toast.success(editingMenuItem ? 'Article modifié avec succès!' : 'Article créé avec succès!');
+      setShowMenuModal(false);
+      setEditingMenuItem(null);
+      resetMenuForm();
+    },
+    onError: () => {
+      toast.error('Erreur lors de l\'enregistrement');
+    },
+  });
+
+  // Delete menu item mutation
+  const deleteMenuItemMutation = useMutation({
+    mutationFn: async (id: string) => {
+      const res = await api.delete(`/restaurant/menu/items/${id}`);
+      return res.data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['menu-items'] });
+      toast.success('Article supprimé avec succès!');
+    },
+    onError: () => {
+      toast.error('Erreur lors de la suppression');
+    },
+  });
+
+  const resetMenuForm = () => {
+    setMenuFormData({
+      name: '',
+      name_fr: '',
+      description: '',
+      price: '',
+      category_id: '',
+      is_available: true,
+      is_vegetarian: false,
+      is_vegan: false,
+      is_gluten_free: false,
+      preparation_time: '',
+    });
+  };
+
+  const handleEditMenuItem = (item: MenuItem) => {
+    setEditingMenuItem(item);
+    setMenuFormData({
+      name: item.name || '',
+      name_fr: item.name_fr || '',
+      description: item.description || '',
+      price: item.price.toString(),
+      category_id: '', // Will be filled from backend data
+      is_available: item.is_available,
+      is_vegetarian: item.is_vegetarian || false,
+      is_vegan: item.is_vegan || false,
+      is_gluten_free: item.is_gluten_free || false,
+      preparation_time: item.preparation_time?.toString() || '',
+    });
+    setShowMenuModal(true);
+  };
+
+  const handleSaveMenuItem = () => {
+    if (!menuFormData.name || !menuFormData.price || !menuFormData.category_id) {
+      toast.error('Veuillez remplir tous les champs obligatoires');
+      return;
+    }
+
+    const data = {
+      ...menuFormData,
+      price: parseFloat(menuFormData.price),
+      preparation_time: menuFormData.preparation_time ? parseInt(menuFormData.preparation_time) : null,
+    };
+
+    saveMenuItemMutation.mutate(data);
+  };
 
   const getStatusBadge = (status: string) => {
     const badges: Record<string, { bg: string; text: string; label: string }> = {
@@ -361,11 +484,150 @@ export const Restaurant = () => {
       )}
 
       {activeTab === 'menu' && (
-        <Card className="p-4">
-          <p className="text-center text-gray-500 dark:text-slate-400 py-12">
-            Gestion du menu - En développement
-          </p>
-        </Card>
+        <div className="space-y-4">
+          <div className="flex justify-end">
+            <Button
+              onClick={() => {
+                setEditingMenuItem(null);
+                resetMenuForm();
+                setShowMenuModal(true);
+              }}
+              className="bg-seafoam-500 hover:bg-seafoam-600"
+            >
+              <Plus className="w-4 h-4 mr-2" />
+              Ajouter un Article
+            </Button>
+          </div>
+
+          <Card>
+            {menuLoading ? (
+              <div className="text-center py-12">
+                <div className="inline-block w-8 h-8 border-4 border-seafoam-400 border-t-transparent rounded-full animate-spin"></div>
+              </div>
+            ) : menuItems && menuItems.length > 0 ? (
+              <div className="overflow-x-auto">
+                <table className="w-full">
+                  <thead className="bg-gray-50 dark:bg-slate-800">
+                    <tr>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-slate-400 uppercase">
+                        Article
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-slate-400 uppercase">
+                        Catégorie
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-slate-400 uppercase">
+                        Prix
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-slate-400 uppercase">
+                        Temps
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-slate-400 uppercase">
+                        Statut
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-slate-400 uppercase">
+                        Options
+                      </th>
+                      <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-slate-400 uppercase">
+                        Actions
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody className="bg-white dark:bg-slate-900 divide-y divide-gray-200 dark:divide-slate-700">
+                    {menuItems.map((item: MenuItem) => (
+                      <tr key={item.id} className="hover:bg-gray-50 dark:hover:bg-slate-800">
+                        <td className="px-6 py-4">
+                          <div>
+                            <p className="font-medium text-gray-900 dark:text-white">{item.name}</p>
+                            {item.description && (
+                              <p className="text-sm text-gray-500 dark:text-slate-400 line-clamp-1">
+                                {item.description}
+                              </p>
+                            )}
+                          </div>
+                        </td>
+                        <td className="px-6 py-4 text-sm text-gray-900 dark:text-white">
+                          {item.category_name}
+                        </td>
+                        <td className="px-6 py-4 text-sm font-medium text-gray-900 dark:text-white">
+                          {item.price.toFixed(2)}€
+                        </td>
+                        <td className="px-6 py-4 text-sm text-gray-900 dark:text-white">
+                          {item.preparation_time ? `${item.preparation_time} min` : '-'}
+                        </td>
+                        <td className="px-6 py-4">
+                          <span className={`text-xs px-2 py-1 rounded-full ${
+                            item.is_available
+                              ? 'bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-300'
+                              : 'bg-red-100 dark:bg-red-900 text-red-700 dark:text-red-300'
+                          }`}>
+                            {item.is_available ? 'Disponible' : 'Indisponible'}
+                          </span>
+                        </td>
+                        <td className="px-6 py-4">
+                          <div className="flex gap-1">
+                            {item.is_vegetarian && (
+                              <span className="text-xs px-2 py-1 rounded-full bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-300">
+                                🌱 Végé
+                              </span>
+                            )}
+                            {item.is_vegan && (
+                              <span className="text-xs px-2 py-1 rounded-full bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-300">
+                                🌿 Vegan
+                              </span>
+                            )}
+                            {item.is_gluten_free && (
+                              <span className="text-xs px-2 py-1 rounded-full bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300">
+                                Sans gluten
+                              </span>
+                            )}
+                          </div>
+                        </td>
+                        <td className="px-6 py-4 text-right">
+                          <div className="flex justify-end gap-2">
+                            <button
+                              onClick={() => handleEditMenuItem(item)}
+                              className="p-2 text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-lg transition-colors"
+                              title="Modifier"
+                            >
+                              <Edit className="w-4 h-4" />
+                            </button>
+                            <button
+                              onClick={() => {
+                                if (confirm('Êtes-vous sûr de vouloir supprimer cet article?')) {
+                                  deleteMenuItemMutation.mutate(item.id);
+                                }
+                              }}
+                              className="p-2 text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors"
+                              title="Supprimer"
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            ) : (
+              <div className="text-center py-12">
+                <UtensilsCrossed className="w-16 h-16 text-gray-300 dark:text-slate-600 mx-auto mb-4" />
+                <p className="text-gray-500 dark:text-slate-400 mb-4">Aucun article dans le menu</p>
+                <Button
+                  onClick={() => {
+                    setEditingMenuItem(null);
+                    resetMenuForm();
+                    setShowMenuModal(true);
+                  }}
+                  className="bg-seafoam-500 hover:bg-seafoam-600"
+                >
+                  <Plus className="w-4 h-4 mr-2" />
+                  Ajouter le premier article
+                </Button>
+              </div>
+            )}
+          </Card>
+        </div>
       )}
 
       {activeTab === 'tables' && (
@@ -487,6 +749,215 @@ export const Restaurant = () => {
                   className="bg-seafoam-500 hover:bg-seafoam-600"
                 >
                   Voir les Commandes
+                </Button>
+              </div>
+            </div>
+          </div>
+        </>
+      )}
+
+      {/* Menu Item Modal */}
+      {showMenuModal && (
+        <>
+          <div 
+            className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50"
+            onClick={() => {
+              setShowMenuModal(false);
+              setEditingMenuItem(null);
+              resetMenuForm();
+            }}
+          />
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 overflow-y-auto">
+            <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-2xl w-full max-w-2xl p-6 border dark:border-slate-700 my-8">
+              <div className="flex items-center justify-between mb-6">
+                <h2 className="text-2xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
+                  <UtensilsCrossed className="w-6 h-6 text-seafoam-500" />
+                  {editingMenuItem ? 'Modifier l\'Article' : 'Nouvel Article Menu'}
+                </h2>
+                <button
+                  onClick={() => {
+                    setShowMenuModal(false);
+                    setEditingMenuItem(null);
+                    resetMenuForm();
+                  }}
+                  className="p-2 hover:bg-gray-100 dark:hover:bg-slate-700 rounded-lg transition-colors"
+                >
+                  <X className="w-5 h-5 text-gray-500 dark:text-slate-400" />
+                </button>
+              </div>
+
+              <div className="space-y-4 max-h-[70vh] overflow-y-auto pr-2">
+                {/* Nom */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-2">
+                    Nom de l'article *
+                  </label>
+                  <input
+                    type="text"
+                    value={menuFormData.name}
+                    onChange={(e) => setMenuFormData({ ...menuFormData, name: e.target.value })}
+                    className="w-full px-4 py-2 border dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-seafoam-400 dark:bg-slate-700 dark:text-white"
+                    placeholder="Ex: Salade César"
+                  />
+                </div>
+
+                {/* Nom français */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-2">
+                    Nom en français
+                  </label>
+                  <input
+                    type="text"
+                    value={menuFormData.name_fr}
+                    onChange={(e) => setMenuFormData({ ...menuFormData, name_fr: e.target.value })}
+                    className="w-full px-4 py-2 border dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-seafoam-400 dark:bg-slate-700 dark:text-white"
+                    placeholder="Ex: Salade César"
+                  />
+                </div>
+
+                {/* Description */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-2">
+                    Description
+                  </label>
+                  <textarea
+                    value={menuFormData.description}
+                    onChange={(e) => setMenuFormData({ ...menuFormData, description: e.target.value })}
+                    rows={3}
+                    className="w-full px-4 py-2 border dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-seafoam-400 dark:bg-slate-700 dark:text-white"
+                    placeholder="Décrivez l'article..."
+                  />
+                </div>
+
+                {/* Prix et Catégorie */}
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-2">
+                      Prix (€) *
+                    </label>
+                    <input
+                      type="number"
+                      step="0.01"
+                      value={menuFormData.price}
+                      onChange={(e) => setMenuFormData({ ...menuFormData, price: e.target.value })}
+                      className="w-full px-4 py-2 border dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-seafoam-400 dark:bg-slate-700 dark:text-white"
+                      placeholder="12.50"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-2">
+                      Catégorie *
+                    </label>
+                    <select
+                      value={menuFormData.category_id}
+                      onChange={(e) => setMenuFormData({ ...menuFormData, category_id: e.target.value })}
+                      className="w-full px-4 py-2 border dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-seafoam-400 dark:bg-slate-700 dark:text-white"
+                    >
+                      <option value="">Sélectionner...</option>
+                      {menuCategories?.map((cat: any) => (
+                        <option key={cat.id} value={cat.id}>
+                          {cat.name}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
+
+                {/* Temps de préparation */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-2">
+                    Temps de préparation (minutes)
+                  </label>
+                  <input
+                    type="number"
+                    value={menuFormData.preparation_time}
+                    onChange={(e) => setMenuFormData({ ...menuFormData, preparation_time: e.target.value })}
+                    className="w-full px-4 py-2 border dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-seafoam-400 dark:bg-slate-700 dark:text-white"
+                    placeholder="15"
+                  />
+                </div>
+
+                {/* Disponibilité */}
+                <div className="flex items-center gap-2">
+                  <input
+                    type="checkbox"
+                    id="is_available"
+                    checked={menuFormData.is_available}
+                    onChange={(e) => setMenuFormData({ ...menuFormData, is_available: e.target.checked })}
+                    className="w-4 h-4 text-seafoam-500 border-gray-300 rounded focus:ring-seafoam-400"
+                  />
+                  <label htmlFor="is_available" className="text-sm font-medium text-gray-700 dark:text-slate-300">
+                    Article disponible
+                  </label>
+                </div>
+
+                {/* Options alimentaires */}
+                <div className="space-y-2">
+                  <label className="block text-sm font-medium text-gray-700 dark:text-slate-300">
+                    Options alimentaires
+                  </label>
+                  <div className="flex flex-wrap gap-4">
+                    <div className="flex items-center gap-2">
+                      <input
+                        type="checkbox"
+                        id="is_vegetarian"
+                        checked={menuFormData.is_vegetarian}
+                        onChange={(e) => setMenuFormData({ ...menuFormData, is_vegetarian: e.target.checked })}
+                        className="w-4 h-4 text-green-500 border-gray-300 rounded focus:ring-green-400"
+                      />
+                      <label htmlFor="is_vegetarian" className="text-sm text-gray-700 dark:text-slate-300">
+                        🌱 Végétarien
+                      </label>
+                    </div>
+
+                    <div className="flex items-center gap-2">
+                      <input
+                        type="checkbox"
+                        id="is_vegan"
+                        checked={menuFormData.is_vegan}
+                        onChange={(e) => setMenuFormData({ ...menuFormData, is_vegan: e.target.checked })}
+                        className="w-4 h-4 text-green-500 border-gray-300 rounded focus:ring-green-400"
+                      />
+                      <label htmlFor="is_vegan" className="text-sm text-gray-700 dark:text-slate-300">
+                        🌿 Vegan
+                      </label>
+                    </div>
+
+                    <div className="flex items-center gap-2">
+                      <input
+                        type="checkbox"
+                        id="is_gluten_free"
+                        checked={menuFormData.is_gluten_free}
+                        onChange={(e) => setMenuFormData({ ...menuFormData, is_gluten_free: e.target.checked })}
+                        className="w-4 h-4 text-blue-500 border-gray-300 rounded focus:ring-blue-400"
+                      />
+                      <label htmlFor="is_gluten_free" className="text-sm text-gray-700 dark:text-slate-300">
+                        Sans gluten
+                      </label>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex justify-end gap-3 mt-6 pt-4 border-t dark:border-slate-700">
+                <Button
+                  onClick={() => {
+                    setShowMenuModal(false);
+                    setEditingMenuItem(null);
+                    resetMenuForm();
+                  }}
+                  variant="secondary"
+                  className="dark:border-slate-600 dark:text-slate-200"
+                >
+                  Annuler
+                </Button>
+                <Button
+                  onClick={handleSaveMenuItem}
+                  disabled={saveMenuItemMutation.isPending}
+                  className="bg-seafoam-500 hover:bg-seafoam-600"
+                >
+                  {saveMenuItemMutation.isPending ? 'Enregistrement...' : editingMenuItem ? 'Modifier' : 'Créer'}
                 </Button>
               </div>
             </div>
