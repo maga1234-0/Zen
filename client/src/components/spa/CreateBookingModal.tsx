@@ -268,9 +268,9 @@ export const CreateBookingModal = ({ onClose, onSuccess }: CreateBookingModalPro
               {bookingType === 'service' ? (
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-h-96 overflow-y-auto p-1">
                   {services.map(service => (
-                    <Card
+                    <div
                       key={service.id}
-                      className={`p-4 cursor-pointer transition-all ${
+                      className={`p-4 cursor-pointer transition-all rounded-lg border dark:border-slate-700 bg-white dark:bg-slate-800 ${
                         selectedService === service.id
                           ? 'ring-2 ring-purple-500 bg-purple-50 dark:bg-purple-900/20'
                           : 'hover:shadow-md'
@@ -293,15 +293,15 @@ export const CreateBookingModal = ({ onClose, onSuccess }: CreateBookingModalPro
                           {service.price.toFixed(2)}€
                         </span>
                       </div>
-                    </Card>
+                    </div>
                   ))}
                 </div>
               ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-h-96 overflow-y-auto p-1">
                   {packages.map(pkg => (
-                    <Card
+                    <div
                       key={pkg.id}
-                      className={`p-4 cursor-pointer transition-all ${
+                      className={`p-4 cursor-pointer transition-all rounded-lg border dark:border-slate-700 bg-white dark:bg-slate-800 ${
                         selectedPackage === pkg.id
                           ? 'ring-2 ring-purple-500 bg-purple-50 dark:bg-purple-900/20'
                           : 'hover:shadow-md'
@@ -373,10 +373,10 @@ export const CreateBookingModal = ({ onClose, onSuccess }: CreateBookingModalPro
                   Thérapeute
                 </label>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3 max-h-64 overflow-y-auto p-1">
-                  {therapists.filter(t => t.is_active).map(therapist => (
-                    <Card
+                  {therapists.map(therapist => (
+                    <div
                       key={therapist.id}
-                      className={`p-3 cursor-pointer transition-all ${
+                      className={`p-3 cursor-pointer transition-all rounded-lg border dark:border-slate-700 bg-white dark:bg-slate-800 ${
                         selectedTherapist === therapist.id
                           ? 'ring-2 ring-purple-500 bg-purple-50 dark:bg-purple-900/20'
                           : 'hover:shadow-md'
@@ -396,7 +396,7 @@ export const CreateBookingModal = ({ onClose, onSuccess }: CreateBookingModalPro
                           <CheckCircle className="w-5 h-5 text-purple-600" />
                         )}
                       </div>
-                    </Card>
+                    </div>
                   ))}
                 </div>
               </div>
