@@ -105,7 +105,7 @@ export const CreateReservationModal = ({ isOpen, onClose, onSubmit }: CreateRese
     if (step > 1) setStep(step - 1);
   };
 
-  const canProceedStep1 = formData.reservation_type !== '';
+  const canProceedStep1 = formData.reservation_type === 'hotel' || formData.reservation_type === 'external';
   const canProceedStep2 = formData.table_id !== '' && formData.reservation_date !== '' && formData.reservation_time !== '';
   const canSubmit = formData.guest_name !== '' && formData.guest_phone !== '';
 
