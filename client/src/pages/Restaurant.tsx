@@ -7,6 +7,8 @@ import {
 import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { CreateOrderModal } from '@/components/restaurant/CreateOrderModal';
+import { CreateTableModal } from '@/components/restaurant/CreateTableModal';
+import { CreateReservationModal } from '@/components/restaurant/CreateReservationModal';
 import api from '@/services/api';
 import { useToastContext } from '@/App';
 import { motion } from 'framer-motion';
@@ -38,7 +40,10 @@ export const Restaurant = () => {
   const [filterStatus, setFilterStatus] = useState('all');
   const [showOrderModal, setShowOrderModal] = useState(false);
   const [showMenuModal, setShowMenuModal] = useState(false);
+  const [showTableModal, setShowTableModal] = useState(false);
+  const [showReservationModal, setShowReservationModal] = useState(false);
   const [editingMenuItem, setEditingMenuItem] = useState<MenuItem | null>(null);
+  const [editingTable, setEditingTable] = useState<any>(null);
   const [menuFormData, setMenuFormData] = useState({
     name: '',
     name_fr: '',
@@ -58,6 +63,8 @@ export const Restaurant = () => {
   const canDeleteMenu = user?.role ? hasPermission(user.role, 'restaurant.menu.delete') : false;
   const canViewStats = user?.role ? hasPermission(user.role, 'restaurant.stats.view') : false;
   const canUpdateOrderStatus = user?.role ? hasPermission(user.role, 'restaurant.orders.update_status') : false;
+  const canManageTables = user?.role ? hasPermission(user.role, 'restaurant.tables.create') : false;
+  const canManageReservations = user?.role ? hasPermission(user.role, 'restaurant.reservations.create') : false;
 
   // Order form states
   const [orderForm, setOrderForm] = useState({
@@ -344,6 +351,70 @@ export const Restaurant = () => {
     },
   });
 
+  // Table mutations
+  const createTableMutation = useMutation({
+    mutationFn: async (data: any) => {
+      const res = await api.post('/restaurant/tables', data);
+      return res.data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['restaurant-tables'] });
+      toast.success('Table créée avec succès!');
+      setShowTableModal(false);
+      setEditingTable(null);
+    },
+    onError: (error: any) => {
+      toast.error(error.response?.data?.message || 'Erreur lors de la création');
+    },
+  });
+
+  const updateTableMutation = useMutation({
+    mutationFn: async ({ id, data }: { id: string; data: any }) => {
+      const res = await api.put(`/restaurant/tables/${id}`, data);
+      return res.data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['restaurant-tables'] });
+      toast.success('Table modifiée avec succès!');
+      setShowTableModal(false);
+      setEditingTable(null);
+    },
+    onError: (error: any) => {
+      toast.error(error.response?.data?.message || 'Erreur lors de la modification');
+    },
+  });
+
+  const deleteTableMutation = useMutation({
+    mutationFn: async (id: string) => {
+      const res = await api.delete(`/restaurant/tables/${id}`);
+      return res.data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['restaurant-tables'] });
+      toast.success('Table supprimée avec succès!');
+    },
+    onError: (error: any) => {
+      toast.error(error.response?.data?.message || 'Impossible de supprimer cette table');
+    },
+  });
+
+  // Reservation mutations
+  const createReservationMutation = useMutation({
+    mutationFn: async (data: any) => {
+      const res = await api.post('/restaurant/reservations', data);
+      return res.data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['table-reservations'] });
+      queryClient.invalidateQueries({ queryKey: ['restaurant-tables'] });
+      toast.success('Réservation créée avec succès!');
+      setShowReservationModal(false);
+    },
+    onError: (error: any) => {
+      toast.error(error.response?.data?.message || 'Erreur lors de la création de la réservation');
+    },
+  });
+
   const handleCreateOrder = () => {
     if (orderItems.length === 0) {
       toast.error('Ajoutez au moins un article à la commande');
@@ -371,6 +442,26 @@ export const Restaurant = () => {
     };
 
     createOrderMutation.mutate(orderData);
+  };
+
+  // Table handlers
+  const handleCreateTable = (data: any) => {
+    if (editingTable) {
+      updateTableMutation.mutate({ id: editingTable.id, data });
+    } else {
+      createTableMutation.mutate(data);
+    }
+  };
+
+  const handleDeleteTable = (id: string) => {
+    if (confirm('Êtes-vous sûr de vouloir supprimer cette table?')) {
+      deleteTableMutation.mutate(id);
+    }
+  };
+
+  // Reservation handlers
+  const handleCreateReservation = (data: any) => {
+    createReservationMutation.mutate(data);
   };
 
   const getStatusBadge = (status: string) => {
@@ -798,41 +889,213 @@ export const Restaurant = () => {
       )}
 
       {activeTab === 'tables' && (
-        <Card className="p-4">
-          {tablesLoading ? (
-            <div className="text-center py-12">
-              <div className="inline-block w-8 h-8 border-4 border-seafoam-400 border-t-transparent rounded-full animate-spin"></div>
-            </div>
-          ) : (
-            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
-              {tables?.map((table: any) => (
-                <div
-                  key={table.id}
-                  className="border dark:border-slate-700 rounded-lg p-4 text-center hover:shadow-md transition-shadow"
-                >
-                  <div className="w-16 h-16 mx-auto mb-3 bg-seafoam-100 dark:bg-seafoam-900/30 rounded-full flex items-center justify-center">
-                    <Coffee className="w-8 h-8 text-seafoam-600 dark:text-seafoam-400" />
-                  </div>
-                  <h3 className="font-semibold text-gray-800 dark:text-white mb-1">
-                    {table.table_number}
-                  </h3>
-                  <p className="text-sm text-gray-500 dark:text-slate-400 mb-2">
-                    {table.capacity} places
-                  </p>
-                  {getTableStatusBadge(table.status)}
-                </div>
-              ))}
+        <div className="space-y-4">
+          {/* Header avec bouton */}
+          {canManageTables && (
+            <div className="flex justify-end">
+              <Button
+                onClick={() => {
+                  setEditingTable(null);
+                  setShowTableModal(true);
+                }}
+                className="bg-orange-500 hover:bg-orange-600"
+              >
+                <Plus className="w-4 h-4 mr-2" />
+                Ajouter une Table
+              </Button>
             </div>
           )}
-        </Card>
+
+          <Card className="p-4">
+            {tablesLoading ? (
+              <div className="text-center py-12">
+                <div className="inline-block w-8 h-8 border-4 border-seafoam-400 border-t-transparent rounded-full animate-spin"></div>
+              </div>
+            ) : tables && tables.length > 0 ? (
+              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+                {tables.map((table: any) => (
+                  <motion.div
+                    key={table.id}
+                    initial={{ opacity: 0, scale: 0.9 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    className="border dark:border-slate-700 rounded-lg p-4 hover:shadow-md transition-shadow"
+                  >
+                    <div className="flex justify-between items-start mb-3">
+                      <div className="w-12 h-12 bg-orange-100 dark:bg-orange-900/30 rounded-full flex items-center justify-center">
+                        <Coffee className="w-6 h-6 text-orange-600 dark:text-orange-400" />
+                      </div>
+                      {getTableStatusBadge(table.status)}
+                    </div>
+
+                    <h3 className="font-bold text-lg text-gray-800 dark:text-white mb-1">
+                      {table.table_number}
+                    </h3>
+
+                    <div className="text-sm text-gray-600 dark:text-slate-400 space-y-1 mb-3">
+                      <div className="flex items-center gap-1">
+                        <Users className="w-3 h-3" />
+                        {table.capacity} places
+                      </div>
+                      <div>
+                        {table.location === 'indoor' && '🏠 Intérieur'}
+                        {table.location === 'outdoor' && '🌳 Extérieur'}
+                        {table.location === 'terrace' && '☀️ Terrasse'}
+                        {table.location === 'bar' && '🍸 Bar'}
+                      </div>
+                    </div>
+
+                    {table.notes && (
+                      <p className="text-xs text-gray-500 dark:text-slate-500 mb-3 line-clamp-2">
+                        {table.notes}
+                      </p>
+                    )}
+
+                    {canManageTables && (
+                      <div className="flex gap-2">
+                        <button
+                          onClick={() => {
+                            setEditingTable(table);
+                            setShowTableModal(true);
+                          }}
+                          className="flex-1 px-3 py-1.5 text-sm bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors"
+                        >
+                          Modifier
+                        </button>
+                        <button
+                          onClick={() => handleDeleteTable(table.id)}
+                          className="px-3 py-1.5 text-sm bg-red-500 text-white rounded hover:bg-red-600 transition-colors"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      </div>
+                    )}
+                  </motion.div>
+                ))}
+              </div>
+            ) : (
+              <div className="text-center py-12">
+                <Coffee className="w-16 h-16 text-gray-300 dark:text-slate-600 mx-auto mb-4" />
+                <p className="text-gray-500 dark:text-slate-400 mb-4">Aucune table disponible</p>
+                {canManageTables && (
+                  <Button
+                    onClick={() => {
+                      setEditingTable(null);
+                      setShowTableModal(true);
+                    }}
+                    className="bg-orange-500 hover:bg-orange-600"
+                  >
+                    <Plus className="w-4 h-4 mr-2" />
+                    Ajouter la première table
+                  </Button>
+                )}
+              </div>
+            )}
+          </Card>
+        </div>
       )}
 
       {activeTab === 'reservations' && (
-        <Card className="p-4">
-          <p className="text-center text-gray-500 dark:text-slate-400 py-12">
-            Réservations de tables - En développement
-          </p>
-        </Card>
+        <div className="space-y-4">
+          {/* Header avec bouton */}
+          {canManageReservations && (
+            <div className="flex justify-end">
+              <Button
+                onClick={() => setShowReservationModal(true)}
+                className="bg-purple-500 hover:bg-purple-600"
+              >
+                <Plus className="w-4 h-4 mr-2" />
+                Nouvelle Réservation
+              </Button>
+            </div>
+          )}
+
+          <Card className="p-4">
+            {reservationsLoading ? (
+              <div className="text-center py-12">
+                <div className="inline-block w-8 h-8 border-4 border-seafoam-400 border-t-transparent rounded-full animate-spin"></div>
+              </div>
+            ) : reservations && reservations.length > 0 ? (
+              <div className="space-y-3">
+                {reservations.map((reservation: any) => (
+                  <motion.div
+                    key={reservation.id}
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="border dark:border-slate-700 rounded-lg p-4 hover:shadow-md transition-shadow"
+                  >
+                    <div className="flex items-start justify-between mb-3">
+                      <div>
+                        <h3 className="font-semibold text-lg text-gray-800 dark:text-white mb-1">
+                          {reservation.guest_name}
+                        </h3>
+                        <p className="text-sm text-gray-500 dark:text-slate-400">
+                          {reservation.guest_phone}
+                        </p>
+                      </div>
+                      <div className="text-right">
+                        {reservation.guest_id ? (
+                          <span className="px-2 py-1 bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300 text-xs rounded">
+                            🏨 Client Hôtel
+                          </span>
+                        ) : (
+                          <span className="px-2 py-1 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 text-xs rounded">
+                            👤 Externe
+                          </span>
+                        )}
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-sm">
+                      <div>
+                        <p className="text-gray-500 dark:text-slate-400">Date</p>
+                        <p className="font-medium dark:text-white">
+                          {new Date(reservation.reservation_date).toLocaleDateString('fr-FR')}
+                        </p>
+                      </div>
+                      <div>
+                        <p className="text-gray-500 dark:text-slate-400">Heure</p>
+                        <p className="font-medium dark:text-white">{reservation.reservation_time}</p>
+                      </div>
+                      <div>
+                        <p className="text-gray-500 dark:text-slate-400">Personnes</p>
+                        <p className="font-medium dark:text-white">
+                          <Users className="w-3 h-3 inline mr-1" />
+                          {reservation.number_of_guests}
+                        </p>
+                      </div>
+                      <div>
+                        <p className="text-gray-500 dark:text-slate-400">Table</p>
+                        <p className="font-medium dark:text-white">{reservation.table_number || 'N/A'}</p>
+                      </div>
+                    </div>
+
+                    {reservation.special_requests && (
+                      <div className="mt-3 p-2 bg-gray-50 dark:bg-slate-800 rounded">
+                        <p className="text-xs text-gray-600 dark:text-slate-400">
+                          <strong>Demandes:</strong> {reservation.special_requests}
+                        </p>
+                      </div>
+                    )}
+                  </motion.div>
+                ))}
+              </div>
+            ) : (
+              <div className="text-center py-12">
+                <Users className="w-16 h-16 text-gray-300 dark:text-slate-600 mx-auto mb-4" />
+                <p className="text-gray-500 dark:text-slate-400 mb-4">Aucune réservation</p>
+                {canManageReservations && (
+                  <Button
+                    onClick={() => setShowReservationModal(true)}
+                    className="bg-purple-500 hover:bg-purple-600"
+                  >
+                    <Plus className="w-4 h-4 mr-2" />
+                    Créer la première réservation
+                  </Button>
+                )}
+              </div>
+            )}
+          </Card>
+        </div>
       )}
 
       {/* Order Modal */}
@@ -1068,6 +1331,24 @@ export const Restaurant = () => {
           </div>
         </>
       )}
+
+      {/* Table Modal */}
+      <CreateTableModal
+        isOpen={showTableModal}
+        onClose={() => {
+          setShowTableModal(false);
+          setEditingTable(null);
+        }}
+        onSubmit={handleCreateTable}
+        editingTable={editingTable}
+      />
+
+      {/* Reservation Modal */}
+      <CreateReservationModal
+        isOpen={showReservationModal}
+        onClose={() => setShowReservationModal(false)}
+        onSubmit={handleCreateReservation}
+      />
     </div>
   );
 };
