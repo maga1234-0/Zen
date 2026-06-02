@@ -323,7 +323,7 @@ export const CreateBookingModal = ({ onClose, onSuccess }: CreateBookingModalPro
                           {pkg.package_price.toFixed(2)}€
                         </span>
                       </div>
-                    </Card>
+                    </div>
                   ))}
                 </div>
               )}
