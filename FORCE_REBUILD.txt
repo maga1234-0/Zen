@@ -1,0 +1,4 @@
+Build forcé: 2024-12-19
+Commit: 0681de2
+Raison: Cache navigateur bloque le nouveau code
+Fonctionnalité: Bouton "Ajouter un Article" dans Restaurant > Menu
