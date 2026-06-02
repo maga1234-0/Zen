@@ -221,6 +221,435 @@ const AccountantDashboard = ({ stats, revenueData }: any) => (
   </div>
 );
 
+// Restaurant Chef Dashboard - Focus on kitchen orders
+const RestaurantChefDashboard = () => {
+  const { data: restaurantStats } = useQuery({
+    queryKey: ['restaurant-stats'],
+    queryFn: async () => {
+      const res = await api.get('/restaurant/stats');
+      return res.data;
+    },
+    refetchInterval: 15000, // Rafraîchir toutes les 15 secondes pour la cuisine
+  });
+
+  const { data: activeOrders } = useQuery({
+    queryKey: ['restaurant-orders-active'],
+    queryFn: async () => {
+      const res = await api.get('/restaurant/orders?status=pending,preparing,ready');
+      return res.data;
+    },
+    refetchInterval: 10000, // Rafraîchir toutes les 10 secondes
+  });
+
+  return (
+    <div className="p-3 sm:p-4 md:p-6 space-y-4 sm:space-y-6">
+      <div>
+        <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-800 dark:text-white">
+          🍳 Tableau de Bord - Chef
+        </h1>
+        <p className="text-sm sm:text-base text-gray-500 dark:text-slate-300">
+          Gérez les commandes et la production de la cuisine
+        </p>
+      </div>
+
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4 md:gap-6">
+        <StatCard
+          title="Commandes en Attente"
+          value={activeOrders?.filter((o: any) => o.status === 'pending').length || 0}
+          icon={Clock}
+          color="bg-yellow-400"
+        />
+        <StatCard
+          title="En Préparation"
+          value={activeOrders?.filter((o: any) => o.status === 'preparing').length || 0}
+          icon={CheckCircle}
+          color="bg-orange-400"
+        />
+        <StatCard
+          title="Prêtes à Servir"
+          value={activeOrders?.filter((o: any) => o.status === 'ready').length || 0}
+          icon={CheckCircle}
+          color="bg-green-400"
+        />
+      </div>
+
+      <Card>
+        <h3 className="text-base sm:text-lg font-semibold mb-3 sm:mb-4 text-gray-800 dark:text-white">
+          📋 Commandes Actives
+        </h3>
+        <div className="space-y-2 sm:space-y-3">
+          {activeOrders && activeOrders.length > 0 ? (
+            activeOrders.slice(0, 10).map((order: any) => (
+              <div
+                key={order.id}
+                className="flex flex-col sm:flex-row sm:items-center justify-between p-3 sm:p-4 bg-mint-50 dark:bg-slate-700 rounded-lg"
+              >
+                <div className="mb-2 sm:mb-0">
+                  <p className="font-semibold text-sm sm:text-base text-gray-800 dark:text-white">
+                    {order.order_number}
+                  </p>
+                  <p className="text-xs sm:text-sm text-gray-500 dark:text-slate-300">
+                    {order.order_type === 'dine_in' && `Table ${order.table_number}`}
+                    {order.order_type === 'room_service' && `Chambre ${order.room_number}`}
+                    {order.order_type === 'takeaway' && 'À emporter'}
+                    {order.order_type === 'bar' && 'Bar'}
+                  </p>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="text-xs text-gray-500 dark:text-slate-400">
+                    {new Date(order.created_at).toLocaleTimeString('fr-FR', { 
+                      hour: '2-digit', 
+                      minute: '2-digit' 
+                    })}
+                  </span>
+                  <span
+                    className={`text-xs px-2 py-1 rounded-full ${
+                      order.status === 'pending'
+                        ? 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900 dark:text-yellow-300'
+                        : order.status === 'preparing'
+                        ? 'bg-orange-100 text-orange-700 dark:bg-orange-900 dark:text-orange-300'
+                        : 'bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300'
+                    }`}
+                  >
+                    {order.status === 'pending' && 'En attente'}
+                    {order.status === 'preparing' && 'En cours'}
+                    {order.status === 'ready' && 'Prête'}
+                  </span>
+                </div>
+              </div>
+            ))
+          ) : (
+            <div className="text-center py-8 text-gray-500 dark:text-slate-400">
+              Aucune commande active
+            </div>
+          )}
+        </div>
+      </Card>
+
+      <Card>
+        <h3 className="text-base sm:text-lg font-semibold mb-3 sm:mb-4 text-gray-800 dark:text-white">
+          📊 Statistiques de Production
+        </h3>
+        <div className="grid grid-cols-2 gap-4">
+          <div className="text-center">
+            <p className="text-2xl font-bold text-gray-800 dark:text-white">
+              {restaurantStats?.orders?.completed_today || 0}
+            </p>
+            <p className="text-sm text-gray-500 dark:text-slate-400">Plats Servis Aujourd'hui</p>
+          </div>
+          <div className="text-center">
+            <p className="text-2xl font-bold text-gray-800 dark:text-white">
+              {restaurantStats?.orders?.active_orders || 0}
+            </p>
+            <p className="text-sm text-gray-500 dark:text-slate-400">Commandes Actives</p>
+          </div>
+        </div>
+      </Card>
+    </div>
+  );
+};
+
+// Restaurant Server Dashboard - Focus on taking orders
+const RestaurantServerDashboard = () => {
+  const { data: restaurantStats } = useQuery({
+    queryKey: ['restaurant-stats'],
+    queryFn: async () => {
+      const res = await api.get('/restaurant/stats');
+      return res.data;
+    },
+    refetchInterval: 30000,
+  });
+
+  const { data: myOrders } = useQuery({
+    queryKey: ['my-restaurant-orders'],
+    queryFn: async () => {
+      const res = await api.get('/restaurant/orders');
+      return res.data;
+    },
+    refetchInterval: 15000,
+  });
+
+  return (
+    <div className="p-3 sm:p-4 md:p-6 space-y-4 sm:space-y-6">
+      <div>
+        <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-800 dark:text-white">
+          🍽️ Tableau de Bord - Serveur
+        </h1>
+        <p className="text-sm sm:text-base text-gray-500 dark:text-slate-300">
+          Prenez les commandes et servez les clients
+        </p>
+      </div>
+
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4 md:gap-6">
+        <StatCard
+          title="Tables Disponibles"
+          value={restaurantStats?.tables?.available_tables || 0}
+          icon={CheckCircle}
+          color="bg-green-400"
+        />
+        <StatCard
+          title="Mes Commandes Actives"
+          value={myOrders?.filter((o: any) => ['pending', 'preparing', 'ready'].includes(o.status)).length || 0}
+          icon={Clock}
+          color="bg-orange-400"
+        />
+        <StatCard
+          title="Commandes Servies"
+          value={myOrders?.filter((o: any) => o.status === 'served').length || 0}
+          icon={CheckCircle}
+          color="bg-blue-400"
+        />
+      </div>
+
+      <Card>
+        <h3 className="text-base sm:text-lg font-semibold mb-3 sm:mb-4 text-gray-800 dark:text-white">
+          📋 Mes Dernières Commandes
+        </h3>
+        <div className="space-y-2 sm:space-y-3">
+          {myOrders && myOrders.length > 0 ? (
+            myOrders.slice(0, 8).map((order: any) => (
+              <div
+                key={order.id}
+                className="flex flex-col sm:flex-row sm:items-center justify-between p-3 sm:p-4 bg-mint-50 dark:bg-slate-700 rounded-lg"
+              >
+                <div className="mb-2 sm:mb-0">
+                  <p className="font-semibold text-sm sm:text-base text-gray-800 dark:text-white">
+                    {order.order_number}
+                  </p>
+                  <p className="text-xs sm:text-sm text-gray-500 dark:text-slate-300">
+                    {order.order_type === 'dine_in' && `Table ${order.table_number}`}
+                    {order.order_type === 'room_service' && `Chambre ${order.room_number}`}
+                    • {order.total_amount}€
+                  </p>
+                </div>
+                <span
+                  className={`text-xs px-2 py-1 rounded-full ${
+                    ['pending', 'preparing'].includes(order.status)
+                      ? 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900 dark:text-yellow-300'
+                      : order.status === 'ready'
+                      ? 'bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300'
+                      : 'bg-gray-100 text-gray-700 dark:bg-gray-900 dark:text-gray-300'
+                  }`}
+                >
+                  {order.status === 'pending' && 'En attente'}
+                  {order.status === 'preparing' && 'En cours'}
+                  {order.status === 'ready' && 'Prête'}
+                  {order.status === 'served' && 'Servie'}
+                </span>
+              </div>
+            ))
+          ) : (
+            <div className="text-center py-8 text-gray-500 dark:text-slate-400">
+              Aucune commande
+            </div>
+          )}
+        </div>
+      </Card>
+    </div>
+  );
+};
+
+// Restaurant Cashier Dashboard - Focus on payments
+const RestaurantCashierDashboard = () => {
+  const { data: restaurantStats } = useQuery({
+    queryKey: ['restaurant-stats'],
+    queryFn: async () => {
+      const res = await api.get('/restaurant/stats');
+      return res.data;
+    },
+    refetchInterval: 30000,
+  });
+
+  const { data: pendingPayments } = useQuery({
+    queryKey: ['restaurant-orders-payment'],
+    queryFn: async () => {
+      const res = await api.get('/restaurant/orders?payment_status=pending');
+      return res.data;
+    },
+    refetchInterval: 15000,
+  });
+
+  return (
+    <div className="p-3 sm:p-4 md:p-6 space-y-4 sm:space-y-6">
+      <div>
+        <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-800 dark:text-white">
+          💳 Tableau de Bord - Caissier
+        </h1>
+        <p className="text-sm sm:text-base text-gray-500 dark:text-slate-300">
+          Gérez les paiements et les transactions
+        </p>
+      </div>
+
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4 md:gap-6">
+        <StatCard
+          title="Revenus du Jour"
+          value={`${parseFloat(restaurantStats?.orders?.total_revenue || 0).toFixed(2)}€`}
+          icon={DollarSign}
+          color="bg-green-400"
+        />
+        <StatCard
+          title="Paiements en Attente"
+          value={pendingPayments?.length || 0}
+          icon={Clock}
+          color="bg-yellow-400"
+        />
+        <StatCard
+          title="Transactions Aujourd'hui"
+          value={restaurantStats?.orders?.completed_today || 0}
+          icon={CheckCircle}
+          color="bg-blue-400"
+        />
+      </div>
+
+      <Card>
+        <h3 className="text-base sm:text-lg font-semibold mb-3 sm:mb-4 text-gray-800 dark:text-white">
+          💰 Paiements en Attente
+        </h3>
+        <div className="space-y-2 sm:space-y-3">
+          {pendingPayments && pendingPayments.length > 0 ? (
+            pendingPayments.slice(0, 10).map((order: any) => (
+              <div
+                key={order.id}
+                className="flex flex-col sm:flex-row sm:items-center justify-between p-3 sm:p-4 bg-mint-50 dark:bg-slate-700 rounded-lg"
+              >
+                <div className="mb-2 sm:mb-0">
+                  <p className="font-semibold text-sm sm:text-base text-gray-800 dark:text-white">
+                    {order.order_number}
+                  </p>
+                  <p className="text-xs sm:text-sm text-gray-500 dark:text-slate-300">
+                    {order.order_type === 'dine_in' && `Table ${order.table_number}`}
+                    {order.order_type === 'room_service' && `Chambre ${order.room_number}`}
+                    {order.order_type === 'takeaway' && 'À emporter'}
+                    {order.order_type === 'bar' && 'Bar'}
+                  </p>
+                </div>
+                <div className="flex items-center gap-3">
+                  <span className="text-lg font-bold text-green-600 dark:text-green-400">
+                    {order.total_amount}€
+                  </span>
+                  <span className="text-xs px-2 py-1 rounded-full bg-yellow-100 text-yellow-700 dark:bg-yellow-900 dark:text-yellow-300">
+                    À payer
+                  </span>
+                </div>
+              </div>
+            ))
+          ) : (
+            <div className="text-center py-8 text-gray-500 dark:text-slate-400">
+              Aucun paiement en attente
+            </div>
+          )}
+        </div>
+      </Card>
+    </div>
+  );
+};
+
+// Restaurant Manager Dashboard - Full overview
+const RestaurantManagerDashboard = () => {
+  const { data: restaurantStats } = useQuery({
+    queryKey: ['restaurant-stats'],
+    queryFn: async () => {
+      const res = await api.get('/restaurant/stats');
+      return res.data;
+    },
+    refetchInterval: 30000,
+  });
+
+  return (
+    <div className="p-3 sm:p-4 md:p-6 space-y-4 sm:space-y-6">
+      <div>
+        <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-800 dark:text-white">
+          👨‍💼 Tableau de Bord - Manager Restaurant
+        </h1>
+        <p className="text-sm sm:text-base text-gray-500 dark:text-slate-300">
+          Vue d'ensemble de toutes les opérations du restaurant
+        </p>
+      </div>
+
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 md:gap-6">
+        <StatCard
+          title="Commandes Actives"
+          value={restaurantStats?.orders?.active_orders || 0}
+          icon={Clock}
+          color="bg-orange-400"
+        />
+        <StatCard
+          title="Revenus du Jour"
+          value={`${parseFloat(restaurantStats?.orders?.total_revenue || 0).toFixed(2)}€`}
+          icon={DollarSign}
+          color="bg-green-400"
+        />
+        <StatCard
+          title="Tables Disponibles"
+          value={`${restaurantStats?.tables?.available_tables || 0}/${restaurantStats?.tables?.total_tables || 0}`}
+          icon={Users}
+          color="bg-blue-400"
+        />
+        <StatCard
+          title="Clients Aujourd'hui"
+          value={restaurantStats?.orders?.unique_customers || 0}
+          icon={Users}
+          color="bg-purple-400"
+        />
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
+        <Card>
+          <h3 className="text-base sm:text-lg font-semibold mb-3 sm:mb-4 text-gray-800 dark:text-white">
+            📊 Performance du Jour
+          </h3>
+          <div className="space-y-3">
+            <div className="flex justify-between items-center p-3 bg-mint-50 dark:bg-slate-700 rounded-lg">
+              <span className="text-sm text-gray-600 dark:text-slate-300">Commandes Terminées</span>
+              <span className="text-lg font-bold text-gray-800 dark:text-white">
+                {restaurantStats?.orders?.completed_today || 0}
+              </span>
+            </div>
+            <div className="flex justify-between items-center p-3 bg-mint-50 dark:bg-slate-700 rounded-lg">
+              <span className="text-sm text-gray-600 dark:text-slate-300">Ticket Moyen</span>
+              <span className="text-lg font-bold text-gray-800 dark:text-white">
+                {restaurantStats?.orders?.average_order_value || '0.00'}€
+              </span>
+            </div>
+            <div className="flex justify-between items-center p-3 bg-mint-50 dark:bg-slate-700 rounded-lg">
+              <span className="text-sm text-gray-600 dark:text-slate-300">Taux d'Occupation</span>
+              <span className="text-lg font-bold text-gray-800 dark:text-white">
+                {restaurantStats?.tables?.occupancy_rate || 0}%
+              </span>
+            </div>
+          </div>
+        </Card>
+
+        <Card>
+          <h3 className="text-base sm:text-lg font-semibold mb-3 sm:mb-4 text-gray-800 dark:text-white">
+            ⚡ Vue Rapide
+          </h3>
+          <div className="space-y-3">
+            <div className="flex justify-between items-center p-3 bg-yellow-50 dark:bg-yellow-900/20 rounded-lg">
+              <span className="text-sm text-gray-600 dark:text-slate-300">Commandes en Attente</span>
+              <span className="text-lg font-bold text-yellow-600 dark:text-yellow-400">
+                {restaurantStats?.orders?.pending_orders || 0}
+              </span>
+            </div>
+            <div className="flex justify-between items-center p-3 bg-orange-50 dark:bg-orange-900/20 rounded-lg">
+              <span className="text-sm text-gray-600 dark:text-slate-300">En Préparation</span>
+              <span className="text-lg font-bold text-orange-600 dark:text-orange-400">
+                {restaurantStats?.orders?.preparing_orders || 0}
+              </span>
+            </div>
+            <div className="flex justify-between items-center p-3 bg-green-50 dark:bg-green-900/20 rounded-lg">
+              <span className="text-sm text-gray-600 dark:text-slate-300">Prêtes à Servir</span>
+              <span className="text-lg font-bold text-green-600 dark:text-green-400">
+                {restaurantStats?.orders?.ready_orders || 0}
+              </span>
+            </div>
+          </div>
+        </Card>
+      </div>
+    </div>
+  );
+};
+
 export const Dashboard = () => {
   const { user } = useAuthStore();
 
@@ -284,6 +713,23 @@ export const Dashboard = () => {
 
   if (user?.role === 'accountant') {
     return <AccountantDashboard stats={stats} revenueData={revenueData} />;
+  }
+
+  // Restaurant roles
+  if (user?.role === 'restaurant_chef') {
+    return <RestaurantChefDashboard />;
+  }
+
+  if (user?.role === 'restaurant_server') {
+    return <RestaurantServerDashboard />;
+  }
+
+  if (user?.role === 'restaurant_cashier') {
+    return <RestaurantCashierDashboard />;
+  }
+
+  if (user?.role === 'restaurant_manager') {
+    return <RestaurantManagerDashboard />;
   }
 
   // Admin and Manager see the full dashboard
