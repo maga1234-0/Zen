@@ -43,7 +43,7 @@ i18n
     interpolation: {
       escapeValue: false,
     },
-    debug: process.env.NODE_ENV === 'development',
+    debug: false,
     saveMissing: true, // Log missing translations
     missingKeyHandler: (lng, ns, key) => {
       console.warn(`Missing translation: ${key} for language ${lng}`);
