@@ -2,13 +2,14 @@ import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { 
   UtensilsCrossed, Plus, Search, Filter, Clock, DollarSign,
-  CheckCircle, XCircle, Coffee, Wine, ChefHat, Users, Edit, Trash2, X
+  CheckCircle, XCircle, Coffee, Wine, ChefHat, Users, Edit, Trash2, X, Check
 } from 'lucide-react';
 import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { CreateOrderModal } from '@/components/restaurant/CreateOrderModal';
 import { CreateTableModal } from '@/components/restaurant/CreateTableModal';
 import { CreateReservationModal } from '@/components/restaurant/CreateReservationModal';
+import EditReservationModal from '@/components/restaurant/EditReservationModal';
 import api from '@/services/api';
 import { useToastContext } from '@/App';
 import { motion } from 'framer-motion';
@@ -377,6 +378,8 @@ export const Restaurant = () => {
   const [showReservationModal, setShowReservationModal] = useState(false);
   const [editingMenuItem, setEditingMenuItem] = useState<MenuItem | null>(null);
   const [editingTable, setEditingTable] = useState<any>(null);
+  const [editingReservation, setEditingReservation] = useState<any>(null);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [menuFormData, setMenuFormData] = useState({
     name: '',
     name_fr: '',
@@ -747,6 +750,75 @@ export const Restaurant = () => {
       toast.error(error.response?.data?.message || 'Erreur lors de la création de la réservation');
     },
   });
+
+  // Handlers pour réservations
+  const handleEditReservation = (reservation: any) => {
+    setEditingReservation(reservation);
+    setIsEditModalOpen(true);
+  };
+
+  const handleSaveReservation = async (id: string, data: any) => {
+    try {
+      await api.put(`/restaurant/reservations/${id}`, data);
+      queryClient.invalidateQueries({ queryKey: ['table-reservations'] });
+      queryClient.invalidateQueries({ queryKey: ['restaurant-tables'] });
+      toast.success('Réservation modifiée avec succès');
+      setIsEditModalOpen(false);
+      setEditingReservation(null);
+    } catch (error: any) {
+      toast.error(error.response?.data?.message || 'Erreur lors de la modification');
+      throw error;
+    }
+  };
+
+  const handleMarkArrived = async (id: string) => {
+    try {
+      await api.put(`/restaurant/reservations/${id}`, { status: 'seated' });
+      queryClient.invalidateQueries({ queryKey: ['table-reservations'] });
+      queryClient.invalidateQueries({ queryKey: ['restaurant-tables'] });
+      toast.success('Client marqué comme arrivé');
+    } catch (error: any) {
+      toast.error(error.response?.data?.message || 'Erreur');
+    }
+  };
+
+  const handleDeleteReservation = async (id: string, guestName: string) => {
+    if (!confirm(`Supprimer la réservation de ${guestName} ?`)) return;
+    
+    try {
+      await api.delete(`/restaurant/reservations/${id}`);
+      queryClient.invalidateQueries({ queryKey: ['table-reservations'] });
+      queryClient.invalidateQueries({ queryKey: ['restaurant-tables'] });
+      toast.success('Réservation supprimée');
+    } catch (error: any) {
+      toast.error(error.response?.data?.message || 'Erreur lors de la suppression');
+    }
+  };
+
+  // Helper functions pour les badges de statut
+  const getReservationStatusBadge = (status: string) => {
+    const classes: Record<string, string> = {
+      pending: 'px-2 py-1 bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300 rounded-full text-xs font-medium',
+      confirmed: 'px-2 py-1 bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300 rounded-full text-xs font-medium',
+      seated: 'px-2 py-1 bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300 rounded-full text-xs font-medium',
+      completed: 'px-2 py-1 bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300 rounded-full text-xs font-medium',
+      cancelled: 'px-2 py-1 bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300 rounded-full text-xs font-medium',
+      no_show: 'px-2 py-1 bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-300 rounded-full text-xs font-medium',
+    };
+    return classes[status] || classes.pending;
+  };
+
+  const getReservationStatusLabel = (status: string) => {
+    const labels: Record<string, string> = {
+      pending: 'En attente',
+      confirmed: 'Confirmée',
+      seated: 'Client assis',
+      completed: 'Terminée',
+      cancelled: 'Annulée',
+      no_show: 'Absent',
+    };
+    return labels[status] || status;
+  };
 
   const handleCreateOrder = () => {
     if (orderItems.length === 0) {
@@ -1357,7 +1429,7 @@ export const Restaurant = () => {
                     className="border dark:border-slate-700 rounded-lg p-4 hover:shadow-md transition-shadow"
                   >
                     <div className="flex items-start justify-between mb-3">
-                      <div>
+                      <div className="flex-1">
                         <h3 className="font-semibold text-lg text-gray-800 dark:text-white mb-1">
                           {reservation.guest_name}
                         </h3>
@@ -1365,7 +1437,10 @@ export const Restaurant = () => {
                           {reservation.guest_phone}
                         </p>
                       </div>
-                      <div className="text-right">
+                      <div className="flex items-center gap-2">
+                        <span className={getReservationStatusBadge(reservation.status)}>
+                          {getReservationStatusLabel(reservation.status)}
+                        </span>
                         {reservation.guest_id ? (
                           <span className="px-2 py-1 bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300 text-xs rounded">
                             🏨 Client Hôtel
@@ -1378,7 +1453,7 @@ export const Restaurant = () => {
                       </div>
                     </div>
 
-                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-sm">
+                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-sm mb-3">
                       <div>
                         <p className="text-gray-500 dark:text-slate-400">Date</p>
                         <p className="font-medium dark:text-white">
@@ -1403,12 +1478,49 @@ export const Restaurant = () => {
                     </div>
 
                     {reservation.special_requests && (
-                      <div className="mt-3 p-2 bg-gray-50 dark:bg-slate-800 rounded">
+                      <div className="mt-3 p-2 bg-gray-50 dark:bg-slate-800 rounded mb-3">
                         <p className="text-xs text-gray-600 dark:text-slate-400">
                           <strong>Demandes:</strong> {reservation.special_requests}
                         </p>
                       </div>
                     )}
+
+                    {/* Action Buttons */}
+                    <div className="flex gap-2 pt-3 border-t dark:border-slate-700">
+                      {/* Bouton Modifier */}
+                      <button
+                        onClick={() => handleEditReservation(reservation)}
+                        className="flex items-center gap-1 px-3 py-2 text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-lg transition-colors text-sm font-medium"
+                        title="Modifier"
+                      >
+                        <Edit className="h-4 w-4" />
+                        Modifier
+                      </button>
+                      
+                      {/* Bouton Arrivé (seulement si confirmed) */}
+                      {reservation.status === 'confirmed' && (
+                        <button
+                          onClick={() => handleMarkArrived(reservation.id)}
+                          className="flex items-center gap-1 px-3 py-2 text-green-600 dark:text-green-400 hover:bg-green-50 dark:hover:bg-green-900/20 rounded-lg transition-colors text-sm font-medium"
+                          title="Marquer comme arrivé"
+                        >
+                          <Check className="h-4 w-4" />
+                          Arrivé
+                        </button>
+                      )}
+                      
+                      {/* Bouton Supprimer (sauf si completed) */}
+                      {reservation.status !== 'completed' && (
+                        <button
+                          onClick={() => handleDeleteReservation(reservation.id, reservation.guest_name)}
+                          className="flex items-center gap-1 px-3 py-2 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors text-sm font-medium ml-auto"
+                          title="Supprimer"
+                        >
+                          <Trash2 className="h-4 w-4" />
+                          Supprimer
+                        </button>
+                      )}
+                    </div>
                   </motion.div>
                 ))}
               </div>
@@ -1681,6 +1793,18 @@ export const Restaurant = () => {
         isOpen={showReservationModal}
         onClose={() => setShowReservationModal(false)}
         onSubmit={handleCreateReservation}
+      />
+
+      {/* Edit Reservation Modal */}
+      <EditReservationModal
+        isOpen={isEditModalOpen}
+        onClose={() => {
+          setIsEditModalOpen(false);
+          setEditingReservation(null);
+        }}
+        reservation={editingReservation}
+        tables={tables || []}
+        onSave={handleSaveReservation}
       />
     </div>
   );
