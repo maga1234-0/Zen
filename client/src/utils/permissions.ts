@@ -114,7 +114,6 @@ const rolePermissions: Record<Role, Permission[]> = {
     'restaurant.tables.view', // Can view tables
     'restaurant.print.tickets', // Can print tickets
     'notifications.view',
-    'rooms.view', // To assign to rooms
   ],
   restaurant_cashier: [
     'dashboard.view',
@@ -138,7 +137,6 @@ const rolePermissions: Record<Role, Permission[]> = {
     'restaurant.stats.view', // Can view all stats
     'restaurant.print.tickets', 'restaurant.print.invoices',
     'notifications.view',
-    'rooms.view', // To assign to rooms
   ],
   restaurant_chef: [
     'dashboard.view',
