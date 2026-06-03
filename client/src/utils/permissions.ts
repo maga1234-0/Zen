@@ -175,7 +175,7 @@ export const canAccessRoute = (userRole: string, path: string): boolean => {
     '/notifications': ['notifications.view'],
     '/settings': ['settings.view'],
     '/restaurant': ['restaurant.view'],
-    '/spa': ['dashboard.view'], // Everyone can access spa for now
+    '/spa': ['front_desk.view'], // Only admin, manager, receptionist can access spa
   };
 
   const requiredPermissions = routePermissions[path];
