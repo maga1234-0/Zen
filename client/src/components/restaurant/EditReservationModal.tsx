@@ -115,15 +115,15 @@ export default function EditReservationModal({
               leaveFrom="opacity-100 scale-100"
               leaveTo="opacity-0 scale-95"
             >
-              <Dialog.Panel className="w-full max-w-2xl transform overflow-hidden rounded-2xl bg-white p-6 text-left align-middle shadow-xl transition-all">
+              <Dialog.Panel className="w-full max-w-2xl transform overflow-hidden rounded-2xl bg-white dark:bg-slate-800 p-6 text-left align-middle shadow-xl transition-all">
                 {/* Header */}
                 <div className="flex items-center justify-between mb-6">
-                  <Dialog.Title className="text-2xl font-bold text-gray-900">
+                  <Dialog.Title className="text-2xl font-bold text-gray-900 dark:text-white">
                     Modifier la Réservation
                   </Dialog.Title>
                   <button
                     onClick={onClose}
-                    className="text-gray-400 hover:text-gray-500"
+                    className="text-gray-400 hover:text-gray-500 dark:hover:text-gray-300"
                   >
                     <X className="h-6 w-6" />
                   </button>
@@ -132,7 +132,7 @@ export default function EditReservationModal({
                 <form onSubmit={handleSubmit} className="space-y-6">
                   {/* Status */}
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                    <label className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-2">
                       Statut
                     </label>
                     <div className="grid grid-cols-3 gap-2">
@@ -143,8 +143,8 @@ export default function EditReservationModal({
                           onClick={() => handleChange('status', option.value)}
                           className={`px-3 py-2 rounded-lg text-sm font-medium transition-all ${
                             formData.status === option.value
-                              ? option.color + ' ring-2 ring-offset-2 ring-blue-500'
-                              : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                              ? option.color + ' ring-2 ring-offset-2 ring-blue-500 dark:ring-offset-slate-800'
+                              : 'bg-gray-100 dark:bg-slate-700 text-gray-600 dark:text-slate-300 hover:bg-gray-200 dark:hover:bg-slate-600'
                           }`}
                         >
                           {option.label}
@@ -156,47 +156,47 @@ export default function EditReservationModal({
                   {/* Guest Info */}
                   <div className="grid grid-cols-2 gap-4">
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                      <label className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-1">
                         Nom du client *
                       </label>
                       <input
                         type="text"
                         value={formData.guest_name || ''}
                         onChange={(e) => handleChange('guest_name', e.target.value)}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                        className="w-full px-3 py-2 border border-gray-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-slate-700 dark:text-white"
                         required
                       />
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                      <label className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-1">
                         Téléphone *
                       </label>
                       <input
                         type="tel"
                         value={formData.guest_phone || ''}
                         onChange={(e) => handleChange('guest_phone', e.target.value)}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                        className="w-full px-3 py-2 border border-gray-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-slate-700 dark:text-white"
                         required
                       />
                     </div>
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                    <label className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-1">
                       Email
                     </label>
                     <input
                       type="email"
                       value={formData.guest_email || ''}
                       onChange={(e) => handleChange('guest_email', e.target.value)}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                      className="w-full px-3 py-2 border border-gray-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-slate-700 dark:text-white"
                     />
                   </div>
 
                   {/* Reservation Details */}
                   <div className="grid grid-cols-2 gap-4">
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                      <label className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-1">
                         <Calendar className="inline h-4 w-4 mr-1" />
                         Date *
                       </label>
@@ -204,12 +204,12 @@ export default function EditReservationModal({
                         type="date"
                         value={formData.reservation_date || ''}
                         onChange={(e) => handleChange('reservation_date', e.target.value)}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                        className="w-full px-3 py-2 border border-gray-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-slate-700 dark:text-white"
                         required
                       />
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                      <label className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-1">
                         <Clock className="inline h-4 w-4 mr-1" />
                         Heure *
                       </label>
@@ -217,7 +217,7 @@ export default function EditReservationModal({
                         type="time"
                         value={formData.reservation_time || ''}
                         onChange={(e) => handleChange('reservation_time', e.target.value)}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                        className="w-full px-3 py-2 border border-gray-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-slate-700 dark:text-white"
                         required
                       />
                     </div>
@@ -225,7 +225,7 @@ export default function EditReservationModal({
 
                   <div className="grid grid-cols-2 gap-4">
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                      <label className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-1">
                         <Users className="inline h-4 w-4 mr-1" />
                         Nombre de convives *
                       </label>
@@ -235,12 +235,12 @@ export default function EditReservationModal({
                         max="20"
                         value={formData.number_of_guests || 2}
                         onChange={(e) => handleChange('number_of_guests', parseInt(e.target.value))}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                        className="w-full px-3 py-2 border border-gray-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-slate-700 dark:text-white"
                         required
                       />
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                      <label className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-1">
                         Durée (minutes)
                       </label>
                       <input
@@ -250,21 +250,21 @@ export default function EditReservationModal({
                         step="30"
                         value={formData.duration_minutes || 120}
                         onChange={(e) => handleChange('duration_minutes', parseInt(e.target.value))}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                        className="w-full px-3 py-2 border border-gray-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-slate-700 dark:text-white"
                       />
                     </div>
                   </div>
 
                   {/* Table Selection */}
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                    <label className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-1">
                       <MapPin className="inline h-4 w-4 mr-1" />
                       Table
                     </label>
                     <select
                       value={formData.table_id || ''}
                       onChange={(e) => handleChange('table_id', e.target.value)}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                      className="w-full px-3 py-2 border border-gray-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-slate-700 dark:text-white"
                     >
                       <option value="">Sélectionner une table</option>
                       {tables.map((table) => (
@@ -277,24 +277,24 @@ export default function EditReservationModal({
 
                   {/* Special Requests */}
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                    <label className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-1">
                       Demandes spéciales
                     </label>
                     <textarea
                       value={formData.special_requests || ''}
                       onChange={(e) => handleChange('special_requests', e.target.value)}
                       rows={3}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                      className="w-full px-3 py-2 border border-gray-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-slate-700 dark:text-white"
                       placeholder="Allergies, préférences de table, etc."
                     />
                   </div>
 
                   {/* Actions */}
-                  <div className="flex justify-end gap-3 pt-4 border-t">
+                  <div className="flex justify-end gap-3 pt-4 border-t dark:border-slate-700">
                     <button
                       type="button"
                       onClick={onClose}
-                      className="px-6 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 font-medium"
+                      className="px-6 py-2 border border-gray-300 dark:border-slate-600 rounded-lg text-gray-700 dark:text-slate-300 hover:bg-gray-50 dark:hover:bg-slate-700 font-medium"
                     >
                       Annuler
                     </button>
