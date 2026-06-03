@@ -7,10 +7,12 @@ import { useState, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useToastContext } from '@/App';
 import { useSettingsStore } from '@/store/settingsStore';
+import { useAuthStore } from '@/store/authStore';
 
 export const Payments = () => {
   const toast = useToastContext();
   const settingsStore = useSettingsStore();
+  const { user } = useAuthStore();
   const [showPaymentModal, setShowPaymentModal] = useState(false);
   const [showInvoiceModal, setShowInvoiceModal] = useState(false);
   const [selectedInvoice, setSelectedInvoice] = useState<any>(null);
@@ -33,6 +35,30 @@ export const Payments = () => {
     refetchOnWindowFocus: true, // Rafraîchir quand la fenêtre reprend le focus
   });
 
+  // Fetch restaurant orders payments for restaurant cashier
+  const { data: restaurantPayments, isLoading: restaurantPaymentsLoading } = useQuery({
+    queryKey: ['restaurant-payments'],
+    queryFn: async () => {
+      // Get all restaurant orders with payment info
+      const res = await api.get('/restaurant/orders');
+      return res.data.map((order: any) => ({
+        id: order.id,
+        guest_name: order.guest_name || 'Walk-in Customer',
+        room_number: order.room_number || (order.table_number ? `Table ${order.table_number}` : 'N/A'),
+        amount: order.total_amount,
+        payment_method: order.payment_method || 'pending',
+        payment_status: order.payment_status || 'pending',
+        transaction_id: order.transaction_id || `REST-${order.order_number}`,
+        created_at: order.created_at,
+        payment_date: order.payment_date || order.created_at,
+        type: 'restaurant',
+        order_number: order.order_number,
+      }));
+    },
+    enabled: user?.role === 'restaurant_cashier',
+    refetchInterval: 15000,
+  });
+
   // Fetch unpaid bookings
   const { data: unpaidBookings } = useQuery({
     queryKey: ['unpaid-bookings'],
@@ -50,6 +76,25 @@ export const Payments = () => {
 
   // Filter and search payments
   const filteredPayments = useMemo(() => {
+    // Restaurant cashier sees only restaurant payments
+    if (user?.role === 'restaurant_cashier') {
+      if (!restaurantPayments) return [];
+      
+      return restaurantPayments.filter((payment: any) => {
+        const searchLower = searchTerm.toLowerCase();
+        const matchesSearch = 
+          payment.guest_name?.toLowerCase().includes(searchLower) ||
+          payment.room_number?.toLowerCase().includes(searchLower) ||
+          payment.transaction_id?.toLowerCase().includes(searchLower) ||
+          payment.order_number?.toLowerCase().includes(searchLower);
+        
+        const matchesMethod = filterMethod === 'all' || payment.payment_method === filterMethod;
+        
+        return matchesSearch && matchesMethod;
+      });
+    }
+    
+    // All other roles see regular hotel payments
     if (!payments) return [];
     
     return payments.filter((payment: any) => {
@@ -65,7 +110,7 @@ export const Payments = () => {
       
       return matchesSearch && matchesMethod;
     });
-  }, [payments, searchTerm, filterMethod]);
+  }, [payments, restaurantPayments, user?.role, searchTerm, filterMethod]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -184,7 +229,7 @@ export const Payments = () => {
           </select>
         </div>
 
-        {isLoading ? (
+        {(isLoading || (user?.role === 'restaurant_cashier' && restaurantPaymentsLoading)) ? (
           <div className="text-center py-12">
             <div className="inline-block w-8 h-8 border-4 border-seafoam-400 border-t-transparent rounded-full animate-spin"></div>
           </div>
