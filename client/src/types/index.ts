@@ -3,7 +3,8 @@ export interface User {
   email: string;
   firstName: string;
   lastName: string;
-  role: 'admin' | 'manager' | 'receptionist' | 'housekeeping' | 'maintenance' | 'accountant';
+  role: 'admin' | 'manager' | 'receptionist' | 'housekeeping' | 'maintenance' | 'accountant' 
+    | 'restaurant_server' | 'restaurant_cashier' | 'restaurant_manager' | 'restaurant_chef';
   profile_picture?: string;
 }
 
