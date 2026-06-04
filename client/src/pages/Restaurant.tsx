@@ -10,6 +10,7 @@ import { CreateOrderModal } from '@/components/restaurant/CreateOrderModal';
 import { CreateTableModal } from '@/components/restaurant/CreateTableModal';
 import { CreateReservationModal } from '@/components/restaurant/CreateReservationModal';
 import EditReservationModal from '@/components/restaurant/EditReservationModal';
+import EditOrderModal from '@/components/restaurant/EditOrderModal';
 import api from '@/services/api';
 import { useToastContext } from '@/App';
 import { motion } from 'framer-motion';
@@ -376,9 +377,11 @@ export const Restaurant = () => {
   const [showMenuModal, setShowMenuModal] = useState(false);
   const [showTableModal, setShowTableModal] = useState(false);
   const [showReservationModal, setShowReservationModal] = useState(false);
+  const [showEditOrderModal, setShowEditOrderModal] = useState(false);
   const [editingMenuItem, setEditingMenuItem] = useState<MenuItem | null>(null);
   const [editingTable, setEditingTable] = useState<any>(null);
   const [editingReservation, setEditingReservation] = useState<any>(null);
+  const [editingOrder, setEditingOrder] = useState<any>(null);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [menuFormData, setMenuFormData] = useState({
     name: '',
@@ -395,6 +398,8 @@ export const Restaurant = () => {
 
   // Check user permissions
   const canCreateOrder = user?.role ? hasPermission(user.role, 'restaurant.orders.create') : false;
+  const canUpdateOrder = user?.role ? hasPermission(user.role, 'restaurant.orders.update') : false;
+  const canDeleteOrder = user?.role ? hasPermission(user.role, 'restaurant.orders.delete') : false;
   const canUpdateMenu = user?.role ? hasPermission(user.role, 'restaurant.menu.update') : false;
   const canDeleteMenu = user?.role ? hasPermission(user.role, 'restaurant.menu.delete') : false;
   const canViewStats = user?.role ? hasPermission(user.role, 'restaurant.stats.view') : false;
@@ -522,6 +527,40 @@ export const Restaurant = () => {
     },
     onError: () => {
       toast.error('Erreur lors de la mise à jour');
+    },
+  });
+
+  // Update order mutation (edit order details)
+  const updateOrderMutation = useMutation({
+    mutationFn: async ({ id, data }: { id: string; data: any }) => {
+      const res = await api.put(`/restaurant/orders/${id}`, data);
+      return res.data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['restaurant-orders'] });
+      queryClient.invalidateQueries({ queryKey: ['restaurant-stats'] });
+      toast.success('Commande modifiée avec succès!');
+      setEditingOrder(null);
+      setShowEditOrderModal(false);
+    },
+    onError: () => {
+      toast.error('Erreur lors de la modification');
+    },
+  });
+
+  // Delete order mutation
+  const deleteOrderMutation = useMutation({
+    mutationFn: async (id: string) => {
+      const res = await api.delete(`/restaurant/orders/${id}`);
+      return res.data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['restaurant-orders'] });
+      queryClient.invalidateQueries({ queryKey: ['restaurant-stats'] });
+      toast.success('Commande supprimée avec succès!');
+    },
+    onError: () => {
+      toast.error('Erreur lors de la suppression');
     },
   });
 
@@ -1087,7 +1126,8 @@ export const Restaurant = () => {
                       </div>
                     </div>
 
-                    <div className="flex gap-2">
+                    <div className="flex gap-2 flex-wrap">
+                      {/* Action buttons for status */}
                       {canUpdateOrderStatus && order.status === 'pending' && (
                         <Button
                           size="sm"
@@ -1122,6 +1162,35 @@ export const Restaurant = () => {
                           className="bg-gray-500 hover:bg-gray-600"
                         >
                           Terminer
+                        </Button>
+                      )}
+
+                      {/* Edit and Delete buttons */}
+                      {canUpdateOrder && order.status !== 'completed' && order.status !== 'cancelled' && (
+                        <Button
+                          size="sm"
+                          onClick={() => {
+                            setEditingOrder(order);
+                            setShowEditOrderModal(true);
+                          }}
+                          className="bg-blue-500 hover:bg-blue-600"
+                        >
+                          <Edit size={16} className="mr-1" />
+                          Modifier
+                        </Button>
+                      )}
+                      {canDeleteOrder && (
+                        <Button
+                          size="sm"
+                          onClick={() => {
+                            if (confirm('Êtes-vous sûr de vouloir supprimer cette commande?')) {
+                              deleteOrderMutation.mutate(order.id);
+                            }
+                          }}
+                          className="bg-red-500 hover:bg-red-600"
+                        >
+                          <Trash2 size={16} className="mr-1" />
+                          Supprimer
                         </Button>
                       )}
                     </div>
@@ -1805,6 +1874,21 @@ export const Restaurant = () => {
         reservation={editingReservation}
         tables={tables || []}
         onSave={handleSaveReservation}
+      />
+
+      {/* Edit Order Modal */}
+      <EditOrderModal
+        isOpen={showEditOrderModal}
+        onClose={() => {
+          setShowEditOrderModal(false);
+          setEditingOrder(null);
+        }}
+        order={editingOrder}
+        tables={tables || []}
+        menuItems={menuItems || []}
+        onSave={async (orderId, data) => {
+          await updateOrderMutation.mutateAsync({ id: orderId, data });
+        }}
       />
     </div>
   );
