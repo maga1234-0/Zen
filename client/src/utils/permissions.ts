@@ -16,7 +16,7 @@ export type Permission =
   | 'settings.view' | 'settings.edit'
   // Restaurant permissions
   | 'restaurant.view'
-  | 'restaurant.orders.view' | 'restaurant.orders.create' | 'restaurant.orders.update' | 'restaurant.orders.update_status' | 'restaurant.orders.update_payment'
+  | 'restaurant.orders.view' | 'restaurant.orders.create' | 'restaurant.orders.update' | 'restaurant.orders.delete' | 'restaurant.orders.update_status' | 'restaurant.orders.update_payment'
   | 'restaurant.menu.view' | 'restaurant.menu.create' | 'restaurant.menu.update' | 'restaurant.menu.delete'
   | 'restaurant.tables.view' | 'restaurant.tables.create' | 'restaurant.tables.update' | 'restaurant.tables.delete' | 'restaurant.tables.update_status'
   | 'restaurant.reservations.view' | 'restaurant.reservations.create' | 'restaurant.reservations.update' | 'restaurant.reservations.delete'
@@ -40,7 +40,7 @@ const rolePermissions: Record<Role, Permission[]> = {
     'settings.view', 'settings.edit',
     // Restaurant - Full access
     'restaurant.view',
-    'restaurant.orders.view', 'restaurant.orders.create', 'restaurant.orders.update', 'restaurant.orders.update_status', 'restaurant.orders.update_payment',
+    'restaurant.orders.view', 'restaurant.orders.create', 'restaurant.orders.update', 'restaurant.orders.delete', 'restaurant.orders.update_status', 'restaurant.orders.update_payment',
     'restaurant.menu.view', 'restaurant.menu.create', 'restaurant.menu.update', 'restaurant.menu.delete',
     'restaurant.tables.view', 'restaurant.tables.create', 'restaurant.tables.update', 'restaurant.tables.delete', 'restaurant.tables.update_status',
     'restaurant.reservations.view', 'restaurant.reservations.create', 'restaurant.reservations.update', 'restaurant.reservations.delete',
@@ -63,7 +63,7 @@ const rolePermissions: Record<Role, Permission[]> = {
     'settings.view',
     // Restaurant - Full access
     'restaurant.view',
-    'restaurant.orders.view', 'restaurant.orders.create', 'restaurant.orders.update', 'restaurant.orders.update_status', 'restaurant.orders.update_payment',
+    'restaurant.orders.view', 'restaurant.orders.create', 'restaurant.orders.update', 'restaurant.orders.delete', 'restaurant.orders.update_status', 'restaurant.orders.update_payment',
     'restaurant.menu.view', 'restaurant.menu.create', 'restaurant.menu.update', 'restaurant.menu.delete',
     'restaurant.tables.view', 'restaurant.tables.create', 'restaurant.tables.update', 'restaurant.tables.delete', 'restaurant.tables.update_status',
     'restaurant.reservations.view', 'restaurant.reservations.create', 'restaurant.reservations.update', 'restaurant.reservations.delete',
@@ -129,7 +129,7 @@ const rolePermissions: Record<Role, Permission[]> = {
   restaurant_manager: [
     'dashboard.view',
     'restaurant.view',
-    'restaurant.orders.view', 'restaurant.orders.create', 'restaurant.orders.update', 'restaurant.orders.update_status', 'restaurant.orders.update_payment',
+    'restaurant.orders.view', 'restaurant.orders.create', 'restaurant.orders.update', 'restaurant.orders.delete', 'restaurant.orders.update_status', 'restaurant.orders.update_payment',
     'restaurant.menu.view', 'restaurant.menu.create', 'restaurant.menu.update', 'restaurant.menu.delete',
     'restaurant.tables.view', 'restaurant.tables.create', 'restaurant.tables.update', 'restaurant.tables.delete', 'restaurant.tables.update_status',
     'restaurant.reservations.view', 'restaurant.reservations.create', 'restaurant.reservations.update', 'restaurant.reservations.delete',
