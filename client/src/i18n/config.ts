@@ -4,29 +4,10 @@ import en from './locales/en.json';
 import fr from './locales/fr.json';
 import es from './locales/es.json';
 
-// Try to get language from localStorage
+// System is configured to use French only
+// Language selector has been removed from Settings
 const getStoredLanguage = () => {
-  try {
-    const stored = localStorage.getItem('settings-storage');
-    if (stored) {
-      const parsed = JSON.parse(stored);
-      const language = parsed.state?.language || 'French';
-      console.log('i18n: Loading language from localStorage:', language, 'Full parsed:', parsed);
-      
-      // Validate that the language exists in our resources
-      const validLanguages = ['English', 'French', 'Spanish'];
-      if (validLanguages.includes(language)) {
-        return language;
-      } else {
-        console.warn('i18n: Invalid language in storage:', language, 'Defaulting to French');
-        return 'French';
-      }
-    }
-    console.log('i18n: No settings in localStorage, using default: French');
-  } catch (error) {
-    console.error('Error reading language from localStorage:', error);
-  }
-  return 'French';
+  return 'French'; // Always return French as the system language
 };
 
 // Initialize i18n with debug mode enabled

@@ -18,7 +18,6 @@ interface SettingsData {
   bookingAlerts: boolean;
   paymentNotifications: boolean;
   theme: string;
-  language: string;
   signature: string;
 }
 
@@ -42,7 +41,6 @@ export const Settings = () => {
     bookingAlerts: settingsStore.bookingAlerts,
     paymentNotifications: settingsStore.paymentNotifications,
     theme: settingsStore.theme,
-    language: settingsStore.language,
     signature: settingsStore.signature || '',
   });
 
@@ -146,29 +144,23 @@ export const Settings = () => {
       bookingAlerts: settingsStore.bookingAlerts,
       paymentNotifications: settingsStore.paymentNotifications,
       theme: settingsStore.theme,
-      language: settingsStore.language,
       signature: settingsStore.signature || '',
     };
     
     console.log('Settings: Store settings:', storeSettings);
     setSettings(storeSettings);
     
-    // Change i18n language
-    console.log('Settings: Changing i18n language to:', storeSettings.language);
-    console.log('Settings: Current i18n language:', i18n.language);
-    
-    i18n.changeLanguage(storeSettings.language).then(() => {
-      console.log('Settings: i18n language changed successfully to:', i18n.language);
-      console.log('Settings: Testing translation - "settings.title":', i18n.t('settings.title'));
-    }).catch((error) => {
-      console.error('Settings: Failed to change i18n language:', error);
+    // System is configured in French only
+    console.log('Settings: System configured in French');
+    i18n.changeLanguage('French').catch((error) => {
+      console.error('Settings: Failed to set French language:', error);
     });
   }, [settingsStore, i18n]);
 
   const saveSettingsMutation = useMutation({
     mutationFn: async (data: SettingsData) => {
       console.log('Saving settings to store...', { ...data, signature: data.signature ? 'BASE64_IMAGE' : '' });
-      // Save to settings store instead of API
+      // Save to settings store (language is always French)
       settingsStore.setSettings({
         hotelName: data.hotelName,
         hotelAddress: data.hotelAddress,
@@ -180,7 +172,7 @@ export const Settings = () => {
         bookingAlerts: data.bookingAlerts,
         paymentNotifications: data.paymentNotifications,
         theme: data.theme as any,
-        language: data.language,
+        language: 'French', // Always set to French
         signature: data.signature,
       });
       return { success: true };
@@ -191,17 +183,6 @@ export const Settings = () => {
       // Apply theme immediately after saving
       console.log('Settings (save): Applying theme:', settings.theme);
       settingsStore.applyTheme();
-      
-      // Change i18n language immediately
-      console.log('Settings (save): Changing i18n language to:', settings.language);
-      console.log('Settings (save): Current i18n language:', i18n.language);
-      
-      i18n.changeLanguage(settings.language).then(() => {
-        console.log('Settings (save): i18n language changed successfully to:', i18n.language);
-        console.log('Settings (save): Testing translation - "settings.title":', i18n.t('settings.title'));
-      }).catch((error) => {
-        console.error('Settings (save): Failed to change i18n language:', error);
-      });
       
       console.log('Settings saved successfully');
       alert('Settings saved successfully');
@@ -221,24 +202,8 @@ export const Settings = () => {
     // Apply theme immediately when theme is changed
     if (field === 'theme') {
       console.log('Settings (dropdown): Applying theme immediately:', value);
-      // Create a temporary settings object with the new theme
-      const tempSettings = { ...settings, theme: value };
       settingsStore.setSettings({ theme: value as any });
       settingsStore.applyTheme();
-    }
-    
-    // Update i18n language immediately when language is changed
-    if (field === 'language') {
-      console.log('Settings (dropdown): Changing i18n language to:', value);
-      console.log('Settings (dropdown): Current i18n language:', i18n.language);
-      console.log('Settings (dropdown): Available i18n languages:', i18n.languages);
-      
-      i18n.changeLanguage(value).then(() => {
-        console.log('Settings (dropdown): i18n language changed successfully to:', i18n.language);
-        console.log('Settings (dropdown): Testing translation - "settings.title":', i18n.t('settings.title'));
-      }).catch((error) => {
-        console.error('Settings (dropdown): Failed to change i18n language:', error);
-      });
     }
   };
 
@@ -259,7 +224,6 @@ export const Settings = () => {
       bookingAlerts: settingsStore.bookingAlerts,
       paymentNotifications: settingsStore.paymentNotifications,
       theme: settingsStore.theme,
-      language: settingsStore.language,
       signature: settingsStore.signature || '',
     });
     setHasChanges(false);
@@ -443,20 +407,6 @@ export const Settings = () => {
                 <option>Light</option>
                 <option>Dark</option>
                 <option>System</option>
-              </select>
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-slate-200 mb-2">
-                {t('settings.language')}
-              </label>
-              <select 
-                value={settings.language}
-                onChange={(e) => handleChange('language', e.target.value)}
-                className="w-full px-4 py-2 border dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-seafoam-400 dark:bg-slate-700 dark:text-white"
-              >
-                <option>English</option>
-                <option>French</option>
-                <option>Spanish</option>
               </select>
             </div>
           </div>
