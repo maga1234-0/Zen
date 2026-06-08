@@ -68,37 +68,68 @@ export const Settings = () => {
     }
   }, [showSignaturePad, settings.signature]);
 
-  const startDrawing = (e: React.MouseEvent<HTMLCanvasElement>) => {
+  const getCoordinates = (e: React.MouseEvent<HTMLCanvasElement> | React.TouchEvent<HTMLCanvasElement>) => {
+    const canvas = canvasRef.current;
+    if (!canvas) return null;
+    
+    const rect = canvas.getBoundingClientRect();
+    
+    if ('touches' in e) {
+      // Touch event
+      if (e.touches.length > 0) {
+        return {
+          x: e.touches[0].clientX - rect.left,
+          y: e.touches[0].clientY - rect.top
+        };
+      }
+    } else {
+      // Mouse event
+      return {
+        x: e.clientX - rect.left,
+        y: e.clientY - rect.top
+      };
+    }
+    return null;
+  };
+
+  const startDrawing = (e: React.MouseEvent<HTMLCanvasElement> | React.TouchEvent<HTMLCanvasElement>) => {
+    e.preventDefault();
     const canvas = canvasRef.current;
     if (!canvas) return;
     
-    const rect = canvas.getBoundingClientRect();
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
+    const coords = getCoordinates(e);
+    if (!coords) return;
+
     setIsDrawing(true);
     ctx.beginPath();
-    ctx.moveTo(e.clientX - rect.left, e.clientY - rect.top);
+    ctx.moveTo(coords.x, coords.y);
   };
 
-  const draw = (e: React.MouseEvent<HTMLCanvasElement>) => {
+  const draw = (e: React.MouseEvent<HTMLCanvasElement> | React.TouchEvent<HTMLCanvasElement>) => {
+    e.preventDefault();
     if (!isDrawing) return;
     
     const canvas = canvasRef.current;
     if (!canvas) return;
     
-    const rect = canvas.getBoundingClientRect();
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
-    ctx.lineTo(e.clientX - rect.left, e.clientY - rect.top);
+    const coords = getCoordinates(e);
+    if (!coords) return;
+
+    ctx.lineTo(coords.x, coords.y);
     ctx.strokeStyle = '#000';
     ctx.lineWidth = 2;
     ctx.lineCap = 'round';
     ctx.stroke();
   };
 
-  const stopDrawing = () => {
+  const stopDrawing = (e?: React.MouseEvent<HTMLCanvasElement> | React.TouchEvent<HTMLCanvasElement>) => {
+    if (e) e.preventDefault();
     setIsDrawing(false);
   };
 
@@ -480,7 +511,11 @@ export const Settings = () => {
                 onMouseMove={draw}
                 onMouseUp={stopDrawing}
                 onMouseLeave={stopDrawing}
-                className="w-full cursor-crosshair bg-white"
+                onTouchStart={startDrawing}
+                onTouchMove={draw}
+                onTouchEnd={stopDrawing}
+                className="w-full cursor-crosshair bg-white touch-none"
+                style={{ touchAction: 'none' }}
               />
             </div>
 
