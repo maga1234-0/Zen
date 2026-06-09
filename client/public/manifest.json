@@ -1,11 +1,11 @@
 {
-  "name": "Zen Hotel Management System",
-  "short_name": "Zen Hotel",
-  "description": "Système de gestion hôtelière complet - Réservations, chambres, spa, restaurant",
+  "name": "ZENITH PMS - Hotel Management System",
+  "short_name": "ZENITH PMS",
+  "description": "Système de gestion hôtelière premium - Réservations, chambres, spa, restaurant",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#ffffff",
-  "theme_color": "#14b8a6",
+  "theme_color": "#667eea",
   "orientation": "portrait-primary",
   "icons": [
     {

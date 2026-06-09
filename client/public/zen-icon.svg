@@ -1,39 +1,88 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" fill="none">
-  <!-- Background circle with gradient -->
+  <!-- Background avec gradient moderne violet/bleu -->
   <defs>
     <linearGradient id="bgGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" style="stop-color:#14b8a6;stop-opacity:1" />
-      <stop offset="100%" style="stop-color:#0d9488;stop-opacity:1" />
+      <stop offset="0%" style="stop-color:#667eea;stop-opacity:1" />
+      <stop offset="50%" style="stop-color:#764ba2;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#5b4a8f;stop-opacity:1" />
     </linearGradient>
+    
+    <!-- Gradient pour l'étoile -->
+    <linearGradient id="starGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#fbbf24;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#f59e0b;stop-opacity:1" />
+    </linearGradient>
+    
+    <!-- Ombre portée -->
+    <filter id="shadow">
+      <feDropShadow dx="0" dy="4" stdDeviation="8" flood-opacity="0.3"/>
+    </filter>
   </defs>
   
   <!-- Background -->
-  <circle cx="256" cy="256" r="256" fill="url(#bgGradient)"/>
+  <rect width="512" height="512" rx="100" fill="url(#bgGradient)"/>
   
-  <!-- Hotel building silhouette -->
-  <rect x="180" y="140" width="152" height="240" fill="white" opacity="0.95"/>
+  <!-- Hôtel moderne avec architecture élégante -->
+  <g filter="url(#shadow)">
+    <!-- Bâtiment principal -->
+    <rect x="150" y="180" width="212" height="220" rx="8" fill="white" opacity="0.98"/>
+    
+    <!-- Accent décoratif en haut -->
+    <rect x="150" y="180" width="212" height="12" rx="8" fill="#667eea"/>
+    
+    <!-- Fenêtres modernes (3 colonnes x 5 rangées) -->
+    <!-- Rangée 1 -->
+    <rect x="170" y="210" width="32" height="28" rx="4" fill="#667eea" opacity="0.7"/>
+    <rect x="222" y="210" width="32" height="28" rx="4" fill="#667eea" opacity="0.7"/>
+    <rect x="274" y="210" width="32" height="28" rx="4" fill="#667eea" opacity="0.7"/>
+    
+    <!-- Rangée 2 -->
+    <rect x="170" y="250" width="32" height="28" rx="4" fill="#764ba2" opacity="0.7"/>
+    <rect x="222" y="250" width="32" height="28" rx="4" fill="#764ba2" opacity="0.7"/>
+    <rect x="274" y="250" width="32" height="28" rx="4" fill="#764ba2" opacity="0.7"/>
+    
+    <!-- Rangée 3 -->
+    <rect x="170" y="290" width="32" height="28" rx="4" fill="#667eea" opacity="0.7"/>
+    <rect x="222" y="290" width="32" height="28" rx="4" fill="#667eea" opacity="0.7"/>
+    <rect x="274" y="290" width="32" height="28" rx="4" fill="#667eea" opacity="0.7"/>
+    
+    <!-- Rangée 4 -->
+    <rect x="170" y="330" width="32" height="28" rx="4" fill="#764ba2" opacity="0.7"/>
+    <rect x="222" y="330" width="32" height="28" rx="4" fill="#764ba2" opacity="0.7"/>
+    <rect x="274" y="330" width="32" height="28" rx="4" fill="#764ba2" opacity="0.7"/>
+    
+    <!-- Entrée principale moderne -->
+    <rect x="210" y="360" width="60" height="40" rx="6" fill="#667eea"/>
+    <circle cx="240" cy="380" r="3" fill="white" opacity="0.8"/>
+  </g>
   
-  <!-- Windows -->
-  <rect x="200" y="160" width="25" height="30" fill="#14b8a6"/>
-  <rect x="243" y="160" width="25" height="30" fill="#14b8a6"/>
-  <rect x="287" y="160" width="25" height="30" fill="#14b8a6"/>
+  <!-- Étoile premium en haut à droite -->
+  <g transform="translate(360, 120)">
+    <!-- Étoile dorée avec effet 3D -->
+    <path d="M 0,-20 L 5,-6 L 20,-6 L 8,3 L 13,17 L 0,8 L -13,17 L -8,3 L -20,-6 L -5,-6 Z" 
+          fill="url(#starGradient)" 
+          filter="url(#shadow)"/>
+    <!-- Petite étoile d'accent -->
+    <circle cx="15" cy="-15" r="3" fill="#fbbf24" opacity="0.8"/>
+    <circle cx="20" cy="12" r="2.5" fill="#f59e0b" opacity="0.7"/>
+  </g>
   
-  <rect x="200" y="210" width="25" height="30" fill="#14b8a6"/>
-  <rect x="243" y="210" width="25" height="30" fill="#14b8a6"/>
-  <rect x="287" y="210" width="25" height="30" fill="#14b8a6"/>
+  <!-- Texte "ZENITH" moderne -->
+  <text x="256" y="460" 
+        font-family="'Segoe UI', 'Arial', sans-serif" 
+        font-size="52" 
+        font-weight="700" 
+        fill="white" 
+        text-anchor="middle"
+        letter-spacing="4">ZENITH</text>
   
-  <rect x="200" y="260" width="25" height="30" fill="#14b8a6"/>
-  <rect x="243" y="260" width="25" height="30" fill="#14b8a6"/>
-  <rect x="287" y="260" width="25" height="30" fill="#14b8a6"/>
-  
-  <!-- Door -->
-  <rect x="230" y="320" width="52" height="60" fill="#0d9488"/>
-  
-  <!-- Zen circle symbol on top -->
-  <circle cx="256" cy="100" r="35" fill="white" opacity="0.9"/>
-  <circle cx="256" cy="100" r="25" fill="none" stroke="#14b8a6" stroke-width="3"/>
-  <path d="M 241 100 L 271 100" stroke="#14b8a6" stroke-width="3" stroke-linecap="round"/>
-  
-  <!-- Text "ZEN" -->
-  <text x="256" y="440" font-family="Arial, sans-serif" font-size="60" font-weight="bold" fill="white" text-anchor="middle">ZEN</text>
+  <!-- Sous-titre "PMS" -->
+  <text x="256" y="488" 
+        font-family="'Segoe UI', 'Arial', sans-serif" 
+        font-size="18" 
+        font-weight="500" 
+        fill="white" 
+        text-anchor="middle"
+        letter-spacing="6"
+        opacity="0.9">PMS</text>
 </svg>
