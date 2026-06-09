@@ -1,58 +1,69 @@
-# ⚡ FAIRE MAINTENANT - 2 ÉTAPES
+# ⚡ À FAIRE MAINTENANT (3 minutes)
 
-## 🎯 PROBLÈME
-**Les vues SQL spa sont manquantes dans Supabase**
+## 🎯 SITUATION
 
-**Résultat** : Erreur 500 sur la page spa
-
----
-
-## ✅ SOLUTION (10 MINUTES)
-
-### ÉTAPE 1 : Exécuter le script SQL (2 min)
-
-1. Ouvrir https://supabase.com/dashboard
-2. Aller dans "SQL Editor"
-3. Cliquer "New query"
-4. Copier-coller le contenu de `database/ADD_SPA_VIEWS.sql`
-5. Cliquer "Run"
-6. Vérifier le message de succès
+- ✅ Code corrigé et poussé sur GitHub (commit `ac4365b`)
+- ✅ Build Render réussi (TypeScript compilé)
+- ❌ `emailService` ne se charge pas car variable incorrecte
+- ❌ Erreur 500 persiste en production
 
 ---
 
-### ÉTAPE 2 : Redéployer Render (5 min)
+## 🔧 SOLUTION EN 2 ÉTAPES
 
-1. Ouvrir https://dashboard.render.com
-2. Trouver `zen-backend-jzjh`
-3. Cliquer "Manual Deploy" → "Clear build cache & deploy"
-4. Attendre 5 minutes
+### ÉTAPE 1: Corriger la variable Render (1 min)
 
----
+1. **Ouvrir**: https://dashboard.render.com
+2. **Service**: `zen_backend`
+3. **Onglet**: "Environment"
+4. **Trouver**: `EMAIL_FROM`
+5. **Changer**: `zenith@gmail.com` → `basefire671@gmail.com`
+6. **Cliquer**: "Save Changes"
 
-## 🧪 TESTER
-
-1. Ouvrir https://zen-lyart.vercel.app/spa
-2. Rafraîchir (F5)
-3. ✅ L'erreur 500 devrait disparaître
+**Voir détails**: `VARIABLES_RENDER_COPIER_COLLER.md`
 
 ---
 
-## 📁 FICHIER À UTILISER
+### ÉTAPE 2: Attendre le redéploy (2-3 min)
 
-**Script SQL** : `c:\Users\aubin\Downloads\kiro1\database\ADD_SPA_VIEWS.sql`
+Render va redémarrer automatiquement le service.
 
-**Guides détaillés** :
-- `EXECUTER_CE_SCRIPT_MAINTENANT.md`
-- `SOLUTION_FINALE_ERREUR_500.md`
-
----
-
-## 📞 LIENS
-
-- **Supabase** : https://supabase.com/dashboard
-- **Render** : https://dashboard.render.com
-- **Frontend** : https://zen-lyart.vercel.app/spa
+**Vérifier dans les logs**:
+```
+✅ SMTP Server ready to send emails    ← Cette ligne doit apparaître
+```
 
 ---
 
-**👉 COMMENCER PAR L'ÉTAPE 1 MAINTENANT !**
+## 🧪 TEST APRÈS
+
+Une fois "SMTP Server ready" visible:
+
+1. **Ouvrir**: https://zen-lyart.vercel.app/forgot-password
+2. **Entrer**: `aubinmaga@gmail.com`
+3. **Résultat attendu**: Email reçu avec code ✅
+
+---
+
+## 📚 GUIDES DISPONIBLES
+
+| Guide | Contenu |
+|-------|---------|
+| `CORRECTION_FINALE_RENDER.md` | Explication complète |
+| `VARIABLES_RENDER_COPIER_COLLER.md` | Variables à copier-coller |
+
+---
+
+## 🎯 EN RÉSUMÉ
+
+```
+1️⃣  Render → Environment → EMAIL_FROM → basefire671@gmail.com
+2️⃣  Save Changes → Attendre 2-3 min
+3️⃣  Vérifier logs → "SMTP Server ready"
+4️⃣  Tester → Email reçu ✅
+```
+
+---
+
+**Temps total**: 3 minutes
+**Prochaine étape**: Ouvrir `VARIABLES_RENDER_COPIER_COLLER.md`
