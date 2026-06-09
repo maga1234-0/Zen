@@ -235,6 +235,22 @@ export const Login = () => {
                 )}
               </Button>
             </motion.div>
+
+            {/* Forgot Password Link */}
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.65 }}
+              className="text-center"
+            >
+              <button
+                type="button"
+                onClick={() => navigate('/forgot-password')}
+                className="text-sm text-seafoam-600 dark:text-seafoam-400 hover:text-seafoam-700 dark:hover:text-seafoam-300 font-medium hover:underline transition-colors"
+              >
+                Mot de passe oublié?
+              </button>
+            </motion.div>
           </form>
 
           {/* Security Badge */}

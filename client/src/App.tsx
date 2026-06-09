@@ -1,6 +1,7 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { Login } from '@/pages/Login';
+import { ForgotPassword } from '@/pages/ForgotPassword';
 import { Dashboard } from '@/pages/Dashboard';
 import { Rooms } from '@/pages/Rooms';
 import { Bookings } from '@/pages/Bookings';
@@ -165,6 +166,7 @@ function App() {
           <ToastContainer toasts={toast.toasts} onRemove={toast.removeToast} />
           <Routes>
             <Route path="/login" element={<Login />} />
+            <Route path="/forgot-password" element={<ForgotPassword />} />
             <Route path="/book" element={<PublicBooking />} />
             <Route
               path="/dashboard"

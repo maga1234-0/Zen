@@ -14,9 +14,9 @@ CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 -- ============================================
 CREATE TABLE IF NOT EXISTS email_logs (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-  user_id INTEGER REFERENCES users(id) ON DELETE SET NULL,
-  booking_id INTEGER REFERENCES bookings(id) ON DELETE SET NULL,
-  guest_id INTEGER REFERENCES guests(id) ON DELETE SET NULL,
+  user_id UUID REFERENCES users(id) ON DELETE SET NULL,
+  booking_id UUID REFERENCES bookings(id) ON DELETE SET NULL,
+  guest_id UUID REFERENCES guests(id) ON DELETE SET NULL,
   
   -- Type d'email
   type VARCHAR(50) NOT NULL,
@@ -243,8 +243,8 @@ SELECT
   el.status,
   el.sent_at,
   el.created_at,
-  g.name as guest_name,
-  b.reference as booking_reference,
+  CONCAT(g.first_name, ' ', g.last_name) as guest_name,
+  b.id as booking_id,
   u.email as user_email
 FROM email_logs el
 LEFT JOIN guests g ON el.guest_id = g.id
