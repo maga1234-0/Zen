@@ -104,10 +104,8 @@ BEGIN
       amount,
       payment_method,
       payment_date,
-      description,
-      status,
-      created_at,
-      updated_at
+      notes,
+      payment_status
     ) VALUES (
       NEW.booking_id,
       NEW.total_amount,
@@ -118,9 +116,7 @@ BEGIN
           WHEN v_room_number IS NOT NULL THEN ' (Chambre ' || v_room_number || ')'
           ELSE ''
         END,
-      'completed',
-      CURRENT_TIMESTAMP,
-      CURRENT_TIMESTAMP
+      'completed'
     );
     
     RAISE NOTICE 'Commande restaurant % (% €) ajoutée à la facture de la chambre % (%)', 
