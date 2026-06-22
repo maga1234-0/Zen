@@ -10,12 +10,14 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useConfirm } from '@/hooks/useConfirm';
 import { ConfirmDialog } from '@/components/ui/ConfirmDialog';
 import { useAuthStore } from '@/store/authStore';
+import { useCurrencyFormat } from '@/utils/currency';
 
 export const Rooms = () => {
   const { t } = useTranslation();
   const toast = useToastContext();
   const confirmDialog = useConfirm();
   const { user } = useAuthStore();
+  const { formatPrice } = useCurrencyFormat();
   const canManageRooms = user?.role === 'admin' || user?.role === 'manager';
   const [searchTerm, setSearchTerm] = useState('');
   const [editingRoom, setEditingRoom] = useState<any>(null);
@@ -401,7 +403,7 @@ export const Rooms = () => {
                       <p>Floor: {room.floor}</p>
                       <p>Type: {room.type_name || 'N/A'}</p>
                       <p className="font-semibold text-seafoam-600 dark:text-gold-400 mt-2">
-                        ${room.base_price}/night
+                        {formatPrice(room.base_price)}/night
                       </p>
                     </div>
                     
@@ -654,7 +656,7 @@ export const Rooms = () => {
                       <span className="text-sm text-gray-500 dark:text-slate-400">Price per Night</span>
                     </div>
                     <p className="text-xl font-bold text-seafoam-600 dark:text-gold-400">
-                      ${selectedRoom.base_price}
+                      {formatPrice(selectedRoom.base_price)}
                     </p>
                   </div>
 
@@ -1001,7 +1003,7 @@ export const Rooms = () => {
                     Quick Book Room {selectedRoom.room_number}
                   </h2>
                   <p className="text-sm text-gray-500 dark:text-slate-300">
-                    ${selectedRoom.base_price}/night • Floor {selectedRoom.floor}
+                    {formatPrice(selectedRoom.base_price)}/night • Floor {selectedRoom.floor}
                   </p>
                 </div>
                 <button

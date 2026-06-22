@@ -7,6 +7,7 @@ import { Card } from '@/components/ui/Card';
 import api from '@/services/api';
 import { DashboardStats, BookingTrend, RevenueData } from '@/types';
 import { useAuthStore } from '@/store/authStore';
+import { useCurrencyFormat } from '@/utils/currency';
 import {
   LineChart,
   Line,
@@ -165,7 +166,10 @@ const MaintenanceDashboard = () => (
 );
 
 // Accountant Dashboard - Focus on financial data
-const AccountantDashboard = ({ stats, revenueData }: any) => (
+const AccountantDashboard = ({ stats, revenueData }: any) => {
+  const { formatPrice } = useCurrencyFormat();
+  
+  return (
   <div className="p-3 sm:p-4 md:p-6 space-y-4 sm:space-y-6">
     <div>
       <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-800 dark:text-white">Financial Dashboard</h1>
@@ -175,7 +179,7 @@ const AccountantDashboard = ({ stats, revenueData }: any) => (
     <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4 md:gap-6">
       <StatCard
         title="Monthly Revenue"
-        value={`$${stats?.revenue?.toFixed(2) || 0}`}
+        value={formatPrice(stats?.revenue || 0)}
         icon={DollarSign}
         color="bg-green-400"
         trend={{ value: 12, isPositive: true }}
@@ -210,7 +214,7 @@ const AccountantDashboard = ({ stats, revenueData }: any) => (
           <XAxis dataKey="month" style={{ fontSize: '10px' }} />
           <YAxis style={{ fontSize: '10px' }} />
           <Tooltip 
-            formatter={(value: any) => [`$${value.toLocaleString()}`, 'Revenue']}
+            formatter={(value: any) => [formatPrice(value), 'Revenue']}
             contentStyle={{ fontSize: '12px' }}
           />
           <Area type="monotone" dataKey="revenue" fill="url(#revenueGradient)" stroke="none" />
