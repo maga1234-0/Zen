@@ -3,19 +3,45 @@
  * 
  * Provides centralized currency formatting for the entire application.
  * Respects user's selected currency from Settings.
+ * 
+ * IMPORTANT: All prices in the database are stored in USD.
+ * This utility automatically converts to the selected currency using live exchange rates.
  */
 
 import { useSettingsStore } from '@/store/settingsStore';
+import { useState, useEffect } from 'react';
+import { convertFromUSD, getExchangeRates } from '@/services/currencyService';
 
 /**
- * Hook to format prices with the selected currency
+ * Hook to format prices with the selected currency and automatic conversion
  */
 export const useCurrencyFormat = () => {
   const { currency, currency_symbol, currency_position } = useSettingsStore();
+  const [exchangeRates, setExchangeRates] = useState<{ [key: string]: number } | null>(null);
 
-  const formatPrice = (amount: number): string => {
-    if (amount === null || amount === undefined) {
+  // Fetch exchange rates on mount and when currency changes
+  useEffect(() => {
+    getExchangeRates().then(setExchangeRates);
+  }, [currency]);
+
+  /**
+   * Format price with currency conversion
+   * @param amountUSD - Amount in USD (database format)
+   * @param skipConversion - Skip conversion (for already converted amounts)
+   */
+  const formatPrice = (amountUSD: number, skipConversion: boolean = false): string => {
+    if (amountUSD === null || amountUSD === undefined) {
       return '-';
+    }
+
+    let amount = amountUSD;
+
+    // Convert from USD to selected currency
+    if (!skipConversion && exchangeRates && currency !== 'USD') {
+      const rate = exchangeRates[currency];
+      if (rate) {
+        amount = amountUSD * rate;
+      }
     }
 
     // CDF and XAF use 0 decimal places
@@ -36,6 +62,31 @@ export const useCurrencyFormat = () => {
     return `${finalAmount} ${currency_symbol}`;
   };
 
+  /**
+   * Convert and format async (for when you need the promise)
+   */
+  const formatPriceAsync = async (amountUSD: number): Promise<string> => {
+    if (amountUSD === null || amountUSD === undefined) {
+      return '-';
+    }
+
+    // Convert from USD to selected currency
+    const amount = await convertFromUSD(amountUSD, currency);
+
+    // CDF and XAF use 0 decimal places
+    const decimals = (currency === 'CDF' || currency === 'XAF') ? 0 : 2;
+    const formatted = amount.toFixed(decimals);
+    
+    const parts = formatted.split('.');
+    parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
+    const finalAmount = parts.join('.');
+
+    if (currency_position === 'before') {
+      return `${currency_symbol} ${finalAmount}`;
+    }
+    return `${finalAmount} ${currency_symbol}`;
+  };
+
   const getCurrencySymbol = (): string => {
     return currency_symbol;
   };
@@ -44,10 +95,17 @@ export const useCurrencyFormat = () => {
     return currency;
   };
 
+  const getExchangeRate = (): number => {
+    if (!exchangeRates || currency === 'USD') return 1;
+    return exchangeRates[currency] || 1;
+  };
+
   return {
     formatPrice,
+    formatPriceAsync,
     getCurrencySymbol,
     getCurrencyCode,
+    getExchangeRate,
   };
 };
 
