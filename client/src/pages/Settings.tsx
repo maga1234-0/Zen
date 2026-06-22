@@ -19,6 +19,9 @@ interface SettingsData {
   paymentNotifications: boolean;
   theme: string;
   signature: string;
+  currency: string;
+  currency_symbol: string;
+  currency_position: string;
 }
 
 export const Settings = () => {
@@ -42,6 +45,9 @@ export const Settings = () => {
     paymentNotifications: settingsStore.paymentNotifications,
     theme: settingsStore.theme,
     signature: settingsStore.signature || '',
+    currency: settingsStore.currency || 'USD',
+    currency_symbol: settingsStore.currency_symbol || '$',
+    currency_position: settingsStore.currency_position || 'before',
   });
 
   const [hasChanges, setHasChanges] = useState(false);
@@ -176,6 +182,9 @@ export const Settings = () => {
       paymentNotifications: settingsStore.paymentNotifications,
       theme: settingsStore.theme,
       signature: settingsStore.signature || '',
+      currency: settingsStore.currency || 'USD',
+      currency_symbol: settingsStore.currency_symbol || '$',
+      currency_position: settingsStore.currency_position || 'before',
     };
     
     console.log('Settings: Store settings:', storeSettings);
@@ -205,6 +214,9 @@ export const Settings = () => {
         theme: data.theme as any,
         language: 'French', // Always set to French
         signature: data.signature,
+        currency: data.currency,
+        currency_symbol: data.currency_symbol,
+        currency_position: data.currency_position as 'before' | 'after',
       });
       return { success: true };
     },
@@ -256,6 +268,9 @@ export const Settings = () => {
       paymentNotifications: settingsStore.paymentNotifications,
       theme: settingsStore.theme,
       signature: settingsStore.signature || '',
+      currency: settingsStore.currency || 'USD',
+      currency_symbol: settingsStore.currency_symbol || '$',
+      currency_position: settingsStore.currency_position || 'before',
     });
     setHasChanges(false);
     console.log('Changes discarded');
@@ -439,6 +454,37 @@ export const Settings = () => {
                 <option>Dark</option>
                 <option>System</option>
               </select>
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 dark:text-slate-200 mb-2">
+                💱 Devise
+              </label>
+              <select 
+                value={settings.currency}
+                onChange={(e) => {
+                  const currencyMap: { [key: string]: string } = {
+                    'USD': '$',
+                    'CDF': 'FC',
+                    'EUR': '€',
+                    'GBP': '£',
+                    'ZAR': 'R',
+                    'XAF': 'FCFA'
+                  };
+                  handleChange('currency', e.target.value);
+                  handleChange('currency_symbol', currencyMap[e.target.value] || '$');
+                }}
+                className="w-full px-4 py-2 border dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-seafoam-400 dark:bg-slate-700 dark:text-white"
+              >
+                <option value="USD">💵 USD - Dollar Américain ($)</option>
+                <option value="CDF">🇨🇩 CDF - Franc Congolais (FC)</option>
+                <option value="EUR">💶 EUR - Euro (€)</option>
+                <option value="GBP">🇬🇧 GBP - Livre Sterling (£)</option>
+                <option value="ZAR">🇿🇦 ZAR - Rand Sud-Africain (R)</option>
+                <option value="XAF">🌍 XAF - Franc CFA (FCFA)</option>
+              </select>
+              <p className="text-xs text-gray-500 dark:text-slate-400 mt-1">
+                Symbole: {settings.currency_symbol || '$'}
+              </p>
             </div>
           </div>
         </Card>

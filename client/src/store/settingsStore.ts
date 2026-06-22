@@ -14,6 +14,9 @@ interface SettingsState {
   bookingAlerts: boolean;
   paymentNotifications: boolean;
   signature: string;
+  currency: string;
+  currency_symbol: string;
+  currency_position: 'before' | 'after';
   setSettings: (settings: Partial<SettingsState>) => void;
   applyTheme: () => void;
 }
@@ -33,6 +36,9 @@ export const useSettingsStore = create<SettingsState>()(
       bookingAlerts: true,
       paymentNotifications: true,
       signature: '',
+      currency: 'USD',
+      currency_symbol: '$',
+      currency_position: 'before',
       setSettings: (settings) => {
         console.log('SettingsStore: Setting new settings:', settings);
         set(settings);
