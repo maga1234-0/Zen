@@ -70,13 +70,9 @@ CREATE TRIGGER add_to_room_folio_trigger
 SELECT 
   trigger_name,
   event_manipulation,
-  action_timing,
-  tgtype
+  action_timing
 FROM information_schema.triggers 
 WHERE trigger_name = 'add_to_room_folio_trigger';
-
--- Afficher la définition de la fonction
-\sf add_restaurant_order_to_room_folio
 
 -- ============================================
 -- RÉSULTAT ATTENDU

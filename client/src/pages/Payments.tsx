@@ -8,11 +8,13 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useToastContext } from '@/App';
 import { useSettingsStore } from '@/store/settingsStore';
 import { useAuthStore } from '@/store/authStore';
+import { useCurrencyFormat } from '@/utils/currency';
 
 export const Payments = () => {
   const toast = useToastContext();
   const settingsStore = useSettingsStore();
   const { user } = useAuthStore();
+  const { formatPrice } = useCurrencyFormat();
   const [showPaymentModal, setShowPaymentModal] = useState(false);
   const [showInvoiceModal, setShowInvoiceModal] = useState(false);
   const [selectedInvoice, setSelectedInvoice] = useState<any>(null);
@@ -274,7 +276,7 @@ export const Payments = () => {
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-semibold text-seafoam-600 dark:text-gold-400">
-                      ${payment.amount}
+                      {formatPrice(payment.amount)}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <span className={`text-xs px-2 py-1 rounded-full ${getStatusColor(payment.payment_status)}`}>
@@ -365,7 +367,7 @@ export const Payments = () => {
                                 </p>
                               </div>
                               <p className="text-sm font-bold text-green-600 dark:text-green-400">
-                                ${booking.total_amount}
+                                {formatPrice(booking.total_amount)}
                               </p>
                             </div>
                           </div>
@@ -434,7 +436,7 @@ export const Payments = () => {
                         <div className="flex items-center justify-between">
                           <span className="text-xs font-medium text-gray-700 dark:text-slate-200">Total:</span>
                           <span className="text-xl font-bold text-green-600 dark:text-green-400">
-                            ${selectedBooking.total_amount}
+                            {formatPrice(selectedBooking.total_amount)}
                           </span>
                         </div>
                       </div>
@@ -637,18 +639,18 @@ export const Payments = () => {
                       <div className="flex justify-between items-center">
                         <span className="text-sm text-gray-600">Subtotal</span>
                         <span className="font-semibold text-gray-800">
-                          ${selectedInvoice.amount}
+                          {formatPrice(selectedInvoice.amount)}
                         </span>
                       </div>
                       <div className="flex justify-between items-center">
                         <span className="text-sm text-gray-600">Tax (0%)</span>
-                        <span className="font-semibold text-gray-800">$0.00</span>
+                        <span className="font-semibold text-gray-800">{formatPrice(0)}</span>
                       </div>
                       <div className="border-t border-gray-300 pt-2 mt-2">
                         <div className="flex justify-between items-center">
                           <span className="text-lg font-bold text-gray-800">Total Amount</span>
                           <span className="text-2xl font-bold text-green-600">
-                            ${selectedInvoice.amount}
+                            {formatPrice(selectedInvoice.amount)}
                           </span>
                         </div>
                       </div>

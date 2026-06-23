@@ -8,10 +8,12 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useToastContext } from '@/App';
 import { useConfirm } from '@/hooks/useConfirm';
 import { ConfirmDialog } from '@/components/ui/ConfirmDialog';
+import { useCurrencyFormat } from '@/utils/currency';
 
 export const Bookings = () => {
   const toast = useToastContext();
   const confirmDialog = useConfirm();
+  const { formatPrice } = useCurrencyFormat();
   const [searchTerm, setSearchTerm] = useState('');
   const [showBookingModal, setShowBookingModal] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -324,7 +326,7 @@ export const Bookings = () => {
                       </span>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-semibold text-seafoam-600 dark:text-gold-400">
-                      ${booking.total_amount}
+                      {formatPrice(booking.total_amount)}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm">
                       <div className="flex items-center gap-2">
@@ -437,7 +439,7 @@ export const Bookings = () => {
                             return room.status === 'available';
                           }).map((room: any) => (
                             <option key={room.id} value={room.id}>
-                              Room {room.room_number} - {room.type_name} (${room.base_price}/night)
+                              Room {room.room_number} - {room.type_name} ({formatPrice(room.base_price)}/night)
                             </option>
                           ))}
                         </select>
@@ -536,7 +538,7 @@ export const Bookings = () => {
                         <div className="space-y-2">
                           <div className="flex justify-between text-sm">
                             <span className="text-gray-600 dark:text-slate-300">Room Price per Night:</span>
-                            <span className="font-semibold text-gray-800 dark:text-white">${roomPrice}</span>
+                            <span className="font-semibold text-gray-800 dark:text-white">{formatPrice(roomPrice)}</span>
                           </div>
                           <div className="flex justify-between text-sm">
                             <span className="text-gray-600 dark:text-slate-300">Number of Nights:</span>
@@ -545,7 +547,7 @@ export const Bookings = () => {
                           <div className="border-t border-seafoam-300 dark:border-seafoam-700 pt-2 mt-2">
                             <div className="flex justify-between">
                               <span className="font-bold text-gray-800 dark:text-white">Total Amount:</span>
-                              <span className="text-xl font-bold text-seafoam-600 dark:text-seafoam-400">${totalAmount}</span>
+                              <span className="text-xl font-bold text-seafoam-600 dark:text-seafoam-400">{formatPrice(totalAmount)}</span>
                             </div>
                           </div>
                         </div>
