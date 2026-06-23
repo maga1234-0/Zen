@@ -11,6 +11,7 @@ import api from '@/services/api';
 import { CreateBookingModal } from '@/components/spa/CreateBookingModal';
 import { CreateServiceModal } from '@/components/spa/CreateServiceModal';
 import { CreateTherapistModal } from '@/components/spa/CreateTherapistModal';
+import { useCurrencyFormat } from '@/utils/currency';
 
 interface SpaService {
   id: string;
@@ -68,6 +69,7 @@ interface Statistics {
 export default function Spa() {
   const { t } = useTranslation();
   const toast = useToastContext();
+  const { formatPrice } = useCurrencyFormat();
   const [activeTab, setActiveTab] = useState<'bookings' | 'services' | 'therapists' | 'packages' | 'products'>('bookings');
   const [loading, setLoading] = useState(false);
   
@@ -344,7 +346,7 @@ export default function Spa() {
               <div>
                 <p className="text-sm text-gray-600 dark:text-slate-400">Revenu total</p>
                 <p className="text-2xl font-bold text-gray-900 dark:text-white mt-1">
-                  {Number(statistics.general.total_revenue || 0).toFixed(2)}€
+                  {formatPrice(Number(statistics.general.total_revenue || 0))}
                 </p>
               </div>
               <div className="w-12 h-12 bg-purple-100 dark:bg-purple-900/20 rounded-lg flex items-center justify-center">
@@ -520,7 +522,7 @@ export default function Spa() {
                           </span>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-white">
-                          {Number(booking.total_amount || 0).toFixed(2)}€
+                          {formatPrice(Number(booking.total_amount || 0))}
                         </td>
                       </tr>
                     ))
@@ -574,7 +576,7 @@ export default function Spa() {
                     {service.duration} min
                   </div>
                   <div className="text-lg font-bold text-purple-600 dark:text-purple-400">
-                    {Number(service.price || 0).toFixed(2)}€
+                    {formatPrice(Number(service.price || 0))}
                   </div>
                 </div>
               </Card>
@@ -669,14 +671,14 @@ export default function Spa() {
                 <div className="pt-4 border-t border-gray-200 dark:border-slate-700">
                   <div className="flex items-center justify-between mb-2">
                     <span className="text-sm text-gray-500 dark:text-slate-500 line-through">
-                      {Number(pkg.regular_price || 0).toFixed(2)}€
+                      {formatPrice(Number(pkg.regular_price || 0))}
                     </span>
                     <span className="text-xs bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-400 px-2 py-1 rounded-full">
-                      Économisez {Number(pkg.savings || 0).toFixed(2)}€
+                      Économisez {formatPrice(Number(pkg.savings || 0))}
                     </span>
                   </div>
                   <div className="text-2xl font-bold text-purple-600 dark:text-purple-400">
-                    {Number(pkg.package_price || 0).toFixed(2)}€
+                    {formatPrice(Number(pkg.package_price || 0))}
                   </div>
                 </div>
               </Card>

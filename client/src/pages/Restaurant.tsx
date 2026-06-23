@@ -16,6 +16,7 @@ import { useToastContext } from '@/App';
 import { motion } from 'framer-motion';
 import { useAuthStore } from '@/store/authStore';
 import { hasPermission } from '@/utils/permissions';
+import { useCurrencyFormat } from '@/utils/currency';
 
 type TabType = 'orders' | 'menu' | 'tables' | 'reservations';
 
@@ -37,6 +38,7 @@ interface MenuItem {
 const ChefView = () => {
   const toast = useToastContext();
   const queryClient = useQueryClient();
+  const { formatPrice } = useCurrencyFormat();
   const [filterStatus, setFilterStatus] = useState<string>('pending,preparing,ready');
   const [activeTab, setActiveTab] = useState<'orders' | 'menu'>('orders');
 
@@ -364,6 +366,7 @@ const ChefView = () => {
 export const Restaurant = () => {
   const toast = useToastContext();
   const queryClient = useQueryClient();
+  const { formatPrice } = useCurrencyFormat();
   const { user } = useAuthStore();
   const [activeTab, setActiveTab] = useState<TabType>('orders');
   const [searchTerm, setSearchTerm] = useState('');
@@ -984,7 +987,7 @@ export const Restaurant = () => {
               <div>
                 <p className="text-sm text-gray-500 dark:text-slate-400">Revenus du Jour</p>
                 <p className="text-2xl font-bold text-gray-800 dark:text-white">
-                  {parseFloat(stats?.orders?.total_revenue || 0).toFixed(2)}€
+                  {formatPrice(parseFloat(stats?.orders?.total_revenue || 0))}
                 </p>
               </div>
               <div className="w-12 h-12 bg-green-100 dark:bg-green-900/30 rounded-lg flex items-center justify-center">
@@ -1112,7 +1115,7 @@ export const Restaurant = () => {
                       </div>
                       <div>
                         <p className="text-gray-500 dark:text-slate-400">Montant</p>
-                        <p className="font-medium dark:text-white">{order.total_amount}€</p>
+                        <p className="font-medium dark:text-white">{formatPrice(order.total_amount)}</p>
                       </div>
                       <div>
                         <p className="text-gray-500 dark:text-slate-400">Serveur</p>
@@ -1275,7 +1278,7 @@ export const Restaurant = () => {
                           {item.category_name}
                         </td>
                         <td className="px-6 py-4 text-sm font-medium text-gray-900 dark:text-white">
-                          {Number(item.price || 0).toFixed(2)}€
+                          {formatPrice(Number(item.price || 0))}
                         </td>
                         <td className="px-6 py-4 text-sm text-gray-900 dark:text-white">
                           {item.preparation_time ? `${item.preparation_time} min` : '-'}
