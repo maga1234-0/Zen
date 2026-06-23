@@ -4,6 +4,7 @@ import { Calendar, Users, CreditCard, Check, X } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import api from '@/services/api';
+import { useCurrencyFormat } from '@/utils/currency';
 
 interface RoomAvailability {
   type: string;
@@ -26,6 +27,7 @@ interface BookingSettings {
 
 export const PublicBooking = () => {
   const { t } = useTranslation();
+  const { formatPrice } = useCurrencyFormat();
   const [step, setStep] = useState(1);
   const [loading, setLoading] = useState(false);
   const [settings, setSettings] = useState<BookingSettings | null>(null);
@@ -331,7 +333,7 @@ export const PublicBooking = () => {
                     </div>
                     <div className="text-right">
                       <p className="text-3xl font-bold text-seafoam-600">
-                        {room.price}€
+                        {formatPrice(room.price)}
                       </p>
                       <p className="text-sm text-gray-500">par nuit</p>
                     </div>
@@ -464,7 +466,7 @@ export const PublicBooking = () => {
               </div>
               {promoDiscount > 0 && (
                 <p className="text-green-600 text-sm mt-2">
-                  ✓ Réduction de {promoDiscount.toFixed(2)}€ appliquée
+                  ✓ Réduction de {formatPrice(promoDiscount)} appliquée
                 </p>
               )}
             </div>
@@ -479,20 +481,20 @@ export const PublicBooking = () => {
                 </div>
                 <div className="flex justify-between">
                   <span>Sous-total</span>
-                  <span>{calculateTotal().subtotal.toFixed(2)}€</span>
+                  <span>{formatPrice(calculateTotal().subtotal)}</span>
                 </div>
                 <div className="flex justify-between">
                   <span>Taxes (10%)</span>
-                  <span>{calculateTotal().tax.toFixed(2)}€</span>
+                  <span>{formatPrice(calculateTotal().tax)}</span>
                 </div>
                 <div className="flex justify-between font-bold text-lg pt-2 border-t">
                   <span>Total</span>
-                  <span>{calculateTotal().total.toFixed(2)}€</span>
+                  <span>{formatPrice(calculateTotal().total)}</span>
                 </div>
                 {settings.require_deposit && (
                   <div className="flex justify-between text-seafoam-600">
                     <span>Acompte requis ({settings.deposit_percentage}%)</span>
-                    <span>{calculateTotal().deposit.toFixed(2)}€</span>
+                    <span>{formatPrice(calculateTotal().deposit)}</span>
                   </div>
                 )}
               </div>

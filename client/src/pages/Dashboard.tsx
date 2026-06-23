@@ -423,7 +423,7 @@ const RestaurantServerDashboard = () => {
                   <p className="text-xs sm:text-sm text-gray-500 dark:text-slate-300">
                     {order.order_type === 'dine_in' && `Table ${order.table_number}`}
                     {order.order_type === 'room_service' && `Chambre ${order.room_number}`}
-                    • {order.total_amount}€
+                    • {formatPrice(order.total_amount)}
                   </p>
                 </div>
                 <span
@@ -487,7 +487,7 @@ const RestaurantCashierDashboard = () => {
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4 md:gap-6">
         <StatCard
           title="Revenus du Jour"
-          value={`${parseFloat(restaurantStats?.orders?.total_revenue || 0).toFixed(2)}€`}
+          value={formatPrice(parseFloat(restaurantStats?.orders?.total_revenue || 0))}
           icon={DollarSign}
           color="bg-green-400"
         />
@@ -529,7 +529,7 @@ const RestaurantCashierDashboard = () => {
                 </div>
                 <div className="flex items-center gap-3">
                   <span className="text-lg font-bold text-green-600 dark:text-green-400">
-                    {order.total_amount}€
+                    {formatPrice(order.total_amount)}
                   </span>
                   <span className="text-xs px-2 py-1 rounded-full bg-yellow-100 text-yellow-700 dark:bg-yellow-900 dark:text-yellow-300">
                     À payer
@@ -579,7 +579,7 @@ const RestaurantManagerDashboard = () => {
         />
         <StatCard
           title="Revenus du Jour"
-          value={`${parseFloat(restaurantStats?.orders?.total_revenue || 0).toFixed(2)}€`}
+          value={formatPrice(parseFloat(restaurantStats?.orders?.total_revenue || 0))}
           icon={DollarSign}
           color="bg-green-400"
         />
@@ -612,7 +612,7 @@ const RestaurantManagerDashboard = () => {
             <div className="flex justify-between items-center p-3 bg-mint-50 dark:bg-slate-700 rounded-lg">
               <span className="text-sm text-gray-600 dark:text-slate-300">Ticket Moyen</span>
               <span className="text-lg font-bold text-gray-800 dark:text-white">
-                {restaurantStats?.orders?.average_order_value || '0.00'}€
+                {formatPrice(parseFloat(restaurantStats?.orders?.average_order_value || 0))}
               </span>
             </div>
             <div className="flex justify-between items-center p-3 bg-mint-50 dark:bg-slate-700 rounded-lg">
@@ -820,7 +820,7 @@ export const Dashboard = () => {
           />
           <StatCard
             title="Revenus du Jour"
-            value={`${parseFloat(restaurantStats?.orders?.total_revenue || 0).toFixed(2)}€`}
+            value={formatPrice(parseFloat(restaurantStats?.orders?.total_revenue || 0))}
             icon={DollarSign}
             color="bg-green-400"
           />
@@ -853,7 +853,7 @@ export const Dashboard = () => {
           />
           <StatCard
             title="Revenus du Jour"
-            value={`${parseFloat(spaStats?.bookings?.total_revenue || 0).toFixed(2)}€`}
+            value={formatPrice(parseFloat(spaStats?.bookings?.total_revenue || 0))}
             icon={DollarSign}
             color="bg-green-400"
           />
@@ -1121,7 +1121,7 @@ export const Dashboard = () => {
             <div className="flex justify-between items-center p-3 bg-mint-50 dark:bg-slate-700 rounded-lg">
               <span className="text-sm text-gray-600 dark:text-slate-300">Ticket Moyen</span>
               <span className="text-lg font-bold text-gray-800 dark:text-white">
-                {restaurantStats?.orders?.average_order_value || '0.00'}€
+                {formatPrice(parseFloat(restaurantStats?.orders?.average_order_value || 0))}
               </span>
             </div>
             <div className="flex justify-between items-center p-3 bg-mint-50 dark:bg-slate-700 rounded-lg">
@@ -1154,7 +1154,7 @@ export const Dashboard = () => {
             <div className="flex justify-between items-center p-3 bg-pink-50 dark:bg-pink-900/20 rounded-lg">
               <span className="text-sm text-gray-600 dark:text-slate-300">Revenu Moyen/Service</span>
               <span className="text-lg font-bold text-gray-800 dark:text-white">
-                {parseFloat(spaStats?.bookings?.average_booking_value || 0).toFixed(2)}€
+                {formatPrice(parseFloat(spaStats?.bookings?.average_booking_value || 0))}
               </span>
             </div>
             <div className="flex justify-between items-center p-3 bg-pink-50 dark:bg-pink-900/20 rounded-lg">
