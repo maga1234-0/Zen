@@ -224,9 +224,11 @@ const AccountantDashboard = ({ stats, revenueData }: any) => {
     </Card>
   </div>
 );
+}; // ← Ajout de l'accolade fermante manquante
 
 // Restaurant Chef Dashboard - Focus on kitchen orders
 const RestaurantChefDashboard = () => {
+  const { formatPrice } = useCurrencyFormat();
   const { data: restaurantStats } = useQuery({
     queryKey: ['restaurant-stats'],
     queryFn: async () => {
@@ -355,6 +357,7 @@ const RestaurantChefDashboard = () => {
 
 // Restaurant Server Dashboard - Focus on taking orders
 const RestaurantServerDashboard = () => {
+  const { formatPrice } = useCurrencyFormat();
   const { data: restaurantStats } = useQuery({
     queryKey: ['restaurant-stats'],
     queryFn: async () => {
@@ -455,6 +458,7 @@ const RestaurantServerDashboard = () => {
 
 // Restaurant Cashier Dashboard - Focus on payments
 const RestaurantCashierDashboard = () => {
+  const { formatPrice } = useCurrencyFormat();
   const { data: restaurantStats } = useQuery({
     queryKey: ['restaurant-stats'],
     queryFn: async () => {
@@ -550,6 +554,7 @@ const RestaurantCashierDashboard = () => {
 
 // Restaurant Manager Dashboard - Full overview
 const RestaurantManagerDashboard = () => {
+  const { formatPrice } = useCurrencyFormat();
   const { data: restaurantStats } = useQuery({
     queryKey: ['restaurant-stats'],
     queryFn: async () => {
@@ -656,6 +661,7 @@ const RestaurantManagerDashboard = () => {
 
 export const Dashboard = () => {
   const { user } = useAuthStore();
+  const { formatPrice } = useCurrencyFormat();
 
   const { data: stats } = useQuery<DashboardStats>({
     queryKey: ['dashboard-stats'],
