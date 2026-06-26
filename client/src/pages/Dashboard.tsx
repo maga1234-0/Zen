@@ -80,49 +80,78 @@ const ReceptionistDashboard = ({ stats, recentActivities }: any) => (
 );
 
 // Housekeeping Dashboard - Focus on room status and cleaning tasks
-const HousekeepingDashboard = () => (
-  <div className="p-3 sm:p-4 md:p-6 space-y-4 sm:space-y-6">
-    <div>
-      <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-800 dark:text-white">Housekeeping Dashboard</h1>
-      <p className="text-sm sm:text-base text-gray-500 dark:text-slate-300">Manage room cleaning and maintenance tasks</p>
-    </div>
+const HousekeepingDashboard = () => {
+  const { data: rooms } = useQuery({
+    queryKey: ['rooms-housekeeping'],
+    queryFn: async () => {
+      const res = await api.get('/rooms');
+      return res.data;
+    },
+    refetchInterval: 30000, // Refresh every 30 seconds
+  });
 
-    <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-3 md:gap-4">
-      <StatCard title="Pending Tasks" value={5} icon={Clock} color="bg-yellow-400" />
-      <StatCard title="In Progress" value={3} icon={Sparkles} color="bg-blue-400" />
-      <StatCard title="Completed Today" value={12} icon={CheckCircle} color="bg-green-400" />
-      <StatCard title="Total Rooms" value={20} icon={Bed} color="bg-purple-400" />
-    </div>
+  // Calculate statistics from real room data
+  const dirtyRooms = rooms?.filter((r: any) => r.status === 'dirty').length || 0;
+  const cleaningRooms = rooms?.filter((r: any) => r.status === 'cleaning').length || 0;
+  const cleanedToday = rooms?.filter((r: any) => 
+    r.status === 'clean' && 
+    new Date(r.updated_at).toDateString() === new Date().toDateString()
+  ).length || 0;
+  const totalRooms = rooms?.length || 0;
 
-    <Card>
-      <h3 className="text-base sm:text-lg font-semibold mb-3 sm:mb-4 text-gray-800 dark:text-white">Today's Tasks</h3>
-      <div className="space-y-2 sm:space-y-3">
-        {[
-          { room: '101', status: 'pending', task: 'Deep cleaning' },
-          { room: '205', status: 'in_progress', task: 'Standard cleaning' },
-          { room: '301', status: 'completed', task: 'Turnover service' },
-        ].map((task, i) => (
-          <div key={i} className="flex flex-col sm:flex-row sm:items-center justify-between p-3 sm:p-4 bg-mint-50 dark:bg-slate-700 rounded-lg">
-            <div className="flex items-center gap-3 mb-2 sm:mb-0">
-              <Bed className="w-4 h-4 sm:w-5 sm:h-5 text-gray-500" />
-              <div>
-                <p className="font-semibold text-sm sm:text-base text-gray-800 dark:text-white">Room {task.room}</p>
-                <p className="text-xs sm:text-sm text-gray-500 dark:text-slate-300">{task.task}</p>
-              </div>
-            </div>
-            <span className={`text-xs px-2 sm:px-3 py-1 rounded-full w-fit ${
-              task.status === 'completed' ? 'bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300' :
-              task.status === 'in_progress' ? 'bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300' :
-              'bg-yellow-100 text-yellow-700 dark:bg-yellow-900 dark:text-yellow-300'
-            }`}>
-              {task.status.replace('_', ' ')}
-            </span>
-          </div>
-        ))}
+  // Get rooms that need attention
+  const tasksToShow = rooms?.filter((r: any) => 
+    ['dirty', 'cleaning'].includes(r.status)
+  ).slice(0, 10) || [];
+
+  return (
+    <div className="p-3 sm:p-4 md:p-6 space-y-4 sm:space-y-6">
+      <div>
+        <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-800 dark:text-white">Housekeeping Dashboard</h1>
+        <p className="text-sm sm:text-base text-gray-500 dark:text-slate-300">Manage room cleaning and maintenance tasks</p>
       </div>
-    </Card>
-  </div>
-);
+
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-3 md:gap-4">
+        <StatCard title="Dirty Rooms" value={dirtyRooms} icon={Clock} color="bg-yellow-400" />
+        <StatCard title="In Progress" value={cleaningRooms} icon={Sparkles} color="bg-blue-400" />
+        <StatCard title="Cleaned Today" value={cleanedToday} icon={CheckCircle} color="bg-green-400" />
+        <StatCard title="Total Rooms" value={totalRooms} icon={Bed} color="bg-purple-400" />
+      </div>
+
+      <Card>
+        <h3 className="text-base sm:text-lg font-semibold mb-3 sm:mb-4 text-gray-800 dark:text-white">Today's Tasks</h3>
+        <div className="space-y-2 sm:space-y-3">
+          {tasksToShow.length > 0 ? (
+            tasksToShow.map((room: any) => (
+              <div key={room.id} className="flex flex-col sm:flex-row sm:items-center justify-between p-3 sm:p-4 bg-mint-50 dark:bg-slate-700 rounded-lg">
+                <div className="flex items-center gap-3 mb-2 sm:mb-0">
+                  <Bed className="w-4 h-4 sm:w-5 sm:h-5 text-gray-500" />
+                  <div>
+                    <p className="font-semibold text-sm sm:text-base text-gray-800 dark:text-white">Room {room.room_number}</p>
+                    <p className="text-xs sm:text-sm text-gray-500 dark:text-slate-300">
+                      {room.room_type} - {room.status === 'dirty' ? 'Needs cleaning' : 'Being cleaned'}
+                    </p>
+                  </div>
+                </div>
+                <span className={`text-xs px-2 sm:px-3 py-1 rounded-full w-fit ${
+                  room.status === 'cleaning' ? 'bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300' :
+                  'bg-yellow-100 text-yellow-700 dark:bg-yellow-900 dark:text-yellow-300'
+                }`}>
+                  {room.status === 'dirty' ? 'Pending' : 'In Progress'}
+                </span>
+              </div>
+            ))
+          ) : (
+            <div className="text-center py-8 text-gray-500 dark:text-slate-400">
+              <CheckCircle className="w-12 h-12 mx-auto mb-2 text-green-500" />
+              <p>All rooms are clean! 🎉</p>
+            </div>
+          )}
+        </div>
+      </Card>
+    </div>
+  );
+};
 
 // Maintenance Dashboard - Focus on maintenance alerts
 const MaintenanceDashboard = () => (
