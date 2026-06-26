@@ -29,18 +29,26 @@ export const useCurrencyFormat = () => {
    * @param amountUSD - Amount in USD (database format)
    * @param skipConversion - Skip conversion (for already converted amounts)
    */
-  const formatPrice = (amountUSD: number, skipConversion: boolean = false): string => {
-    if (amountUSD === null || amountUSD === undefined) {
+  const formatPrice = (amountUSD: number | string | null | undefined, skipConversion: boolean = false): string => {
+    if (amountUSD === null || amountUSD === undefined || amountUSD === '') {
       return '-';
     }
 
-    let amount = amountUSD;
+    // Convert to number if it's a string
+    const numericAmount = typeof amountUSD === 'string' ? parseFloat(amountUSD) : amountUSD;
+    
+    // Check if conversion resulted in a valid number
+    if (isNaN(numericAmount)) {
+      return '-';
+    }
+
+    let amount = numericAmount;
 
     // Convert from USD to selected currency
     if (!skipConversion && exchangeRates && currency !== 'USD') {
       const rate = exchangeRates[currency];
       if (rate) {
-        amount = amountUSD * rate;
+        amount = numericAmount * rate;
       }
     }
 
@@ -65,13 +73,21 @@ export const useCurrencyFormat = () => {
   /**
    * Convert and format async (for when you need the promise)
    */
-  const formatPriceAsync = async (amountUSD: number): Promise<string> => {
-    if (amountUSD === null || amountUSD === undefined) {
+  const formatPriceAsync = async (amountUSD: number | string | null | undefined): Promise<string> => {
+    if (amountUSD === null || amountUSD === undefined || amountUSD === '') {
+      return '-';
+    }
+
+    // Convert to number if it's a string
+    const numericAmount = typeof amountUSD === 'string' ? parseFloat(amountUSD) : amountUSD;
+    
+    // Check if conversion resulted in a valid number
+    if (isNaN(numericAmount)) {
       return '-';
     }
 
     // Convert from USD to selected currency
-    const amount = await convertFromUSD(amountUSD, currency);
+    const amount = await convertFromUSD(numericAmount, currency);
 
     // CDF and XAF use 0 decimal places
     const decimals = (currency === 'CDF' || currency === 'XAF') ? 0 : 2;
@@ -113,17 +129,25 @@ export const useCurrencyFormat = () => {
  * Standalone function to format price (for use outside React components)
  */
 export const formatCurrency = (
-  amount: number, 
+  amount: number | string | null | undefined, 
   currency: string = 'USD',
   currency_symbol: string = '$',
   currency_position: string = 'before'
 ): string => {
-  if (amount === null || amount === undefined) {
+  if (amount === null || amount === undefined || amount === '') {
+    return '-';
+  }
+
+  // Convert to number if it's a string
+  const numericAmount = typeof amount === 'string' ? parseFloat(amount) : amount;
+  
+  // Check if conversion resulted in a valid number
+  if (isNaN(numericAmount)) {
     return '-';
   }
 
   const decimals = (currency === 'CDF' || currency === 'XAF') ? 0 : 2;
-  const formatted = amount.toFixed(decimals);
+  const formatted = numericAmount.toFixed(decimals);
   
   const parts = formatted.split('.');
   parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
