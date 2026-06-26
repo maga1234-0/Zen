@@ -19,7 +19,9 @@
 - ✅ Sélecteur de devise dans Settings
 - ✅ Conversion automatique sur 7 pages
 - ✅ Formatage correct pour chaque devise
-- ✅ **Déployé sur Vercel**: https://zen-lyart.vercel.app
+- ✅ **Dashboard fix appliqué** : Hook useCurrencyFormat ajouté
+- ✅ **Build vérifié** : TypeScript compilation réussie
+- ✅ **Déployé sur Vercel** : En cours (2-3 minutes)
 
 ### Backend (100% Complet) ✅
 - ✅ API endpoints pour devises
@@ -28,8 +30,8 @@
 
 ### Code (100% Commité) ✅
 - ✅ Tous les changements committés sur GitHub
-- ✅ Dernier commit: `d22824d` (documentation)
-- ✅ Auto-déploiement Vercel déclenché
+- ✅ Dernier commit: `380467d` (Dashboard fix)
+- ✅ Auto-déploiement Vercel en cours
 
 ---
 
