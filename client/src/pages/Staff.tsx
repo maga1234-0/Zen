@@ -286,8 +286,16 @@ export const Staff = () => {
                     <tr key={member.id} className="hover:bg-gray-50 dark:hover:bg-slate-700">
                       <td className="px-4 sm:px-6 py-4 whitespace-nowrap">
                         <div className="flex items-center gap-3">
-                          <div className="w-8 h-8 sm:w-10 sm:h-10 bg-seafoam-400 dark:bg-gold-500 rounded-full flex items-center justify-center text-white font-semibold">
-                            {member.first_name[0]}{member.last_name[0]}
+                          <div className="w-8 h-8 sm:w-10 sm:h-10 bg-seafoam-400 dark:bg-gold-500 rounded-full flex items-center justify-center text-white font-semibold overflow-hidden">
+                            {member.profile_picture ? (
+                              <img 
+                                src={member.profile_picture} 
+                                alt={`${member.first_name} ${member.last_name}`}
+                                className="w-full h-full object-cover"
+                              />
+                            ) : (
+                              <span>{member.first_name[0]}{member.last_name[0]}</span>
+                            )}
                           </div>
                           <div>
                             <p className="text-sm font-medium text-gray-900 dark:text-white">
@@ -354,8 +362,16 @@ export const Staff = () => {
                 <div key={member.id} className="bg-white dark:bg-slate-800 rounded-lg border dark:border-slate-700 p-4">
                   <div className="flex items-start justify-between mb-3">
                     <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 bg-seafoam-400 dark:bg-gold-500 rounded-full flex items-center justify-center text-white font-semibold">
-                        {member.first_name[0]}{member.last_name[0]}
+                      <div className="w-10 h-10 bg-seafoam-400 dark:bg-gold-500 rounded-full flex items-center justify-center text-white font-semibold overflow-hidden">
+                        {member.profile_picture ? (
+                          <img 
+                            src={member.profile_picture} 
+                            alt={`${member.first_name} ${member.last_name}`}
+                            className="w-full h-full object-cover"
+                          />
+                        ) : (
+                          <span>{member.first_name[0]}{member.last_name[0]}</span>
+                        )}
                       </div>
                       <div>
                         <p className="font-medium text-gray-900 dark:text-white">
