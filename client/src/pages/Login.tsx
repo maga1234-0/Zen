@@ -53,7 +53,18 @@ export const Login = () => {
       navigate('/dashboard');
     } catch (err: any) {
       console.error('Login error:', err);
-      setError(err.response?.data?.message || t('login.loginFailed'));
+      // Message d'erreur clair et spécifique
+      if (err.response?.status === 401) {
+        setError('Adresse e-mail ou mot de passe incorrect');
+      } else if (err.response?.data?.message) {
+        setError(err.response.data.message);
+      } else if (err.code === 'ECONNABORTED' || err.message?.includes('timeout')) {
+        setError('Connexion au serveur impossible. Veuillez réessayer.');
+      } else if (err.code === 'ERR_NETWORK') {
+        setError('Erreur réseau. Vérifiez votre connexion Internet.');
+      } else {
+        setError('Une erreur est survenue. Veuillez réessayer.');
+      }
     } finally {
       setLoading(false);
     }
