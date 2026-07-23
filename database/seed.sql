@@ -4,11 +4,12 @@
 INSERT INTO hotels (id, name, address, city, country, phone, email) VALUES
 ('550e8400-e29b-41d4-a716-446655440000', 'Grand Seafoam Hotel', '123 Ocean Drive', 'Miami', 'USA', '+1-305-555-0100', 'info@grandseafoam.com');
 
--- Insert users (password: 'password123' - hashed with bcrypt)
+-- Insert users (password: 'admin123' - hashed with bcrypt)
 -- First, delete existing users to avoid conflicts
-DELETE FROM users WHERE email IN ('admin@hotel.com', 'manager@hotel.com', 'reception@hotel.com');
+DELETE FROM users WHERE email IN ('aubinmaga@gmail.com', 'admin@hotel.com', 'manager@hotel.com', 'reception@hotel.com');
 
 INSERT INTO users (id, email, password_hash, first_name, last_name, phone, role) VALUES
+('660e8400-e29b-41d4-a716-446655440000', 'aubinmaga@gmail.com', '$2a$10$ePPOujJ2NGLiSV/MIO21wu4RUsLn/QRFdVznXPFXbgAt76fEGjvmK', 'Aubin', 'Maga', '+243-XXX-XXX-XXX', 'admin'),
 ('660e8400-e29b-41d4-a716-446655440001', 'admin@hotel.com', '$2a$10$ePPOujJ2NGLiSV/MIO21wu4RUsLn/QRFdVznXPFXbgAt76fEGjvmK', 'John', 'Admin', '+1-305-555-0101', 'admin'),
 ('660e8400-e29b-41d4-a716-446655440002', 'manager@hotel.com', '$2a$10$ePPOujJ2NGLiSV/MIO21wu4RUsLn/QRFdVznXPFXbgAt76fEGjvmK', 'Sarah', 'Manager', '+1-305-555-0102', 'manager'),
 ('660e8400-e29b-41d4-a716-446655440003', 'reception@hotel.com', '$2a$10$ePPOujJ2NGLiSV/MIO21wu4RUsLn/QRFdVznXPFXbgAt76fEGjvmK', 'Mike', 'Reception', '+1-305-555-0103', 'receptionist');
@@ -40,11 +41,11 @@ INSERT INTO guests (id, first_name, last_name, email, phone, id_type, id_number,
 -- Insert bookings
 INSERT INTO bookings (id, hotel_id, guest_id, room_id, check_in_date, check_out_date, number_of_guests, status, total_amount, created_by) VALUES
 ('990e8400-e29b-41d4-a716-446655440001', '550e8400-e29b-41d4-a716-446655440000', '880e8400-e29b-41d4-a716-446655440001', 
- (SELECT id FROM rooms WHERE room_number = '102'), '2026-04-10', '2026-04-15', 1, 'checked_in', 449.95, '660e8400-e29b-41d4-a716-446655440003'),
+ (SELECT id FROM rooms WHERE room_number = '102'), '2026-04-10', '2026-04-15', 1, 'checked_in', 449.95, '660e8400-e29b-41d4-a716-446655440000'),
 ('990e8400-e29b-41d4-a716-446655440002', '550e8400-e29b-41d4-a716-446655440000', '880e8400-e29b-41d4-a716-446655440002', 
- (SELECT id FROM rooms WHERE room_number = '202'), '2026-04-12', '2026-04-14', 2, 'checked_in', 259.98, '660e8400-e29b-41d4-a716-446655440003'),
+ (SELECT id FROM rooms WHERE room_number = '202'), '2026-04-12', '2026-04-14', 2, 'checked_in', 259.98, '660e8400-e29b-41d4-a716-446655440000'),
 ('990e8400-e29b-41d4-a716-446655440003', '550e8400-e29b-41d4-a716-446655440000', '880e8400-e29b-41d4-a716-446655440003', 
- (SELECT id FROM rooms WHERE room_number = '301'), '2026-04-15', '2026-04-20', 2, 'confirmed', 1499.95, '660e8400-e29b-41d4-a716-446655440003');
+ (SELECT id FROM rooms WHERE room_number = '301'), '2026-04-15', '2026-04-20', 2, 'confirmed', 1499.95, '660e8400-e29b-41d4-a716-446655440000');
 
 -- Insert payments
 INSERT INTO payments (booking_id, amount, payment_method, payment_status, transaction_id) VALUES
@@ -53,6 +54,7 @@ INSERT INTO payments (booking_id, amount, payment_method, payment_status, transa
 
 -- Insert notifications
 INSERT INTO notifications (user_id, title, message, type) VALUES
-('660e8400-e29b-41d4-a716-446655440003', 'New Booking', 'New booking for Room 301 - Check-in: Apr 15', 'booking'),
+('660e8400-e29b-41d4-a716-446655440000', 'Bienvenue sur ZENITH PMS', 'Bienvenue Aubin! Votre compte administrateur a été créé avec succès.', 'system'),
+('660e8400-e29b-41d4-a716-446655440000', 'New Booking', 'New booking for Room 301 - Check-in: Apr 15', 'booking'),
 ('660e8400-e29b-41d4-a716-446655440002', 'Payment Received', 'Payment of $449.95 received for booking #001', 'payment'),
-('660e8400-e29b-41d4-a716-446655440003', 'Check-in Reminder', 'Guest Emma Wilson checking in today - Room 102', 'check_in');
+('660e8400-e29b-41d4-a716-446655440000', 'Check-in Reminder', 'Guest Emma Wilson checking in today - Room 102', 'check_in');

@@ -19,6 +19,7 @@ export const Login = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    e.stopPropagation(); // Extra guard to prevent event bubbling
     setError('');
     setLoading(true);
 
@@ -65,6 +66,7 @@ export const Login = () => {
       } else {
         setError('Une erreur est survenue. Veuillez réessayer.');
       }
+      // Important: Don't navigate on error - stay on login page
     } finally {
       setLoading(false);
     }
