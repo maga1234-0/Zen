@@ -77,9 +77,9 @@ export const Login = () => {
       {/* Animated Background Gradient */}
       <div className="absolute inset-0">
         {/* Base gradient */}
-        <div className="absolute inset-0 bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900"></div>
+        <div className="absolute inset-0 bg-gradient-to-br from-slate-900 via-slate-850 to-slate-900"></div>
         
-        {/* Animated blobs */}
+        {/* Animated blobs - Opacité réduite */}
         <motion.div
           animate={{
             scale: [1, 1.2, 1],
@@ -91,7 +91,7 @@ export const Login = () => {
             repeat: Infinity,
             ease: "easeInOut"
           }}
-          className="absolute top-0 left-0 w-96 h-96 bg-gradient-to-br from-seafoam-500/20 to-teal-500/20 rounded-full blur-3xl"
+          className="absolute top-0 left-0 w-96 h-96 bg-gradient-to-br from-slate-700/10 to-slate-600/10 rounded-full blur-3xl"
         />
         <motion.div
           animate={{
@@ -104,7 +104,7 @@ export const Login = () => {
             repeat: Infinity,
             ease: "easeInOut"
           }}
-          className="absolute bottom-0 right-0 w-96 h-96 bg-gradient-to-br from-gold-500/20 to-amber-500/20 rounded-full blur-3xl"
+          className="absolute bottom-0 right-0 w-96 h-96 bg-gradient-to-br from-slate-700/10 to-slate-600/10 rounded-full blur-3xl"
         />
         
         {/* Grid pattern overlay */}
@@ -123,9 +123,9 @@ export const Login = () => {
             {/* Logo */}
             <div className="flex items-center gap-3 mb-12">
               <div className="relative">
-                <div className="absolute inset-0 bg-gradient-to-br from-seafoam-400 to-teal-500 rounded-2xl blur-xl opacity-60"></div>
-                <div className="relative bg-gradient-to-br from-seafoam-400 to-teal-500 p-4 rounded-2xl">
-                  <Building2 className="w-8 h-8 text-white" />
+                <div className="absolute inset-0 bg-gradient-to-br from-slate-600/30 to-slate-500/30 rounded-2xl blur-xl"></div>
+                <div className="relative bg-gradient-to-br from-slate-700 to-slate-600 p-4 rounded-2xl">
+                  <Building2 className="w-8 h-8 text-slate-200" />
                 </div>
               </div>
               <div>
@@ -140,11 +140,11 @@ export const Login = () => {
                 <h2 className="text-5xl xl:text-6xl font-bold text-white leading-tight mb-6">
                   Bienvenue sur
                   <br />
-                  <span className="bg-gradient-to-r from-seafoam-400 via-teal-400 to-cyan-400 bg-clip-text text-transparent">
+                  <span className="text-slate-300">
                     ZENITH PMS
                   </span>
                 </h2>
-                <p className="text-lg text-slate-300 leading-relaxed max-w-md">
+                <p className="text-lg text-slate-400 leading-relaxed max-w-md">
                   Votre plateforme de gestion hôtelière moderne. Gérez vos réservations, chambres, staff et bien plus encore.
                 </p>
               </div>
@@ -163,8 +163,8 @@ export const Login = () => {
                     transition={{ delay: 0.3 + i * 0.1 }}
                     className="flex items-center gap-3 text-slate-300"
                   >
-                    <div className="w-10 h-10 rounded-lg bg-white/5 backdrop-blur-sm flex items-center justify-center">
-                      <feature.icon className="w-5 h-5 text-seafoam-400" />
+                    <div className="w-10 h-10 rounded-lg bg-slate-800/50 backdrop-blur-sm flex items-center justify-center border border-slate-700/50">
+                      <feature.icon className="w-5 h-5 text-slate-300" />
                     </div>
                     <span className="font-medium">{feature.text}</span>
                   </motion.div>
@@ -195,9 +195,9 @@ export const Login = () => {
             {/* Mobile Logo */}
             <div className="lg:hidden flex items-center justify-center gap-3 mb-8">
               <div className="relative">
-                <div className="absolute inset-0 bg-gradient-to-br from-seafoam-400 to-teal-500 rounded-2xl blur-xl opacity-60"></div>
-                <div className="relative bg-gradient-to-br from-seafoam-400 to-teal-500 p-3 rounded-2xl">
-                  <Building2 className="w-6 h-6 text-white" />
+                <div className="absolute inset-0 bg-slate-600/20 rounded-2xl blur-xl"></div>
+                <div className="relative bg-gradient-to-br from-slate-700 to-slate-600 p-3 rounded-2xl">
+                  <Building2 className="w-6 h-6 text-slate-200" />
                 </div>
               </div>
               <div>
@@ -207,7 +207,7 @@ export const Login = () => {
             </div>
 
             {/* Login Card */}
-            <div className="bg-white/5 backdrop-blur-xl rounded-3xl shadow-2xl border border-white/10 p-8 sm:p-10">
+            <div className="bg-slate-800/40 backdrop-blur-xl rounded-3xl shadow-2xl border border-slate-700/50 p-8 sm:p-10">
               <div className="mb-8">
                 <h2 className="text-3xl font-bold text-white mb-2">Connexion</h2>
                 <p className="text-slate-400">Entrez vos identifiants pour continuer</p>
@@ -223,8 +223,8 @@ export const Login = () => {
                     className="overflow-hidden"
                   >
                     <div className="bg-red-500/10 border border-red-500/20 rounded-xl p-4 flex items-start gap-3">
-                      <div className="w-1.5 h-1.5 bg-red-500 rounded-full mt-2 animate-pulse flex-shrink-0"></div>
-                      <p className="text-sm text-red-400 leading-relaxed">{error}</p>
+                      <div className="w-1.5 h-1.5 bg-red-400 rounded-full mt-2 animate-pulse flex-shrink-0"></div>
+                      <p className="text-sm text-red-300 leading-relaxed">{error}</p>
                     </div>
                   </motion.div>
                 )}
@@ -238,14 +238,14 @@ export const Login = () => {
                     Adresse e-mail
                   </label>
                   <div className="relative group">
-                    <div className="absolute inset-0 bg-gradient-to-r from-seafoam-500/20 to-teal-500/20 rounded-xl opacity-0 group-focus-within:opacity-100 transition-opacity blur-xl"></div>
+                    <div className="absolute inset-0 bg-slate-700/10 rounded-xl opacity-0 group-focus-within:opacity-100 transition-opacity blur"></div>
                     <div className="relative flex items-center">
-                      <Mail className="absolute left-4 w-5 h-5 text-slate-400 group-focus-within:text-seafoam-400 transition-colors" />
+                      <Mail className="absolute left-4 w-5 h-5 text-slate-500 group-focus-within:text-slate-300 transition-colors" />
                       <input
                         type="email"
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
-                        className="w-full pl-12 pr-4 py-3.5 bg-white/5 border border-white/10 rounded-xl focus:border-seafoam-400/50 focus:bg-white/10 outline-none transition-all text-white placeholder:text-slate-500"
+                        className="w-full pl-12 pr-4 py-3.5 bg-slate-800/50 border border-slate-700/50 rounded-xl focus:border-slate-600 focus:bg-slate-800/70 outline-none transition-all text-white placeholder:text-slate-500"
                         placeholder="admin@hotel.com"
                         required
                       />
@@ -259,21 +259,21 @@ export const Login = () => {
                     Mot de passe
                   </label>
                   <div className="relative group">
-                    <div className="absolute inset-0 bg-gradient-to-r from-seafoam-500/20 to-teal-500/20 rounded-xl opacity-0 group-focus-within:opacity-100 transition-opacity blur-xl"></div>
+                    <div className="absolute inset-0 bg-slate-700/10 rounded-xl opacity-0 group-focus-within:opacity-100 transition-opacity blur"></div>
                     <div className="relative flex items-center">
-                      <KeyRound className="absolute left-4 w-5 h-5 text-slate-400 group-focus-within:text-seafoam-400 transition-colors" />
+                      <KeyRound className="absolute left-4 w-5 h-5 text-slate-500 group-focus-within:text-slate-300 transition-colors" />
                       <input
                         type={showPassword ? 'text' : 'password'}
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
-                        className="w-full pl-12 pr-12 py-3.5 bg-white/5 border border-white/10 rounded-xl focus:border-seafoam-400/50 focus:bg-white/10 outline-none transition-all text-white placeholder:text-slate-500"
+                        className="w-full pl-12 pr-12 py-3.5 bg-slate-800/50 border border-slate-700/50 rounded-xl focus:border-slate-600 focus:bg-slate-800/70 outline-none transition-all text-white placeholder:text-slate-500"
                         placeholder="••••••••"
                         required
                       />
                       <button
                         type="button"
                         onClick={() => setShowPassword(!showPassword)}
-                        className="absolute right-4 text-slate-400 hover:text-seafoam-400 transition-colors"
+                        className="absolute right-4 text-slate-500 hover:text-slate-300 transition-colors"
                       >
                         {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                       </button>
@@ -286,7 +286,7 @@ export const Login = () => {
                   <button
                     type="button"
                     onClick={() => navigate('/forgot-password')}
-                    className="text-sm text-seafoam-400 hover:text-seafoam-300 font-medium transition-colors"
+                    className="text-sm text-slate-400 hover:text-slate-200 font-medium transition-colors"
                   >
                     Mot de passe oublié?
                   </button>
@@ -298,8 +298,8 @@ export const Login = () => {
                   disabled={loading}
                   className="relative w-full group"
                 >
-                  <div className="absolute inset-0 bg-gradient-to-r from-seafoam-400 via-teal-500 to-cyan-500 rounded-xl blur-lg opacity-75 group-hover:opacity-100 transition-opacity"></div>
-                  <div className="relative bg-gradient-to-r from-seafoam-400 via-teal-500 to-cyan-500 rounded-xl py-4 px-6 font-semibold text-white shadow-lg hover:shadow-2xl transition-all duration-300 flex items-center justify-center gap-2">
+                  <div className="absolute inset-0 bg-gradient-to-r from-slate-600 to-slate-700 rounded-xl blur opacity-50 group-hover:opacity-75 transition-opacity"></div>
+                  <div className="relative bg-gradient-to-r from-slate-700 to-slate-600 rounded-xl py-4 px-6 font-semibold text-white shadow-lg hover:shadow-xl hover:from-slate-600 hover:to-slate-500 transition-all duration-300 flex items-center justify-center gap-2">
                     {loading ? (
                       <>
                         <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
@@ -316,9 +316,9 @@ export const Login = () => {
               </form>
 
               {/* Security Badge */}
-              <div className="mt-8 pt-6 border-t border-white/10">
+              <div className="mt-8 pt-6 border-t border-slate-700/50">
                 <div className="flex items-center justify-center gap-2 text-sm text-slate-400">
-                  <Shield className="w-4 h-4 text-seafoam-400" />
+                  <Shield className="w-4 h-4 text-slate-400" />
                   <span>Connexion sécurisée SSL</span>
                 </div>
               </div>
