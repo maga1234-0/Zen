@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { 
   Sparkles, Calendar, Users, Package, ShoppingBag, 
-  TrendingUp, Plus, Search, Filter, Clock, DollarSign
+  TrendingUp, Plus, Search, Filter, Clock, DollarSign, Edit, Trash2
 } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
@@ -92,6 +92,8 @@ export default function Spa() {
   const [showTherapistModal, setShowTherapistModal] = useState(false);
   const [paymentModalOpen, setPaymentModalOpen] = useState(false);
   const [selectedBooking, setSelectedBooking] = useState<any>(null);
+  const [editingService, setEditingService] = useState<SpaService | null>(null);
+  const [editingTherapist, setEditingTherapist] = useState<Therapist | null>(null);
   const [backendError, setBackendError] = useState(false);
 
 
@@ -231,6 +233,42 @@ export default function Spa() {
     toast.success('Paiement enregistré avec succès!');
     setPaymentModalOpen(false);
     setSelectedBooking(null);
+  };
+
+  // Service handlers
+  const handleEditService = (service: SpaService) => {
+    setEditingService(service);
+    setShowServiceModal(true);
+  };
+
+  const handleDeleteService = async (serviceId: string, serviceName: string) => {
+    if (!confirm(`Êtes-vous sûr de vouloir supprimer le service "${serviceName}" ?`)) return;
+    
+    try {
+      await api.delete(`/spa/services/${serviceId}`);
+      toast.success('Service supprimé avec succès');
+      loadData();
+    } catch (error: any) {
+      toast.error(error.response?.data?.message || 'Erreur lors de la suppression');
+    }
+  };
+
+  // Therapist handlers
+  const handleEditTherapist = (therapist: Therapist) => {
+    setEditingTherapist(therapist);
+    setShowTherapistModal(true);
+  };
+
+  const handleDeleteTherapist = async (therapistId: string, therapistName: string) => {
+    if (!confirm(`Êtes-vous sûr de vouloir supprimer le thérapeute "${therapistName}" ?`)) return;
+    
+    try {
+      await api.delete(`/spa/therapists/${therapistId}`);
+      toast.success('Thérapeute supprimé avec succès');
+      loadData();
+    } catch (error: any) {
+      toast.error(error.response?.data?.message || 'Erreur lors de la suppression');
+    }
   };
 
   const filteredBookings = bookings.filter(booking => {
@@ -614,6 +652,24 @@ export default function Spa() {
                     {formatPrice(Number(service.price || 0))}
                   </div>
                 </div>
+                <div className="flex gap-2 mt-4">
+                  <Button
+                    size="sm"
+                    onClick={() => handleEditService(service)}
+                    className="flex-1 bg-blue-500 hover:bg-blue-600"
+                  >
+                    <Edit className="w-4 h-4 mr-1" />
+                    Modifier
+                  </Button>
+                  <Button
+                    size="sm"
+                    onClick={() => handleDeleteService(service.id, service.name)}
+                    className="flex-1 bg-red-500 hover:bg-red-600"
+                  >
+                    <Trash2 className="w-4 h-4 mr-1" />
+                    Supprimer
+                  </Button>
+                </div>
               </Card>
             ))}
           </div>
@@ -658,6 +714,24 @@ export default function Spa() {
                   }`}>
                     {therapist.is_active ? 'Actif' : 'Inactif'}
                   </span>
+                </div>
+                <div className="flex gap-2 mt-4">
+                  <Button
+                    size="sm"
+                    onClick={() => handleEditTherapist(therapist)}
+                    className="flex-1 bg-blue-500 hover:bg-blue-600"
+                  >
+                    <Edit className="w-4 h-4 mr-1" />
+                    Modifier
+                  </Button>
+                  <Button
+                    size="sm"
+                    onClick={() => handleDeleteTherapist(therapist.id, `${therapist.first_name} ${therapist.last_name}`)}
+                    className="flex-1 bg-red-500 hover:bg-red-600"
+                  >
+                    <Trash2 className="w-4 h-4 mr-1" />
+                    Supprimer
+                  </Button>
                 </div>
               </Card>
             ))}
@@ -754,16 +828,30 @@ export default function Spa() {
       {/* Service Modal */}
       {showServiceModal && (
         <CreateServiceModal
-          onClose={() => setShowServiceModal(false)}
-          onSuccess={loadData}
+          onClose={() => {
+            setShowServiceModal(false);
+            setEditingService(null);
+          }}
+          onSuccess={() => {
+            loadData();
+            setEditingService(null);
+          }}
+          editingService={editingService}
         />
       )}
 
       {/* Therapist Modal */}
       {showTherapistModal && (
         <CreateTherapistModal
-          onClose={() => setShowTherapistModal(false)}
-          onSuccess={loadData}
+          onClose={() => {
+            setShowTherapistModal(false);
+            setEditingTherapist(null);
+          }}
+          onSuccess={() => {
+            loadData();
+            setEditingTherapist(null);
+          }}
+          editingTherapist={editingTherapist}
         />
       )}
 

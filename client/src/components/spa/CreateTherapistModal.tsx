@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { X, User, Mail, Phone, Award } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import api from '@/services/api';
@@ -7,6 +7,7 @@ import { useToastContext } from '@/App';
 interface CreateTherapistModalProps {
   onClose: () => void;
   onSuccess: () => void;
+  editingTherapist?: any;
 }
 
 const specialtyOptions = [
@@ -24,7 +25,7 @@ const specialtyOptions = [
   'Sauna',
 ];
 
-export const CreateTherapistModal = ({ onClose, onSuccess }: CreateTherapistModalProps) => {
+export const CreateTherapistModal = ({ onClose, onSuccess, editingTherapist }: CreateTherapistModalProps) => {
   const toast = useToastContext();
   const [loading, setLoading] = useState(false);
 
@@ -37,6 +38,21 @@ export const CreateTherapistModal = ({ onClose, onSuccess }: CreateTherapistModa
     certifications: '',
     is_active: true,
   });
+
+  // Préremplir le formulaire si on édite
+  useEffect(() => {
+    if (editingTherapist) {
+      setFormData({
+        first_name: editingTherapist.first_name || '',
+        last_name: editingTherapist.last_name || '',
+        email: editingTherapist.email || '',
+        phone: editingTherapist.phone || '',
+        specialties: Array.isArray(editingTherapist.specialties) ? editingTherapist.specialties : [],
+        certifications: editingTherapist.certifications || '',
+        is_active: editingTherapist.is_active !== undefined ? editingTherapist.is_active : true,
+      });
+    }
+  }, [editingTherapist]);
 
   const toggleSpecialty = (specialty: string) => {
     if (formData.specialties.includes(specialty)) {
@@ -74,13 +90,21 @@ export const CreateTherapistModal = ({ onClose, onSuccess }: CreateTherapistModa
         certifications: formData.certifications || null,
       };
 
-      await api.post('/spa/therapists', therapistData);
-      toast.success('Thérapeute ajouté avec succès!');
+      if (editingTherapist) {
+        // Mode édition
+        await api.put(`/spa/therapists/${editingTherapist.id}`, therapistData);
+        toast.success('Thérapeute modifié avec succès!');
+      } else {
+        // Mode création
+        await api.post('/spa/therapists', therapistData);
+        toast.success('Thérapeute ajouté avec succès!');
+      }
+      
       onSuccess();
       onClose();
     } catch (error: any) {
-      console.error('Create therapist error:', error);
-      toast.error(error.response?.data?.message || 'Erreur lors de l\'ajout du thérapeute');
+      console.error('Save therapist error:', error);
+      toast.error(error.response?.data?.message || `Erreur lors de ${editingTherapist ? 'la modification' : 'l\'ajout'} du thérapeute`);
     } finally {
       setLoading(false);
     }
@@ -98,7 +122,7 @@ export const CreateTherapistModal = ({ onClose, onSuccess }: CreateTherapistModa
           <div className="flex items-center justify-between mb-6">
             <h2 className="text-2xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
               <User className="w-6 h-6 text-purple-500" />
-              Nouveau Thérapeute
+              {editingTherapist ? 'Modifier le Thérapeute' : 'Nouveau Thérapeute'}
             </h2>
             <button
               onClick={onClose}
@@ -284,7 +308,7 @@ export const CreateTherapistModal = ({ onClose, onSuccess }: CreateTherapistModa
                 disabled={loading}
                 className="bg-purple-500 hover:bg-purple-600"
               >
-                {loading ? 'Ajout...' : 'Ajouter le Thérapeute'}
+                {loading ? (editingTherapist ? 'Modification...' : 'Ajout...') : (editingTherapist ? 'Modifier le Thérapeute' : 'Ajouter le Thérapeute')}
               </Button>
             </div>
           </form>

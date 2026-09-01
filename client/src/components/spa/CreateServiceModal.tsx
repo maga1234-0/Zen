@@ -7,6 +7,7 @@ import { useToastContext } from '@/App';
 interface CreateServiceModalProps {
   onClose: () => void;
   onSuccess: () => void;
+  editingService?: any;
 }
 
 interface Category {
@@ -14,7 +15,7 @@ interface Category {
   name: string;
 }
 
-export const CreateServiceModal = ({ onClose, onSuccess }: CreateServiceModalProps) => {
+export const CreateServiceModal = ({ onClose, onSuccess, editingService }: CreateServiceModalProps) => {
   const toast = useToastContext();
   const [loading, setLoading] = useState(false);
   const [categories, setCategories] = useState<Category[]>([]);
@@ -31,7 +32,20 @@ export const CreateServiceModal = ({ onClose, onSuccess }: CreateServiceModalPro
 
   useEffect(() => {
     loadCategories();
-  }, []);
+    
+    // Si on édite, préremplir le formulaire
+    if (editingService) {
+      setFormData({
+        name: editingService.name || '',
+        name_fr: editingService.name_fr || '',
+        description: editingService.description || '',
+        category_id: editingService.category_id || '',
+        duration: editingService.duration?.toString() || '',
+        price: editingService.price?.toString() || '',
+        is_active: editingService.is_active !== undefined ? editingService.is_active : true,
+      });
+    }
+  }, [editingService]);
 
   const loadCategories = async () => {
     try {
@@ -66,13 +80,21 @@ export const CreateServiceModal = ({ onClose, onSuccess }: CreateServiceModalPro
         price: parseFloat(formData.price),
       };
 
-      await api.post('/spa/services', serviceData);
-      toast.success('Service créé avec succès!');
+      if (editingService) {
+        // Mode édition
+        await api.put(`/spa/services/${editingService.id}`, serviceData);
+        toast.success('Service modifié avec succès!');
+      } else {
+        // Mode création
+        await api.post('/spa/services', serviceData);
+        toast.success('Service créé avec succès!');
+      }
+      
       onSuccess();
       onClose();
     } catch (error: any) {
-      console.error('Create service error:', error);
-      toast.error(error.response?.data?.message || 'Erreur lors de la création du service');
+      console.error('Save service error:', error);
+      toast.error(error.response?.data?.message || `Erreur lors de ${editingService ? 'la modification' : 'la création'} du service`);
     } finally {
       setLoading(false);
     }
@@ -90,7 +112,7 @@ export const CreateServiceModal = ({ onClose, onSuccess }: CreateServiceModalPro
           <div className="flex items-center justify-between mb-6">
             <h2 className="text-2xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
               <Sparkles className="w-6 h-6 text-purple-500" />
-              Nouveau Service Spa
+              {editingService ? 'Modifier le Service' : 'Nouveau Service Spa'}
             </h2>
             <button
               onClick={onClose}
@@ -241,7 +263,7 @@ export const CreateServiceModal = ({ onClose, onSuccess }: CreateServiceModalPro
                 disabled={loading}
                 className="bg-purple-500 hover:bg-purple-600"
               >
-                {loading ? 'Création...' : 'Créer le Service'}
+                {loading ? (editingService ? 'Modification...' : 'Création...') : (editingService ? 'Modifier le Service' : 'Créer le Service')}
               </Button>
             </div>
           </form>
