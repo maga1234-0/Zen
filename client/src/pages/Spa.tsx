@@ -11,6 +11,7 @@ import api from '@/services/api';
 import { CreateBookingModal } from '@/components/spa/CreateBookingModal';
 import { CreateServiceModal } from '@/components/spa/CreateServiceModal';
 import { CreateTherapistModal } from '@/components/spa/CreateTherapistModal';
+import { PaymentModal } from '@/components/PaymentModal';
 import { useCurrencyFormat } from '@/utils/currency';
 
 interface SpaService {
@@ -89,6 +90,8 @@ export default function Spa() {
   const [showBookingModal, setShowBookingModal] = useState(false);
   const [showServiceModal, setShowServiceModal] = useState(false);
   const [showTherapistModal, setShowTherapistModal] = useState(false);
+  const [paymentModalOpen, setPaymentModalOpen] = useState(false);
+  const [selectedBooking, setSelectedBooking] = useState<any>(null);
   const [backendError, setBackendError] = useState(false);
 
 
@@ -215,6 +218,19 @@ export default function Spa() {
       no_show: 'Absent'
     };
     return labels[status] || status;
+  };
+
+  // Payment handlers
+  const handleOpenPayment = (booking: any) => {
+    setSelectedBooking(booking);
+    setPaymentModalOpen(true);
+  };
+
+  const handlePaymentSuccess = () => {
+    loadData(); // Recharger les données
+    toast.success('Paiement enregistré avec succès!');
+    setPaymentModalOpen(false);
+    setSelectedBooking(null);
   };
 
   const filteredBookings = bookings.filter(booking => {
@@ -485,6 +501,9 @@ export default function Spa() {
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-slate-400 uppercase tracking-wider">
                       Montant
                     </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-slate-400 uppercase tracking-wider">
+                      Actions
+                    </th>
                   </tr>
                 </thead>
                 <tbody className="bg-white dark:bg-slate-900 divide-y divide-gray-200 dark:divide-slate-700">
@@ -523,6 +542,22 @@ export default function Spa() {
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-white">
                           {formatPrice(Number(booking.total_amount || 0))}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm">
+                          {(booking as any).payment_status !== 'paid' && (
+                            <Button
+                              size="sm"
+                              onClick={() => handleOpenPayment(booking)}
+                              className="bg-green-600 hover:bg-green-700"
+                            >
+                              💰 Paiement
+                            </Button>
+                          )}
+                          {(booking as any).payment_status === 'paid' && (
+                            <span className="text-green-600 dark:text-green-400 font-medium">
+                              ✓ Payé
+                            </span>
+                          )}
                         </td>
                       </tr>
                     ))
@@ -729,6 +764,22 @@ export default function Spa() {
         <CreateTherapistModal
           onClose={() => setShowTherapistModal(false)}
           onSuccess={loadData}
+        />
+      )}
+
+      {/* Payment Modal */}
+      {selectedBooking && (
+        <PaymentModal
+          isOpen={paymentModalOpen}
+          onClose={() => {
+            setPaymentModalOpen(false);
+            setSelectedBooking(null);
+          }}
+          type="spa"
+          itemId={selectedBooking.id}
+          amount={selectedBooking.total_amount}
+          itemName={selectedBooking.booking_reference}
+          onSuccess={handlePaymentSuccess}
         />
       )}
     </div>

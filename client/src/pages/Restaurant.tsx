@@ -11,6 +11,7 @@ import { CreateTableModal } from '@/components/restaurant/CreateTableModal';
 import { CreateReservationModal } from '@/components/restaurant/CreateReservationModal';
 import EditReservationModal from '@/components/restaurant/EditReservationModal';
 import EditOrderModal from '@/components/restaurant/EditOrderModal';
+import { PaymentModal } from '@/components/PaymentModal';
 import api from '@/services/api';
 import { useToastContext } from '@/App';
 import { motion } from 'framer-motion';
@@ -381,6 +382,8 @@ export const Restaurant = () => {
   const [showTableModal, setShowTableModal] = useState(false);
   const [showReservationModal, setShowReservationModal] = useState(false);
   const [showEditOrderModal, setShowEditOrderModal] = useState(false);
+  const [paymentModalOpen, setPaymentModalOpen] = useState(false);
+  const [selectedOrder, setSelectedOrder] = useState<any>(null);
   const [editingMenuItem, setEditingMenuItem] = useState<MenuItem | null>(null);
   const [editingTable, setEditingTable] = useState<any>(null);
   const [editingReservation, setEditingReservation] = useState<any>(null);
@@ -891,6 +894,20 @@ export const Restaurant = () => {
     createOrderMutation.mutate(orderData);
   };
 
+  // Payment handlers
+  const handleOpenPayment = (order: any) => {
+    setSelectedOrder(order);
+    setPaymentModalOpen(true);
+  };
+
+  const handlePaymentSuccess = () => {
+    queryClient.invalidateQueries({ queryKey: ['restaurant-orders'] });
+    queryClient.invalidateQueries({ queryKey: ['restaurant-stats'] });
+    toast.success('Paiement enregistré avec succès!');
+    setPaymentModalOpen(false);
+    setSelectedOrder(null);
+  };
+
   // Table handlers
   const handleCreateTable = (data: any) => {
     if (editingTable) {
@@ -1165,6 +1182,17 @@ export const Restaurant = () => {
                           className="bg-gray-500 hover:bg-gray-600"
                         >
                           Terminer
+                        </Button>
+                      )}
+
+                      {/* Payment button */}
+                      {order.payment_status !== 'paid' && (order.status === 'completed' || order.status === 'ready' || order.status === 'served') && (
+                        <Button
+                          size="sm"
+                          onClick={() => handleOpenPayment(order)}
+                          className="bg-green-600 hover:bg-green-700"
+                        >
+                          💰 Enregistrer Paiement
                         </Button>
                       )}
 
@@ -1893,6 +1921,22 @@ export const Restaurant = () => {
           await updateOrderMutation.mutateAsync({ id: orderId, data });
         }}
       />
+
+      {/* Payment Modal */}
+      {selectedOrder && (
+        <PaymentModal
+          isOpen={paymentModalOpen}
+          onClose={() => {
+            setPaymentModalOpen(false);
+            setSelectedOrder(null);
+          }}
+          type="restaurant"
+          itemId={selectedOrder.id}
+          amount={selectedOrder.total_amount}
+          itemName={selectedOrder.order_number}
+          onSuccess={handlePaymentSuccess}
+        />
+      )}
     </div>
   );
 };
