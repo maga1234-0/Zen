@@ -42,6 +42,8 @@ export const CreateBookingModal = ({ onClose, onSuccess }: CreateBookingModalPro
   const toast = useToastContext();
   const [step, setStep] = useState(1);
   const [loading, setLoading] = useState(false);
+  const [dataLoading, setDataLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   // Data states
   const [services, setServices] = useState<Service[]>([]);
@@ -70,12 +72,14 @@ export const CreateBookingModal = ({ onClose, onSuccess }: CreateBookingModalPro
   }, []);
 
   const loadData = async () => {
+    setDataLoading(true);
+    setError(null);
     try {
       const [servicesRes, packagesRes, therapistsRes, bookingsRes] = await Promise.all([
-        api.get('/spa/services'),
-        api.get('/spa/packages'),
-        api.get('/spa/therapists'),
-        api.get('/bookings?status=checked_in'),
+        api.get('/spa/services').catch(() => ({ data: [] })),
+        api.get('/spa/packages').catch(() => ({ data: [] })),
+        api.get('/spa/therapists').catch(() => ({ data: [] })),
+        api.get('/bookings?status=checked_in').catch(() => ({ data: [] })),
       ]);
 
       setServices(servicesRes.data || []);
@@ -84,7 +88,10 @@ export const CreateBookingModal = ({ onClose, onSuccess }: CreateBookingModalPro
       setActiveBookings(bookingsRes.data || []);
     } catch (error) {
       console.error('Load data error:', error);
-      toast.error('Erreur lors du chargement des données');
+      setError('Erreur lors du chargement des données');
+      if (toast) toast.error('Erreur lors du chargement des données');
+    } finally {
+      setDataLoading(false);
     }
   };
 
@@ -122,23 +129,23 @@ export const CreateBookingModal = ({ onClose, onSuccess }: CreateBookingModalPro
   const handleSubmit = async () => {
     // Validation
     if (bookingType === 'service' && !selectedService) {
-      toast.error('Veuillez sélectionner un service');
+      if (toast) toast.error('Veuillez sélectionner un service');
       return;
     }
     if (bookingType === 'package' && !selectedPackage) {
-      toast.error('Veuillez sélectionner un forfait');
+      if (toast) toast.error('Veuillez sélectionner un forfait');
       return;
     }
     if (!bookingDate || !startTime) {
-      toast.error('Veuillez renseigner la date et l\'heure');
+      if (toast) toast.error('Veuillez renseigner la date et l\'heure');
       return;
     }
     if (!selectedTherapist) {
-      toast.error('Veuillez sélectionner un thérapeute');
+      if (toast) toast.error('Veuillez sélectionner un thérapeute');
       return;
     }
     if (!guestInfo.name || !guestInfo.phone) {
-      toast.error('Veuillez renseigner les informations du client');
+      if (toast) toast.error('Veuillez renseigner les informations du client');
       return;
     }
 
@@ -164,12 +171,12 @@ export const CreateBookingModal = ({ onClose, onSuccess }: CreateBookingModalPro
       };
 
       await api.post('/spa/bookings', bookingData);
-      toast.success('Réservation créée avec succès!');
+      if (toast) toast.success('Réservation créée avec succès!');
       onSuccess();
       onClose();
     } catch (error: any) {
       console.error('Create booking error:', error);
-      toast.error(error.response?.data?.message || 'Erreur lors de la création de la réservation');
+      if (toast) toast.error(error.response?.data?.message || 'Erreur lors de la création de la réservation');
     } finally {
       setLoading(false);
     }
@@ -177,11 +184,11 @@ export const CreateBookingModal = ({ onClose, onSuccess }: CreateBookingModalPro
 
   const nextStep = () => {
     if (step === 1 && !((bookingType === 'service' && selectedService) || (bookingType === 'package' && selectedPackage))) {
-      toast.error('Veuillez sélectionner un service ou forfait');
+      if (toast) toast.error('Veuillez sélectionner un service ou forfait');
       return;
     }
     if (step === 2 && (!bookingDate || !startTime || !selectedTherapist)) {
-      toast.error('Veuillez remplir tous les champs');
+      if (toast) toast.error('Veuillez remplir tous les champs');
       return;
     }
     setStep(step + 1);
@@ -237,6 +244,29 @@ export const CreateBookingModal = ({ onClose, onSuccess }: CreateBookingModalPro
             </div>
           </div>
 
+          {/* Loading State */}
+          {dataLoading && (
+            <div className="flex items-center justify-center py-12">
+              <div className="text-center">
+                <div className="w-16 h-16 border-4 border-purple-400 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+                <p className="text-gray-600 dark:text-slate-300">Chargement des données...</p>
+              </div>
+            </div>
+          )}
+
+          {/* Error State */}
+          {error && !dataLoading && (
+            <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-700 rounded-lg p-4 mb-4">
+              <p className="text-red-800 dark:text-red-300">{error}</p>
+              <Button onClick={loadData} className="mt-3 bg-red-600 hover:bg-red-700">
+                Réessayer
+              </Button>
+            </div>
+          )}
+
+          {/* Content - Only show if not loading */}
+          {!dataLoading && !error && (
+            <>
           {/* Step 1: Select Service/Package */}
           {step === 1 && (
             <div className="space-y-4">
@@ -528,6 +558,10 @@ export const CreateBookingModal = ({ onClose, onSuccess }: CreateBookingModalPro
                 </div>
               </div>
             </div>
+          )}
+
+          {/* End of content wrapper */}
+          </>
           )}
 
           {/* Footer Buttons */}
