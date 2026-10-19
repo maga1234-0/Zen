@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
-import { DollarSign, CreditCard, Banknote, Plus, X, Search, FileText, Printer, Download, Receipt } from 'lucide-react';
+import { DollarSign, CreditCard, Banknote, Plus, X, Search } from 'lucide-react';
 import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import api from '@/services/api';
@@ -9,18 +9,13 @@ import { useToastContext } from '@/App';
 import { useSettingsStore } from '@/store/settingsStore';
 import { useAuthStore } from '@/store/authStore';
 import { useCurrencyFormat } from '@/utils/currency';
-import { InvoiceModal } from '@/components/InvoiceModal';
 
 export const Payments = () => {
   const toast = useToastContext();
   const settingsStore = useSettingsStore();
   const { user } = useAuthStore();
   const { formatPrice } = useCurrencyFormat();
-  const [activeTab, setActiveTab] = useState<'payments' | 'invoices'>('payments');
   const [showPaymentModal, setShowPaymentModal] = useState(false);
-  const [showInvoiceModal, setShowInvoiceModal] = useState(false);
-  const [selectedInvoice, setSelectedInvoice] = useState<any>(null);
-  const [selectedInvoiceBookingId, setSelectedInvoiceBookingId] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [selectedBooking, setSelectedBooking] = useState<any>(null);
   const [searchTerm, setSearchTerm] = useState('');
@@ -36,15 +31,14 @@ export const Payments = () => {
       const res = await api.get('/payments');
       return res.data;
     },
-    refetchInterval: 30000, // Rafraîchir toutes les 30 secondes
-    refetchOnWindowFocus: true, // Rafraîchir quand la fenêtre reprend le focus
+    refetchInterval: 30000,
+    refetchOnWindowFocus: true,
   });
 
   // Fetch restaurant orders payments for restaurant cashier
   const { data: restaurantPayments, isLoading: restaurantPaymentsLoading } = useQuery({
     queryKey: ['restaurant-payments'],
     queryFn: async () => {
-      // Get all restaurant orders with payment info
       const res = await api.get('/restaurant/orders');
       return res.data.map((order: any) => ({
         id: order.id,
@@ -69,17 +63,6 @@ export const Payments = () => {
     queryKey: ['unpaid-bookings'],
     queryFn: async () => {
       const res = await api.get('/bookings/unpaid');
-      return res.data;
-    },
-    refetchInterval: 30000, // Rafraîchir toutes les 30 secondes
-    refetchOnWindowFocus: true, // Rafraîchir quand la fenêtre reprend le focus
-  });
-
-  // Fetch unpaid invoices (consolidated)
-  const { data: unpaidInvoices, isLoading: invoicesLoading, refetch: refetchInvoices } = useQuery({
-    queryKey: ['unpaid-invoices'],
-    queryFn: async () => {
-      const res = await api.get('/invoices/unpaid');
       return res.data;
     },
     refetchInterval: 30000,
@@ -114,14 +97,12 @@ export const Payments = () => {
     if (!payments) return [];
     
     return payments.filter((payment: any) => {
-      // Search filter
       const searchLower = searchTerm.toLowerCase();
       const matchesSearch = 
         payment.guest_name?.toLowerCase().includes(searchLower) ||
         payment.room_number?.toLowerCase().includes(searchLower) ||
         payment.transaction_id?.toLowerCase().includes(searchLower);
       
-      // Method filter
       const matchesMethod = filterMethod === 'all' || payment.payment_method === filterMethod;
       
       return matchesSearch && matchesMethod;
@@ -190,289 +171,110 @@ export const Payments = () => {
     }
   };
 
-  const handleViewInvoice = (payment: any) => {
-    setSelectedInvoice(payment);
-    setShowInvoiceModal(true);
-  };
-
-  const handleViewConsolidatedInvoice = (bookingId: string) => {
-    setSelectedInvoiceBookingId(bookingId);
-  };
-
-  const handleInvoicePaymentSuccess = () => {
-    toast.success('Paiement enregistré avec succès!');
-    refetchInvoices();
-    refetch();
-  };
-
-  const handlePrintInvoice = () => {
-    window.print();
-  };
-
-  const handleDownloadInvoice = () => {
-    toast.success('Invoice download started');
-  };
-
   return (
     <div className="p-6 space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold text-gray-800 dark:text-white">Paiements & Factures</h1>
-          <p className="text-gray-500 dark:text-slate-300">Gérer les paiements et factures consolidées</p>
+          <h1 className="text-3xl font-bold text-gray-800 dark:text-white">Paiements</h1>
+          <p className="text-gray-500 dark:text-slate-300">Gérer les paiements de l'hôtel</p>
         </div>
-        {activeTab === 'payments' && (
-          <Button 
-            onClick={() => setShowPaymentModal(true)}
-            className="bg-green-500 hover:bg-green-600"
-          >
-            <Plus className="w-4 h-4 mr-2" />
-            Process Payment
-          </Button>
-        )}
+        <Button 
+          onClick={() => setShowPaymentModal(true)}
+          className="bg-green-500 hover:bg-green-600"
+        >
+          <Plus className="w-4 h-4 mr-2" />
+          Process Payment
+        </Button>
       </div>
 
-      {/* Tabs */}
-      <div className="flex gap-2 border-b border-gray-200 dark:border-slate-700">
-        <button
-          onClick={() => setActiveTab('payments')}
-          className={`px-6 py-3 font-semibold transition-colors border-b-2 ${
-            activeTab === 'payments'
-              ? 'border-blue-600 text-blue-600 dark:text-blue-400'
-              : 'border-transparent text-gray-500 dark:text-slate-400 hover:text-gray-700 dark:hover:text-slate-300'
-          }`}
-        >
-          <CreditCard className="w-4 h-4 inline mr-2" />
-          Paiements
-        </button>
-        <button
-          onClick={() => setActiveTab('invoices')}
-          className={`px-6 py-3 font-semibold transition-colors border-b-2 ${
-            activeTab === 'invoices'
-              ? 'border-blue-600 text-blue-600 dark:text-blue-400'
-              : 'border-transparent text-gray-500 dark:text-slate-400 hover:text-gray-700 dark:hover:text-slate-300'
-          }`}
-        >
-          <Receipt className="w-4 h-4 inline mr-2" />
-          Factures Consolidées
-          {unpaidInvoices && unpaidInvoices.length > 0 && (
-            <span className="ml-2 bg-red-500 text-white text-xs px-2 py-1 rounded-full">
-              {unpaidInvoices.length}
-            </span>
-          )}
-        </button>
-      </div>
-
-      {/* Payments Tab */}
-      {activeTab === 'payments' && (
-        <Card>
-          <div className="flex gap-4 mb-6">
-            <div className="flex-1 relative">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
-              <input
-                type="text"
-                placeholder="Search by guest, room, or transaction ID..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full pl-10 pr-4 py-2 border dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-green-400 dark:bg-slate-700 dark:text-white"
-              />
-            </div>
-            
-            <select
-              value={filterMethod}
-              onChange={(e) => setFilterMethod(e.target.value)}
-              className="px-4 py-2 border dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-green-400 dark:bg-slate-700 dark:text-white"
-            >
-              <option value="all">All Methods</option>
-              <option value="cash">Cash</option>
-              <option value="card">Card</option>
-              <option value="bank_transfer">Bank Transfer</option>
-              <option value="mobile_payment">Mobile</option>
-            </select>
+      <Card>
+        <div className="flex gap-4 mb-6">
+          <div className="flex-1 relative">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+            <input
+              type="text"
+              placeholder="Search by guest, room, or transaction ID..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="w-full pl-10 pr-4 py-2 border dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-green-400 dark:bg-slate-700 dark:text-white"
+            />
           </div>
+          
+          <select
+            value={filterMethod}
+            onChange={(e) => setFilterMethod(e.target.value)}
+            className="px-4 py-2 border dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-green-400 dark:bg-slate-700 dark:text-white"
+          >
+            <option value="all">All Methods</option>
+            <option value="cash">Cash</option>
+            <option value="card">Card</option>
+            <option value="bank_transfer">Bank Transfer</option>
+            <option value="mobile_payment">Mobile</option>
+          </select>
+        </div>
 
-          {(isLoading || (user?.role === 'restaurant_cashier' && restaurantPaymentsLoading)) ? (
-            <div className="text-center py-12">
-              <div className="inline-block w-8 h-8 border-4 border-seafoam-400 border-t-transparent rounded-full animate-spin"></div>
-            </div>
-          ) : (
-            <div className="overflow-x-auto">
-              <table className="w-full">
-                <thead className="bg-gray-50 dark:bg-slate-700">
+        {(isLoading || (user?.role === 'restaurant_cashier' && restaurantPaymentsLoading)) ? (
+          <div className="text-center py-12">
+            <div className="inline-block w-8 h-8 border-4 border-seafoam-400 border-t-transparent rounded-full animate-spin"></div>
+          </div>
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="w-full">
+              <thead className="bg-gray-50 dark:bg-slate-700">
+                <tr>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-slate-200 uppercase">Guest</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-slate-200 uppercase">Room</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-slate-200 uppercase">Transaction ID</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-slate-200 uppercase">Method</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-slate-200 uppercase">Amount</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-slate-200 uppercase">Status</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-slate-200 uppercase">Date</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-gray-200 dark:divide-slate-700">
+                {filteredPayments.length === 0 ? (
                   <tr>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-slate-200 uppercase">Guest</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-slate-200 uppercase">Room</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-slate-200 uppercase">Transaction ID</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-slate-200 uppercase">Method</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-slate-200 uppercase">Amount</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-slate-200 uppercase">Status</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-slate-200 uppercase">Date</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-slate-200 uppercase">Actions</th>
+                    <td colSpan={7} className="px-6 py-12 text-center text-gray-500 dark:text-slate-400">
+                      No payments found matching your filters
+                    </td>
                   </tr>
-                </thead>
-                <tbody className="divide-y divide-gray-200 dark:divide-slate-700">
-                  {filteredPayments.length === 0 ? (
-                    <tr>
-                      <td colSpan={8} className="px-6 py-12 text-center text-gray-500 dark:text-slate-400">
-                        No payments found matching your filters
-                      </td>
-                    </tr>
-                  ) : (
-                    filteredPayments.map((payment: any) => (
-                    <tr key={payment.id} className="hover:bg-gray-50 dark:hover:bg-slate-700">
-                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-white">
-                        {payment.guest_name || 'N/A'}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-slate-300">
-                        {payment.room_number || 'N/A'}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm font-mono text-gray-900 dark:text-white">
-                        {payment.transaction_id}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="flex items-center gap-2 text-gray-600 dark:text-slate-300">
-                          {getPaymentMethodIcon(payment.payment_method)}
-                          <span className="capitalize text-sm">{payment.payment_method}</span>
-                        </div>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm font-semibold text-seafoam-600 dark:text-gold-400">
-                        {formatPrice(payment.amount)}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <span className={`text-xs px-2 py-1 rounded-full ${getStatusColor(payment.payment_status)}`}>
-                          {payment.payment_status}
-                        </span>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-slate-300">
-                        {new Date(payment.payment_date).toLocaleDateString()}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <Button
-                          onClick={() => handleViewInvoice(payment)}
-                          variant="secondary"
-                          className="text-xs py-1 px-3 dark:border-slate-600 dark:text-slate-200"
-                        >
-                          <FileText className="w-3 h-3 mr-1" />
-                          Invoice
-                        </Button>
-                      </td>
-                    </tr>
-                  ))
-                  )}
-                </tbody>
-              </table>
-            </div>
-          )}
-        </Card>
-      )}
-
-      {/* Invoices Tab - Consolidated Invoices */}
-      {activeTab === 'invoices' && (
-        <Card>
-          {invoicesLoading ? (
-            <div className="text-center py-12">
-              <div className="inline-block w-8 h-8 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
-              <p className="mt-4 text-gray-600 dark:text-slate-400">Chargement des factures...</p>
-            </div>
-          ) : unpaidInvoices && unpaidInvoices.length > 0 ? (
-            <div className="space-y-4">
-              <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-700 rounded-lg p-4">
-                <p className="text-sm text-blue-800 dark:text-blue-300">
-                  <strong>{unpaidInvoices.length}</strong> facture(s) avec solde impayé
-                </p>
-              </div>
-
-              <div className="overflow-x-auto">
-                <table className="w-full">
-                  <thead className="bg-gray-50 dark:bg-slate-700">
-                    <tr>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-slate-200 uppercase">Client</th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-slate-200 uppercase">Chambre</th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-slate-200 uppercase">Séjour</th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-slate-200 uppercase">Hébergement</th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-slate-200 uppercase">Restaurant</th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-slate-200 uppercase">Spa</th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-slate-200 uppercase">Total</th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-slate-200 uppercase">Solde</th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-slate-200 uppercase">Actions</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-gray-200 dark:divide-slate-700">
-                    {unpaidInvoices.map((invoice: any) => (
-                      <tr key={invoice.booking_id} className="hover:bg-gray-50 dark:hover:bg-slate-700">
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          <div className="text-sm font-medium text-gray-900 dark:text-white">
-                            {invoice.guest_name}
-                          </div>
-                          <div className="text-xs text-gray-500 dark:text-slate-400">
-                            {invoice.room_type}
-                          </div>
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm font-semibold text-blue-600 dark:text-blue-400">
-                          {invoice.room_number}
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          <div className="text-xs text-gray-600 dark:text-slate-400">
-                            <div>{new Date(invoice.check_in_date).toLocaleDateString('fr-FR')}</div>
-                            <div>{new Date(invoice.check_out_date).toLocaleDateString('fr-FR')}</div>
-                          </div>
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700 dark:text-slate-300">
-                          {formatPrice(invoice.charges.room)}
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm">
-                          {invoice.charges.restaurant > 0 ? (
-                            <span className="text-orange-600 dark:text-orange-400 font-medium">
-                              {formatPrice(invoice.charges.restaurant)}
-                            </span>
-                          ) : (
-                            <span className="text-gray-400">—</span>
-                          )}
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm">
-                          {invoice.charges.spa > 0 ? (
-                            <span className="text-purple-600 dark:text-purple-400 font-medium">
-                              {formatPrice(invoice.charges.spa)}
-                            </span>
-                          ) : (
-                            <span className="text-gray-400">—</span>
-                          )}
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm font-semibold text-gray-900 dark:text-white">
-                          {formatPrice(invoice.grand_total)}
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          <span className="text-sm font-bold text-red-600 dark:text-red-400">
-                            {formatPrice(invoice.balance)}
-                          </span>
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          <Button
-                            onClick={() => handleViewConsolidatedInvoice(invoice.booking_id)}
-                            className="text-xs py-1 px-3 bg-blue-600 hover:bg-blue-700"
-                          >
-                            <FileText className="w-3 h-3 mr-1" />
-                            Voir & Payer
-                          </Button>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          ) : (
-            <div className="text-center py-12">
-              <Receipt className="w-16 h-16 mx-auto text-gray-300 dark:text-slate-600 mb-4" />
-              <h3 className="text-lg font-semibold text-gray-700 dark:text-slate-300 mb-2">
-                Aucune facture impayée
-              </h3>
-              <p className="text-sm text-gray-500 dark:text-slate-400">
-                Toutes les factures sont réglées !
-              </p>
-            </div>
-          )}
-        </Card>
-      )}
+                ) : (
+                  filteredPayments.map((payment: any) => (
+                  <tr key={payment.id} className="hover:bg-gray-50 dark:hover:bg-slate-700">
+                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-white">
+                      {payment.guest_name || 'N/A'}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-slate-300">
+                      {payment.room_number || 'N/A'}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm font-mono text-gray-900 dark:text-white">
+                      {payment.transaction_id}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="flex items-center gap-2 text-gray-600 dark:text-slate-300">
+                        {getPaymentMethodIcon(payment.payment_method)}
+                        <span className="capitalize text-sm">{payment.payment_method}</span>
+                      </div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm font-semibold text-seafoam-600 dark:text-gold-400">
+                      {formatPrice(payment.amount)}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <span className={`text-xs px-2 py-1 rounded-full ${getStatusColor(payment.payment_status)}`}>
+                        {payment.payment_status}
+                      </span>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-slate-300">
+                      {new Date(payment.payment_date).toLocaleDateString()}
+                    </td>
+                  </tr>
+                ))
+                )}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </Card>
 
       {/* Process Payment Modal */}
       <AnimatePresence>
@@ -645,228 +447,6 @@ export const Payments = () => {
           </>
         )}
       </AnimatePresence>
-
-      {/* Invoice Modal */}
-      <AnimatePresence>
-        {showInvoiceModal && selectedInvoice && (
-          <>
-            {/* Backdrop */}
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              onClick={() => setShowInvoiceModal(false)}
-              className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50"
-            />
-
-            {/* Modal */}
-            <motion.div
-              initial={{ opacity: 0, scale: 0.95, y: 20 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.95, y: 20 }}
-              className="fixed inset-0 z-50 flex items-center justify-center p-4"
-            >
-              <div className="bg-white rounded-2xl shadow-2xl w-full max-w-3xl max-h-[90vh] overflow-y-auto border border-gray-200">
-                {/* Invoice Header */}
-                <div className="sticky top-0 bg-white border-b border-gray-200 p-6 flex items-center justify-between z-10">
-                  <h2 className="text-2xl font-bold text-gray-800 flex items-center gap-2">
-                    <FileText className="w-6 h-6 text-seafoam-500" />
-                    Invoice
-                  </h2>
-                  <div className="flex items-center gap-2">
-                    <Button
-                      onClick={handlePrintInvoice}
-                      variant="secondary"
-                      className="text-sm"
-                    >
-                      <Printer className="w-4 h-4 mr-2" />
-                      Print
-                    </Button>
-                    <Button
-                      onClick={handleDownloadInvoice}
-                      variant="secondary"
-                      className="text-sm"
-                    >
-                      <Download className="w-4 h-4 mr-2" />
-                      Download
-                    </Button>
-                    <button
-                      onClick={() => setShowInvoiceModal(false)}
-                      className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
-                    >
-                      <X className="w-5 h-5 text-gray-500" />
-                    </button>
-                  </div>
-                </div>
-
-                {/* Invoice Content */}
-                <div className="p-8 space-y-6 bg-white">
-                  {/* Hotel & Invoice Info */}
-                  <div className="flex justify-between items-start">
-                    <div>
-                      <h1 className="text-3xl font-bold text-seafoam-600 mb-2">
-                        {settingsStore.hotelName}
-                      </h1>
-                      <p className="text-sm text-gray-600">{settingsStore.hotelAddress}</p>
-                      <p className="text-sm text-gray-600">{settingsStore.hotelCity}</p>
-                      <p className="text-sm text-gray-600">Phone: {settingsStore.hotelPhone}</p>
-                      <p className="text-sm text-gray-600">Email: {settingsStore.hotelEmail}</p>
-                    </div>
-                    <div className="text-right">
-                      <div className="bg-seafoam-100 px-4 py-2 rounded-lg mb-2">
-                        <p className="text-xs text-gray-600">Invoice Number</p>
-                        <p className="text-lg font-bold text-seafoam-700">
-                          INV-{selectedInvoice.id.slice(0, 8).toUpperCase()}
-                        </p>
-                      </div>
-                      <p className="text-xs text-gray-600">Date Issued</p>
-                      <p className="text-sm font-semibold text-gray-800">
-                        {new Date(selectedInvoice.payment_date).toLocaleDateString('en-US', {
-                          year: 'numeric',
-                          month: 'long',
-                          day: 'numeric'
-                        })}
-                      </p>
-                    </div>
-                  </div>
-
-                  {/* Divider */}
-                  <div className="border-t-2 border-seafoam-200"></div>
-
-                  {/* Guest Information */}
-                  <div>
-                    <h3 className="text-sm font-semibold text-gray-500 uppercase mb-3">
-                      Bill To
-                    </h3>
-                    <div className="bg-gray-50 rounded-lg p-4">
-                      <p className="text-lg font-bold text-gray-800 mb-1">
-                        {selectedInvoice.guest_name}
-                      </p>
-                      <p className="text-sm text-gray-600">
-                        {selectedInvoice.guest_phone || 'Phone not available'}
-                      </p>
-                    </div>
-                  </div>
-
-                  {/* Booking Details */}
-                  <div>
-                    <h3 className="text-sm font-semibold text-gray-500 uppercase mb-3">
-                      Booking Details
-                    </h3>
-                    <div className="grid grid-cols-2 gap-4">
-                      <div className="bg-mint-50 rounded-lg p-4">
-                        <p className="text-xs text-gray-600 mb-1">Room Number</p>
-                        <p className="text-xl font-bold text-seafoam-600">
-                          {selectedInvoice.room_number}
-                        </p>
-                      </div>
-                      <div className="bg-mint-50 rounded-lg p-4">
-                        <p className="text-xs text-gray-600 mb-1">Booking ID</p>
-                        <p className="text-sm font-mono font-semibold text-gray-800">
-                          {selectedInvoice.booking_id?.slice(0, 13).toUpperCase()}
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Payment Details */}
-                  <div>
-                    <h3 className="text-sm font-semibold text-gray-500 uppercase mb-3">
-                      Payment Information
-                    </h3>
-                    <div className="bg-gray-50 rounded-lg p-4 space-y-3">
-                      <div className="flex justify-between items-center">
-                        <span className="text-sm text-gray-600">Payment Method</span>
-                        <div className="flex items-center gap-2">
-                          {getPaymentMethodIcon(selectedInvoice.payment_method)}
-                          <span className="font-semibold text-gray-800 capitalize">
-                            {selectedInvoice.payment_method}
-                          </span>
-                        </div>
-                      </div>
-                      <div className="flex justify-between items-center">
-                        <span className="text-sm text-gray-600">Transaction ID</span>
-                        <span className="font-mono text-sm font-semibold text-gray-800">
-                          {selectedInvoice.transaction_id}
-                        </span>
-                      </div>
-                      <div className="flex justify-between items-center">
-                        <span className="text-sm text-gray-600">Payment Status</span>
-                        <span className={`text-xs px-3 py-1 rounded-full font-semibold ${getStatusColor(selectedInvoice.payment_status)}`}>
-                          {selectedInvoice.payment_status.toUpperCase()}
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Amount Breakdown */}
-                  <div>
-                    <h3 className="text-sm font-semibold text-gray-500 uppercase mb-3">
-                      Amount Details
-                    </h3>
-                    <div className="bg-gray-50 rounded-lg p-4 space-y-2">
-                      <div className="flex justify-between items-center">
-                        <span className="text-sm text-gray-600">Subtotal</span>
-                        <span className="font-semibold text-gray-800">
-                          {formatPrice(selectedInvoice.amount)}
-                        </span>
-                      </div>
-                      <div className="flex justify-between items-center">
-                        <span className="text-sm text-gray-600">Tax (0%)</span>
-                        <span className="font-semibold text-gray-800">{formatPrice(0)}</span>
-                      </div>
-                      <div className="border-t border-gray-300 pt-2 mt-2">
-                        <div className="flex justify-between items-center">
-                          <span className="text-lg font-bold text-gray-800">Total Amount</span>
-                          <span className="text-2xl font-bold text-green-600">
-                            {formatPrice(selectedInvoice.amount)}
-                          </span>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Footer */}
-                  <div className="border-t-2 border-gray-200 pt-6 mt-6">
-                    {settingsStore.signature && (
-                      <div className="mb-6 flex flex-col items-center">
-                        <img 
-                          src={settingsStore.signature} 
-                          alt="Authorized Signature" 
-                          className="max-h-16 mb-2"
-                        />
-                        <div className="border-t border-gray-400 w-48 mb-1"></div>
-                        <p className="text-xs text-gray-600">Authorized Signature</p>
-                      </div>
-                    )}
-                    <div className="text-center space-y-2">
-                      <p className="text-sm font-semibold text-seafoam-600">
-                        Thank you for choosing {settingsStore.hotelName}!
-                      </p>
-                      <p className="text-xs text-gray-500">
-                        This is a computer-generated invoice and does not require a signature.
-                      </p>
-                      <p className="text-xs text-gray-500">
-                        For any queries, please contact us at {settingsStore.hotelEmail} or call {settingsStore.hotelPhone}
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </motion.div>
-          </>
-        )}
-      </AnimatePresence>
-
-      {/* Consolidated Invoice Modal */}
-      {selectedInvoiceBookingId && (
-        <InvoiceModal
-          isOpen={!!selectedInvoiceBookingId}
-          onClose={() => setSelectedInvoiceBookingId(null)}
-          bookingId={selectedInvoiceBookingId}
-          onPaymentSuccess={handleInvoicePaymentSuccess}
-        />
-      )}
     </div>
   );
 };
