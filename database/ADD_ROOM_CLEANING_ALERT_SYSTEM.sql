@@ -37,7 +37,7 @@ CREATE OR REPLACE VIEW dirty_rooms_overdue AS
 SELECT 
     r.id,
     r.room_number,
-    r.room_type,
+    rt.name as room_type,
     r.floor,
     r.status,
     r.status_changed_at,
@@ -48,6 +48,7 @@ SELECT
         ELSE 'NORMAL'
     END AS alert_level
 FROM rooms r
+LEFT JOIN room_types rt ON r.room_type_id = rt.id
 WHERE r.status IN ('dirty', 'cleaning')
     AND EXTRACT(EPOCH FROM (NOW() - r.status_changed_at))/3600 >= 1.5
 ORDER BY hours_since_dirty DESC;
