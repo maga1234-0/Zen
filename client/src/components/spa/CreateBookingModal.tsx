@@ -95,6 +95,40 @@ export const CreateBookingModal = ({ onClose, onSuccess }: CreateBookingModalPro
     }
   };
 
+  const getFilteredTherapists = () => {
+    if (bookingType === 'package' || !selectedService) {
+      return therapists;
+    }
+
+    const service = services.find(s => s.id === selectedService);
+    if (!service || !service.category_name) {
+      return therapists;
+    }
+
+    // Filter therapists by service category
+    const categoryKeywords: { [key: string]: string[] } = {
+      'Massages': ['massage', 'massothérapie', 'aromathérapie', 'réflexologie'],
+      'Soins du visage': ['facial', 'visage', 'soin', 'beauté', 'esthétique'],
+      'Soins du corps': ['corps', 'body', 'gommage', 'enveloppement'],
+      'Bien-être': ['yoga', 'méditation', 'wellness', 'bien-être', 'relaxation'],
+      'Beauté': ['beauté', 'beauty', 'manucure', 'pédicure', 'esthétique']
+    };
+
+    const keywords = categoryKeywords[service.category_name] || [];
+    
+    return therapists.filter(therapist => {
+      if (!therapist.specialties || therapist.specialties.length === 0) {
+        return true; // Show therapists without specialties
+      }
+      
+      return therapist.specialties.some((specialty: string) => 
+        keywords.some(keyword => 
+          specialty.toLowerCase().includes(keyword.toLowerCase())
+        )
+      );
+    });
+  };
+
   const calculateEndTime = () => {
     if (!startTime) return '';
 
@@ -152,22 +186,18 @@ export const CreateBookingModal = ({ onClose, onSuccess }: CreateBookingModalPro
     setLoading(true);
     try {
       const bookingData = {
-        treatment_id: bookingType === 'service' ? selectedService : null,
+        service_id: bookingType === 'service' ? selectedService : null,
         package_id: bookingType === 'package' ? selectedPackage : null,
-        guest_id: null, // À implémenter si nécessaire
-        booking_id: guestInfo.booking_id || null,
-        therapist_id: selectedTherapist,
-        booking_date: bookingDate,
-        start_time: startTime,
-        end_time: calculateEndTime(),
+        guest_id: null,
         guest_name: guestInfo.name,
         guest_email: guestInfo.email || null,
         guest_phone: guestInfo.phone,
-        notes: notes || null,
-        total_amount: calculateTotal(),
-        payment_method: paymentMethod,
-        payment_status: 'paid',
-        status: 'confirmed',
+        therapist_id: selectedTherapist,
+        treatment_room_id: null,
+        booking_date: bookingDate,
+        start_time: startTime,
+        end_time: calculateEndTime(),
+        special_requests: notes || null,
       };
 
       await api.post('/spa/bookings', bookingData);
@@ -403,7 +433,7 @@ export const CreateBookingModal = ({ onClose, onSuccess }: CreateBookingModalPro
                   Thérapeute
                 </label>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3 max-h-64 overflow-y-auto p-1">
-                  {therapists.map(therapist => (
+                  {getFilteredTherapists().map(therapist => (
                     <div
                       key={therapist.id}
                       className={`p-3 cursor-pointer transition-all rounded-lg border dark:border-slate-700 bg-white dark:bg-slate-800 ${
@@ -428,6 +458,11 @@ export const CreateBookingModal = ({ onClose, onSuccess }: CreateBookingModalPro
                       </div>
                     </div>
                   ))}
+                  {getFilteredTherapists().length === 0 && (
+                    <div className="col-span-2 text-center py-8 text-gray-500 dark:text-slate-400">
+                      Aucun thérapeute disponible pour ce service
+                    </div>
+                  )}
                 </div>
               </div>
             </div>
