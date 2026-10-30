@@ -1,6 +1,6 @@
 import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
-import { Bell, Lock, Globe, Palette, Edit3, Trash2 } from 'lucide-react';
+import { Bell, Globe, Palette, Edit3, Trash2 } from 'lucide-react';
 import { useState, useEffect, useRef } from 'react';
 import { useMutation } from '@tanstack/react-query';
 import { useAuthStore } from '@/store/authStore';
@@ -408,27 +408,6 @@ export const Settings = () => {
                 className="w-5 h-5 text-seafoam-500 rounded" 
               />
             </label>
-          </div>
-        </Card>
-
-        {/* Security */}
-        <Card>
-          <div className="flex items-center gap-3 mb-4">
-            <div className="p-2 bg-red-100 dark:bg-red-900 rounded-lg">
-              <Lock className="w-5 h-5 text-red-600 dark:text-red-400" />
-            </div>
-            <h2 className="text-xl font-semibold text-gray-800 dark:text-white">{t('settings.security')}</h2>
-          </div>
-          <div className="space-y-4">
-            <Button variant="secondary" className="w-full dark:border-slate-600 dark:text-slate-200">
-              {t('settings.changePassword')}
-            </Button>
-            <Button variant="secondary" className="w-full dark:border-slate-600 dark:text-slate-200">
-              {t('settings.twoFactor')}
-            </Button>
-            <Button variant="danger" className="w-full">
-              {t('settings.signOutAll')}
-            </Button>
           </div>
         </Card>
 
