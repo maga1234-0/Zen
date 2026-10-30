@@ -596,6 +596,30 @@ export const GuestInvoiceModal = ({
                   </p>
                 </div>
               )}
+
+              {/* Signature Section - Always visible on invoices */}
+              {settingsStore.signature && (
+                <div className="mt-8 pt-6 border-t-2 border-gray-200 dark:border-slate-700">
+                  <div className="flex justify-end">
+                    <div className="text-center">
+                      <p className="text-sm font-medium text-gray-600 dark:text-slate-400 mb-3">
+                        Signature Autorisée
+                      </p>
+                      <div className="border-2 border-gray-300 dark:border-slate-600 rounded-lg p-3 bg-white dark:bg-slate-900 inline-block">
+                        <img 
+                          src={settingsStore.signature} 
+                          alt="Signature" 
+                          className="h-16 w-auto"
+                          style={{ maxWidth: '200px' }}
+                        />
+                      </div>
+                      <p className="text-xs text-gray-500 dark:text-slate-500 mt-2">
+                        {settingsStore.hotelName}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              )}
             </>
           ) : null}
         </div>

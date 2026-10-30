@@ -524,14 +524,17 @@ export const Settings = () => {
       {/* Signature Drawing Modal */}
       {showSignaturePad && (
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-2xl w-full max-w-2xl p-6 border dark:border-slate-700">
-            <h2 className="text-xl font-bold text-gray-800 dark:text-white mb-4">{t('settings.drawYourSignature')}</h2>
+          <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-2xl w-full max-w-3xl p-6 border dark:border-slate-700">
+            <h2 className="text-xl font-bold text-gray-800 dark:text-white mb-2">{t('settings.drawYourSignature')}</h2>
+            <p className="text-sm text-gray-600 dark:text-slate-400 mb-4">
+              Dessinez votre signature dans la zone ci-dessous. Elle apparaîtra sur toutes vos factures.
+            </p>
             
-            <div className="border-2 border-gray-300 dark:border-slate-600 rounded-lg overflow-hidden mb-4">
+            <div className="border-2 border-gray-300 dark:border-slate-600 rounded-lg overflow-hidden mb-4 shadow-inner">
               <canvas
                 ref={canvasRef}
-                width={600}
-                height={200}
+                width={700}
+                height={250}
                 onMouseDown={startDrawing}
                 onMouseMove={draw}
                 onMouseUp={stopDrawing}
@@ -563,7 +566,7 @@ export const Settings = () => {
                 onClick={saveSignature}
                 className="flex-1 bg-seafoam-500 hover:bg-seafoam-600"
               >
-                {t('settings.saveSignature')}
+                ✓ {t('settings.saveSignature')}
               </Button>
             </div>
           </div>
