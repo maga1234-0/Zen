@@ -118,10 +118,10 @@ export const CreateBookingModal = ({ onClose, onSuccess }: CreateBookingModalPro
   const calculateTotal = () => {
     if (bookingType === 'service' && selectedService) {
       const service = services.find(s => s.id === selectedService);
-      return service?.price || 0;
+      return Number(service?.price || 0);
     } else if (bookingType === 'package' && selectedPackage) {
       const pkg = packages.find(p => p.id === selectedPackage);
-      return pkg?.package_price || 0;
+      return Number(pkg?.package_price || 0);
     }
     return 0;
   };
@@ -320,7 +320,7 @@ export const CreateBookingModal = ({ onClose, onSuccess }: CreateBookingModalPro
                           {service.duration} min
                         </span>
                         <span className="font-bold text-purple-600 dark:text-purple-400">
-                          {service.price.toFixed(2)}€
+                          {Number(service.price).toFixed(2)}€
                         </span>
                       </div>
                     </div>
@@ -350,7 +350,7 @@ export const CreateBookingModal = ({ onClose, onSuccess }: CreateBookingModalPro
                           {pkg.total_duration} min
                         </span>
                         <span className="font-bold text-purple-600 dark:text-purple-400">
-                          {pkg.package_price.toFixed(2)}€
+                          {Number(pkg.package_price).toFixed(2)}€
                         </span>
                       </div>
                     </div>
@@ -552,7 +552,7 @@ export const CreateBookingModal = ({ onClose, onSuccess }: CreateBookingModalPro
                   <div className="flex justify-between items-center">
                     <span className="text-lg font-semibold text-gray-900 dark:text-white">Total à payer</span>
                     <span className="text-2xl font-bold text-purple-600 dark:text-purple-400">
-                      {calculateTotal().toFixed(2)}€
+                      {Number(calculateTotal()).toFixed(2)}€
                     </span>
                   </div>
                 </div>
