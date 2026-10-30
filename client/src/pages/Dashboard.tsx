@@ -1,4 +1,4 @@
-import { useQuery } from '@tantml:parameter>
+import { useQuery } from '@tanstack/react-query';
 import { DollarSign, Calendar, TrendingUp, Home, Users, Bed, CheckCircle, Clock, AlertCircle, Sparkles } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { StatCard } from '@/components/dashboard/StatCard';
