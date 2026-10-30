@@ -248,6 +248,7 @@ Jour 3: Frontend + Tests       (6-8h)
 ### Q: C'est complexe?
 **R**: Non! Chaque étape est simple et guidée
 
+
 ### Q: Que faire si j'ai une erreur?
 **R**: Consulter la section "Problèmes Courants" du guide concerné
 

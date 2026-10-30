@@ -3,7 +3,7 @@ import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { Pool } from 'pg';
 
-// Create PostgreSQL connection pool (Vercel compatible)
+// Create PostgreSQL connection   (Vercel compatible)
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
   ssl: {

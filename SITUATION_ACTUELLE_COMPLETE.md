@@ -1,140 +1,291 @@
-# 📍 Situation Actuelle - Restaurant Module
+# 📊 SITUATION ACTUELLE COMPLÈTE
 
-## ✅ Ce qui a été fait (dernier déploiement)
-
-### 1. Correction Build Vercel
-**Problème**: Build échouait avec `Cannot find module '@headlessui/react'`
-
-**Solution**: 
-- Bump de la version du client (`1.0.0` → `1.0.1`) pour forcer Vercel à réinstaller les dépendances
-- Commit: `85afaaf - fix: bump client version to force Vercel cache refresh`
-- Push effectué: ✅ Déploiement Vercel en cours
-
-**Statut**: 🔄 En attente que Vercel finisse le build (2-3 minutes)
+**Date**: 3 septembre 2026  
+**Application**: ZENITH Hotel Management System
 
 ---
 
-## 🔴 Problème Actuel à Résoudre
+## ✅ CE QUI FONCTIONNE
 
-### Erreur 500 sur le Bouton "Commencer"
+### Application déployée
 
-**Symptômes**:
-```
-API Error: 500
-Object { message: "Server error" }
-```
+- ✅ **Frontend**: https://zen-lyart.vercel.app (Vercel)
+- ✅ **Backend**: https://zen-backend-jzjh.onrender.com (Render)
+- ✅ **Base de données**: PostgreSQL Supabase (connectée)
 
-**Cause**:
-La contrainte `restaurant_orders_status_check` dans la base de données n'accepte pas le statut `'preparing'`
+### Fonctionnalités opérationnelles
 
-**Solution**: Exécuter le script SQL
-- **Fichier**: `database/FIX_ORDER_STATUS_CONSTRAINT.sql`
-- **Instructions détaillées**: `EXECUTER_FIX_STATUS_SQL.md`
-
----
-
-## 📋 Étapes pour Résoudre le Problème
-
-### Étape 1: Attendre la Fin du Build Vercel ⏳
-1. Ouvrir https://vercel.com/dashboard
-2. Vérifier que le dernier déploiement (commit `85afaaf`) est terminé
-3. Statut attendu: ✅ "Ready"
-
-### Étape 2: Exécuter le Script SQL dans Supabase 🔧
-1. Ouvrir https://supabase.com
-2. Aller dans "SQL Editor"
-3. Copier le contenu de `database/FIX_ORDER_STATUS_CONSTRAINT.sql`
-4. Exécuter (Run)
-5. Vérifier le message: ✅ "Contrainte CHECK mise à jour"
-
-### Étape 3: Tester le Bouton "Commencer" ✅
-1. Ouvrir https://zen-lyart.vercel.app
-2. Se connecter avec un compte admin/manager/restaurant_manager/restaurant_chef
-3. Aller dans Restaurant > Commandes
-4. Cliquer sur "Commencer" pour une commande en attente
-5. Vérifier que le statut passe à "En préparation" ✅
+- ✅ **Dashboard** avec statistiques
+- ✅ **Gestion chambres** (rooms)
+- ✅ **Gestion réservations** (bookings)
+- ✅ **Gestion clients** (guests)
+- ✅ **Front Desk** (check-in/check-out)
+- ✅ **Housekeeping** (entretien chambres)
+- ✅ **Staff** (gestion employés)
+- ✅ **Restaurant** (commandes, menu, tables)
+- ✅ **Spa** (réservations, services, thérapeutes)
+- ✅ **Paiements** (2 onglets: Paiements + Factures Consolidées)
+- ✅ **Notifications** système
+- ✅ **Reports** (rapports)
+- ✅ **Settings** (paramètres)
+- ✅ **Profile** utilisateur
 
 ---
 
-## 📂 Fichiers Importants
+## ⚠️ PROBLÈMES IDENTIFIÉS (MINEURS)
 
-| Fichier | Description |
-|---------|-------------|
-| `database/FIX_ORDER_STATUS_CONSTRAINT.sql` | Script SQL à exécuter |
-| `EXECUTER_FIX_STATUS_SQL.md` | Instructions détaillées |
-| `database/DIAGNOSTIC_ORDER_STATUS.sql` | Diagnostic optionnel |
-| `client/src/pages/Restaurant.tsx` | Page Restaurant (déployée) |
-| `client/src/components/restaurant/EditReservationModal.tsx` | Modal réservation (déployée) |
-| `zen_backend/src/controllers/restaurantController.ts` | Contrôleur backend (déployé sur Render) |
+### 1. Table `email_logs` manquante
 
----
+**Impact**: Fonction "Mot de passe oublié" ne fonctionne pas complètement
 
-## 🔐 Permissions pour Mettre à Jour le Statut
+**Solution**: Créer la table via script SQL
+- **Fichier**: `database/CREATE_EMAIL_LOGS_TABLE.sql`
+- **Action**: Exécuter dans Supabase SQL Editor
+- **Durée**: 2 minutes
 
-### ✅ Peut changer le statut:
-- `admin`
-- `manager`
-- `restaurant_manager`
-- `restaurant_chef`
-
-### ❌ Ne peut PAS changer le statut:
-- `restaurant_server` (peut uniquement voir)
-- `restaurant_cashier` (peut uniquement voir)
-- `receptionist`
+**Note**: N'empêche pas l'utilisation de l'app (login direct fonctionne)
 
 ---
 
-## 🌊 Flow Complet d'une Commande
+### 2. Resend.com en mode test
 
-```
-1. pending (en attente)
-   ↓ [Chef clique "Commencer"]
-2. preparing (en préparation) ← ⚠️ Erreur 500 ICI
-   ↓ [Chef clique "Prête"]
-3. ready (prête)
-   ↓ [Serveur clique "Servie"]
-4. served (servie)
-   ↓ [Système ou Manager clique "Terminée"]
-5. completed (terminée)
-```
+**Impact**: Emails envoyés uniquement à `magaaubin3@gmail.com`
+
+**Solutions possibles**:
+- **Option A (temporaire)**: Accepter limitation mode test
+- **Option B (production)**: Vérifier un domaine sur Resend.com
+
+**Note**: Fonctionnalité email pas critique pour l'instant
 
 ---
 
-## 🎯 Prochaines Actions
+## 🚀 NOUVELLE FONCTIONNALITÉ PRÊTE
 
-1. ⏳ **Attendre** que Vercel finisse le build
-2. 🔧 **Exécuter** `database/FIX_ORDER_STATUS_CONSTRAINT.sql` dans Supabase
-3. ✅ **Tester** le bouton "Commencer"
-4. 🎉 **Confirmer** que tout fonctionne
+### Système de Facturation Consolidée par Client
 
----
+**Statut**: ✅ Développé localement, ⏳ À déployer
 
-## 📞 En Cas de Problème
+**Fichiers créés** (5 fichiers):
 
-Si l'erreur 500 persiste après avoir exécuté le SQL:
+**Backend** (3 fichiers):
+1. `zen_backend/src/controllers/guestInvoiceController.ts` (316 lignes)
+2. `zen_backend/src/routes/guestInvoiceRoutes.ts` (20 lignes)
+3. `zen_backend/src/routes/index.ts` (modifié, 2 lignes ajoutées)
 
-1. **Vérifier les logs backend Render**:
-   - https://dashboard.render.com
-   - Aller dans le service `zen-backend`
-   - Cliquer sur "Logs"
-   - Chercher l'erreur exacte
+**Frontend** (2 fichiers):
+1. `client/src/components/GuestInvoiceModal.tsx` (742 lignes)
+2. `client/src/pages/Payments.tsx` (modifié, 1055 lignes)
 
-2. **Vérifier les permissions de l'utilisateur**:
-   - Ouvrir la console du navigateur (F12)
-   - Chercher "canUpdateOrderStatus" dans les logs
-   - Vérifier que c'est `true`
+**Ce que ça fait**:
+- Nouvel onglet "Factures Par Client" dans Payments
+- Vue de TOUS les achats d'un client: Chambre + Restaurant + Spa
+- Paiement intégré dans le modal
+- Mise à jour automatique du solde
 
-3. **Vérifier la contrainte**:
-   ```sql
-   SELECT 
-       conname,
-       pg_get_constraintdef(oid)
-   FROM pg_constraint
-   WHERE conrelid = 'restaurant_orders'::regclass
-   AND conname = 'restaurant_orders_status_check';
-   ```
+**Temps de déploiement**: 15 minutes
 
 ---
 
-**Dernière mise à jour**: Maintenant  
-**Prochain déploiement estimé**: Vercel (2-3 min), Render (déjà déployé)
+## 📋 ACTIONS À FAIRE
+
+### Action Prioritaire 1: Créer table email_logs (Optionnel mais recommandé)
+
+**Pourquoi**: Corriger l'erreur "relation email_logs does not exist"
+
+**Comment**:
+1. Ouvrir: https://supabase.com/dashboard
+2. SQL Editor → Copier/Coller: `database/CREATE_EMAIL_LOGS_TABLE.sql`
+3. RUN → Vérifier succès
+
+**Durée**: 2 minutes
+
+**Guide**: `FIX_EMAIL_LOGS_PUIS_DEPLOYER.md`
+
+---
+
+### Action Prioritaire 2: Déployer Système Facturation Client (Principal)
+
+**Pourquoi**: Ajouter fonctionnalité facturation consolidée
+
+**Comment**:
+1. Choisir un guide:
+   - Rapide: `DEPLOYER_EN_3_ETAPES.md`
+   - Visuel: `GUIDE_VISUEL_SIMPLE.md`
+   - Détaillé: `DEPLOIEMENT_ETAPE_PAR_ETAPE.md`
+2. Ouvrir: https://github.dev/maga1234-0/zen_backend-
+3. Suivre instructions du guide
+
+**Durée**: 15 minutes
+
+**Guides disponibles**: 13 guides créés
+
+---
+
+## 🔗 LIENS IMPORTANTS
+
+### Dashboards
+
+- **Supabase**: https://supabase.com/dashboard
+- **Render**: https://dashboard.render.com
+- **Vercel**: https://vercel.com/dashboard
+
+### GitHub
+
+- **Backend**: https://github.com/maga1234-0/zen_backend-
+- **Frontend**: https://github.com/maga1234-0/Zen
+- **Web Editor Backend**: https://github.dev/maga1234-0/zen_backend-
+- **Web Editor Frontend**: https://github.dev/maga1234-0/Zen
+
+### Application
+
+- **URL**: https://zen-lyart.vercel.app
+- **Login**: aubinmaga@gmail.com / admin123
+- **API**: https://zen-backend-jzjh.onrender.com
+
+---
+
+## 📚 DOCUMENTATION DISPONIBLE
+
+### Guides de déploiement (13 fichiers)
+
+**Principaux**:
+1. `LIRE_MOI_EN_PREMIER.md` - Point de départ
+2. `COMMENCER_ICI_MAINTENANT.md` - Choix des parcours
+3. `DEPLOYER_EN_3_ETAPES.md` - Guide ultra-rapide ⭐
+4. `GUIDE_VISUEL_SIMPLE.md` - Avec schémas ⭐
+5. `DEPLOIEMENT_ETAPE_PAR_ETAPE.md` - Guide complet ⭐
+
+**Complémentaires**:
+6. `ACTIONS_A_FAIRE.md` - 16 actions numérotées
+7. `START_DEPLOY.md` - Guide minimal expert
+8. `INSTRUCTIONS_DEPLOIEMENT_IMMEDIATE.md` - Avec dépannage
+9. `INDEX_DEPLOIEMENT_COMPLET.md` - Index navigation
+10. `TOUS_LES_GUIDES_DEPLOIEMENT.md` - Comparaison guides
+
+**Informatifs**:
+11. `README_DEPLOIEMENT.md` - Vue d'ensemble
+12. `ETAT_ACTUEL_ET_PROCHAINE_ETAPE.md` - Situation
+13. `RESUME_COMPLET_DEPLOIEMENT.md` - Résumé technique
+
+### Guides de correction
+
+- `FIX_EMAIL_LOGS_PUIS_DEPLOYER.md` - Fix + Déploiement ⭐ NOUVEAU
+- `CREATE_EMAIL_LOGS_TABLE.sql` - Script SQL ⭐ NOUVEAU
+
+---
+
+## 🎯 PROCHAINES ÉTAPES RECOMMANDÉES
+
+### Court terme (Aujourd'hui)
+
+1. ✅ **Créer table email_logs** (2 min)
+   - Guide: `FIX_EMAIL_LOGS_PUIS_DEPLOYER.md` → Étape 1
+   - Script: `database/CREATE_EMAIL_LOGS_TABLE.sql`
+
+2. 🚀 **Déployer facturation client** (15 min)
+   - Guide: `DEPLOYER_EN_3_ETAPES.md` (recommandé)
+   - URL: https://github.dev/maga1234-0/zen_backend-
+
+3. ✅ **Tester nouvel onglet**
+   - Login: https://zen-lyart.vercel.app
+   - Payments → "Factures Par Client"
+
+---
+
+### Moyen terme (Cette semaine)
+
+1. **Configurer Resend production** (Optionnel)
+   - Acheter domaine
+   - Vérifier sur Resend.com
+   - Mettre à jour `RESEND_FROM_EMAIL`
+
+2. **Tester toutes les fonctionnalités**
+   - Créer quelques réservations test
+   - Tester commandes restaurant
+   - Tester réservations spa
+   - Vérifier facturation consolidée
+
+3. **Former les utilisateurs**
+   - Créer comptes staff
+   - Expliquer nouvelle fonctionnalité facturation
+   - Documenter processus
+
+---
+
+## 📊 STATISTIQUES PROJET
+
+### Code développé
+
+- **Backend**: 15+ controllers, 15+ routes
+- **Frontend**: 20+ pages, 30+ components
+- **Base de données**: 25+ tables
+- **Documentation**: 30+ fichiers guides
+
+### Technologies utilisées
+
+**Backend**:
+- Node.js + Express
+- TypeScript
+- PostgreSQL (Supabase)
+- Resend (emails)
+
+**Frontend**:
+- React 18
+- TypeScript
+- TanStack Query
+- Tailwind CSS
+- Framer Motion
+
+**Déploiement**:
+- Frontend: Vercel
+- Backend: Render
+- Database: Supabase
+
+---
+
+## ✅ CHECKLIST SITUATION
+
+### Infrastructure
+- [x] Frontend déployé (Vercel)
+- [x] Backend déployé (Render)
+- [x] Base de données connectée (Supabase)
+- [x] Auto-deploy configuré (GitHub → Render/Vercel)
+
+### Fonctionnalités principales
+- [x] Gestion réservations
+- [x] Gestion chambres
+- [x] Check-in/Check-out
+- [x] Housekeeping
+- [x] Restaurant complet
+- [x] Spa complet
+- [x] Paiements (2 onglets)
+- [ ] Facturation consolidée (à déployer)
+
+### Configuration
+- [x] Variables d'environnement Render
+- [x] Variables d'environnement Vercel
+- [ ] Table email_logs (à créer)
+- [x] Admin créé (aubinmaga@gmail.com)
+
+### Documentation
+- [x] 13 guides de déploiement
+- [x] Scripts SQL préparés
+- [x] Architecture documentée
+- [x] API documentée
+
+---
+
+## 🎉 PRÊT À CONTINUER
+
+**Fichier à ouvrir maintenant**: `FIX_EMAIL_LOGS_PUIS_DEPLOYER.md`
+
+**Ou directement**: `DEPLOYER_EN_3_ETAPES.md`
+
+**Premier lien**: https://github.dev/maga1234-0/zen_backend-
+
+---
+
+**Application ZENITH - Prête à évoluer ! 🚀**
+
+*Situation mise à jour le 3 septembre 2026*  
+*Système de facturation consolidée prêt à déployer*
