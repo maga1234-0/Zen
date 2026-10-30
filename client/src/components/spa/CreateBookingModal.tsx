@@ -82,14 +82,14 @@ export const CreateBookingModal = ({ onClose, onSuccess }: CreateBookingModalPro
         api.get('/bookings?status=checked_in').catch(() => ({ data: [] })),
       ]);
 
-      setServices(servicesRes.data || []);
-      setPackages(packagesRes.data || []);
-      setTherapists(therapistsRes.data || []);
-      setActiveBookings(bookingsRes.data || []);
+      setServices(Array.isArray(servicesRes.data) ? servicesRes.data : []);
+      setPackages(Array.isArray(packagesRes.data) ? packagesRes.data : []);
+      setTherapists(Array.isArray(therapistsRes.data) ? therapistsRes.data : []);
+      setActiveBookings(Array.isArray(bookingsRes.data) ? bookingsRes.data : []);
     } catch (error) {
       console.error('Load data error:', error);
       setError('Erreur lors du chargement des données');
-      if (toast) toast.error('Erreur lors du chargement des données');
+      toast?.error('Erreur lors du chargement des données');
     } finally {
       setDataLoading(false);
     }
@@ -129,23 +129,23 @@ export const CreateBookingModal = ({ onClose, onSuccess }: CreateBookingModalPro
   const handleSubmit = async () => {
     // Validation
     if (bookingType === 'service' && !selectedService) {
-      if (toast) toast.error('Veuillez sélectionner un service');
+      toast?.error('Veuillez sélectionner un service');
       return;
     }
     if (bookingType === 'package' && !selectedPackage) {
-      if (toast) toast.error('Veuillez sélectionner un forfait');
+      toast?.error('Veuillez sélectionner un forfait');
       return;
     }
     if (!bookingDate || !startTime) {
-      if (toast) toast.error('Veuillez renseigner la date et l\'heure');
+      toast?.error('Veuillez renseigner la date et l\'heure');
       return;
     }
     if (!selectedTherapist) {
-      if (toast) toast.error('Veuillez sélectionner un thérapeute');
+      toast?.error('Veuillez sélectionner un thérapeute');
       return;
     }
     if (!guestInfo.name || !guestInfo.phone) {
-      if (toast) toast.error('Veuillez renseigner les informations du client');
+      toast?.error('Veuillez renseigner les informations du client');
       return;
     }
 
@@ -171,12 +171,12 @@ export const CreateBookingModal = ({ onClose, onSuccess }: CreateBookingModalPro
       };
 
       await api.post('/spa/bookings', bookingData);
-      if (toast) toast.success('Réservation créée avec succès!');
+      toast?.success('Réservation créée avec succès!');
       onSuccess();
       onClose();
     } catch (error: any) {
       console.error('Create booking error:', error);
-      if (toast) toast.error(error.response?.data?.message || 'Erreur lors de la création de la réservation');
+      toast?.error(error.response?.data?.message || 'Erreur lors de la création de la réservation');
     } finally {
       setLoading(false);
     }
@@ -184,11 +184,11 @@ export const CreateBookingModal = ({ onClose, onSuccess }: CreateBookingModalPro
 
   const nextStep = () => {
     if (step === 1 && !((bookingType === 'service' && selectedService) || (bookingType === 'package' && selectedPackage))) {
-      if (toast) toast.error('Veuillez sélectionner un service ou forfait');
+      toast?.error('Veuillez sélectionner un service ou forfait');
       return;
     }
     if (step === 2 && (!bookingDate || !startTime || !selectedTherapist)) {
-      if (toast) toast.error('Veuillez remplir tous les champs');
+      toast?.error('Veuillez remplir tous les champs');
       return;
     }
     setStep(step + 1);
